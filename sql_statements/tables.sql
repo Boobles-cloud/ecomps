@@ -116,7 +116,7 @@ CREATE TABLE Product(
 );
 
 -- If a Product is storred in multiple warehouses
-CREATE TABLE ProductWareHouses(
+CREATE TABLE ProductWarehouses(
     ProdWareId int unsigned NOT NULL AUTO_INCREMENT PRIMARY KEY,
     Amount int unsigned NOT NULL,
     ProductId int unsigned NOT NULL,
