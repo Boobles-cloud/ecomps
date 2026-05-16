@@ -1,0 +1,34 @@
+services:
+  # boobles-frontend:
+  #   build: "/boobles_frontend/."
+  #   ports:
+  #     - "8080:8080"
+
+  boobles-backend:
+    build: "/boobles_backend/."
+    command: "[/boobles_backend]"
+    depends_on:
+      boobles-db:
+        condition: service_healthy
+    environment:
+      JWT-Secret: ""
+      Database-Conn: "boobles_backend:YOUR-PW-HERE@tcp(boobles-db:3306)/Boobles?parseTime=true"
+    ports:
+      - "8080:8080"
+    links:
+      - "boobles-db"
+
+  boobles-db:
+    image: mariadb:latest
+    environment:
+      MYSQT_ROOT_PASSWORD: "YOUR-SUPER-SECRET-PW-HERE" # CHANGE THIS IF PRODUCTION!!!
+      MYSQL_DATABASE: "Boobles" # DO NOT change this!
+      MYSQL_USER: "boobles_backend"
+      MYSQL_PASSWORD: "YOUR-PW-HERE" # Change this if production! Note that you have to change the connection string
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    ports:
+      - "3306:3306"
