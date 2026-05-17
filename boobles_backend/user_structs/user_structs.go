@@ -1,5 +1,7 @@
 package userstructs
 
+import "boobles.cloud/backend/database"
+
 type UserStruct struct {
 	UserId        uint
 	UserName      string
@@ -18,5 +20,6 @@ func (u *UserStruct) CreateUserInDB() bool
 func (u *UserStruct) GetTenantByUser()
 
 // Returns all permissions a user has
-// TODO
-func (u *UserStruct) GetPermissionsByUser() []UserPermission
+func (u *UserStruct) GetPermissionsByUser() ([]UserPermission, bool) {
+	return database.QueryDatabase[UserPermission]("SELECT * FROM Permissions WHERE UserId = ?", []any{u.UserId})
+}
