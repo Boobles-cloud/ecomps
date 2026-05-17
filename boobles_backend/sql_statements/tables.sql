@@ -20,6 +20,16 @@ CREATE TABLE Users(
     FOREIGN KEY(TenantId) REFERENCES Tenant(TenantId)
 );
 
+-- To store all accesstokens for the users
+CREATE TABLE UserAccesstokens(
+    UserAccessId int unsigned NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    TokenVal varchar(250) NOT NULL,
+    TokenExpire DATETIME NOT NULL,
+    UserId int unsigned,
+
+    FOREIGN KEY(UserId) REFERENCES Users(UserId)
+);
+
 -- For all permissions a user can have
 -- Like Admin, etc.
 CREATE TABLE Permissions(
