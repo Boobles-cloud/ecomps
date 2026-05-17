@@ -13,10 +13,34 @@ type JWTClaimsStruct struct {
 	jwt.RegisteredClaims
 }
 
+// Checks if the token is expired.
+// If so it returns true.
+func (j *JWTClaimsStruct) IsExpired() bool {
+	currDate := time.Now()
+
+	if currDate.Equal(j.IssuedAt.Time) || j.IssuedAt.Time.After(currDate) {
+		return true
+	}
+
+	return false
+}
+
 // For getting the JWT from the database
 type JWTDatabaseStruct struct {
 	UserAccessId uint
 	TokenVal     string
 	TokenExpire  time.Time
 	UserId       uint
+}
+
+// Checks if the token is expired.
+// If so it returns true.
+func (j *JWTDatabaseStruct) IsExpired() bool {
+	currDate := time.Now()
+
+	if currDate.Equal(j.TokenExpire) || j.TokenExpire.After(currDate) {
+		return true
+	}
+
+	return false
 }
