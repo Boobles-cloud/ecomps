@@ -7,10 +7,12 @@ services:
   boobles-backend:
     build: "/boobles_backend/."
     command: "[/boobles_backend]"
+    restart: always
     depends_on:
       boobles-db:
         condition: service_healthy
     environment:
+      tables_path: "/boobles_backend/sql_statements/tables.sql"
       JWT-Secret: ""
       Database-Conn: "boobles_backend:YOUR-PW-HERE@tcp(boobles-db:3306)/Boobles?parseTime=true"
     ports:
@@ -20,6 +22,7 @@ services:
 
   boobles-db:
     image: mariadb:latest
+    restart: always
     environment:
       MYSQT_ROOT_PASSWORD: "YOUR-SUPER-SECRET-PW-HERE" # CHANGE THIS IF PRODUCTION!!!
       MYSQL_DATABASE: "Boobles" # DO NOT change this!
