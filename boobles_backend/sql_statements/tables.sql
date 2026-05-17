@@ -4,7 +4,7 @@ CREATE TABLE Versions(
     VersionAppName varchar(50),
     VersionAppNum varchar(50),
     VersionDatabaseName varchar(50),
-    VersionDatabaseNum int
+    VersionDatabaseNum varchar(50)
 );
 
 -- All users for a tenant
@@ -137,3 +137,7 @@ CREATE TABLE Warehouse(
 
     FOREIGN KEY(TenantId) REFERENCES Tenant(TenantId)
 );
+
+-- To set the default version
+-- TODO: Change version here, before releasing a new version!
+INSERT INTO Versions VALUES(DEFAULT, 'Alpha', '0.1', 'Alpha', '0.1');
