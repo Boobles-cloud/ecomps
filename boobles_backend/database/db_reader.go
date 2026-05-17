@@ -7,6 +7,7 @@ import (
 )
 
 func QueryDatabase[T any](query string, queryArgs []any) ([]T, bool) {
+
 	var results []T
 
 	// Creates our database connection
@@ -18,6 +19,7 @@ func QueryDatabase[T any](query string, queryArgs []any) ([]T, bool) {
 
 	defer db.Close()
 
+	// Executes our query
 	rows, err := db.Query(query, queryArgs...)
 
 	if err != nil {
@@ -28,6 +30,7 @@ func QueryDatabase[T any](query string, queryArgs []any) ([]T, bool) {
 	// Gets all columns
 	columns, _ := rows.Columns()
 
+	// Loops over all data
 	for rows.Next() {
 
 		var data T

@@ -12,7 +12,7 @@ type Result struct {
 // This func executes an sql query
 // NOTE:
 // Only use this for executing DELETE, UPDATE or INSERT commads!!
-// It returns an struct with the last Id and an bool to indicate success
+// It returns an struct with the last Id and an bool to indicate success.
 func ExecuteSQL(sqlQuery string, args []any) *Result {
 
 	db, ok := CreateDBConn()
@@ -37,6 +37,7 @@ func ExecuteSQL(sqlQuery string, args []any) *Result {
 		}
 	}
 
+	// Gets the last Id
 	Id, _ := queryResult.LastInsertId()
 
 	return &Result{
