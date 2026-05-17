@@ -15,6 +15,7 @@ CREATE TABLE Users(
     UserMail varchar(100) NOT NULL,
     UserTel varchar(50),
     UserHas2Fa bool,
+    UserHasTenant bool,
     TenantId int unsigned NOT NULL,
 
     FOREIGN KEY(TenantId) REFERENCES Tenant(TenantId)

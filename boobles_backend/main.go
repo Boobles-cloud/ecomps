@@ -7,6 +7,7 @@ import (
 	"os"
 
 	"boobles.cloud/backend/auth"
+	"boobles.cloud/backend/auth/handlers"
 	"boobles.cloud/backend/logging"
 	"boobles.cloud/backend/startup"
 )
@@ -28,6 +29,9 @@ func main() {
 	go auth.DeleteExpiredJWT(ctx)
 
 	muxRouter := http.NewServeMux()
+
+	muxRouter.HandleFunc("GET /authwall/login", handlers.HandleLogin)
+	muxRouter.HandleFunc("POST /authwall/register", handlers.HandleRegistration)
 
 	if err := http.ListenAndServe(":8080", muxRouter); err != nil {
 		logging.Log(logging.Error, err.Error())
