@@ -8,6 +8,6 @@ type DBUpdateStruct[T any] struct {
 }
 
 // TODO implement meee
-func (d *DBUpdateStruct[T]) Excecute() bool {
+func (d *DBUpdateStruct[T]) Execute() bool {
 	return false
 }
