@@ -9,7 +9,7 @@ import (
 	"boobles.cloud/backend/logging"
 )
 
-// TODO: implement database updating
+// TODO: implement database updating -> future update
 
 // Reads the included .sql file and excecute it, to setup all our tables
 func SetupTabels() bool {

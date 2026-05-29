@@ -14,9 +14,9 @@ const (
 	Information string = " [Information] "
 )
 
-// Creates a new log entry
-// needs a type and a message
-// pls only use the given constants from this package
+// Creates a new log entry.
+// Needs an error type and a message.
+// Use the constants above [Error], [Information]
 func Log(logType, logMsg string) {
 
 	file := getCurrLogFile()
