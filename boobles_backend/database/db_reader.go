@@ -6,6 +6,8 @@ import (
 	"boobles.cloud/backend/logging"
 )
 
+// TODO: Update meeee
+// TODO: Add description
 func QueryDatabase[T any](query string, queryArgs []any) ([]T, bool) {
 
 	var results []T

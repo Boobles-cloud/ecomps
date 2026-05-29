@@ -49,6 +49,6 @@ func (j *JWTDatabaseStruct) IsExpired() bool {
 // Inserts the given jwt into the database
 func (j *JWTDatabaseStruct) InsertIntoDB() bool {
 
-	result := database.ExecuteSQL("INSERT INTO UserAccesstokens() VALUES(DEFAULT, ?, ?, ?);", []any{j.TokenVal, j.TokenExpire, j.UserId})
+	result := database.ExecuteSQLStatement(database.UserAccessTokenContext, database.Insert, []any{j.TokenVal, j.TokenExpire, j.UserId})
 	return result.Ok
 }
