@@ -84,6 +84,19 @@ func createJWT(user userstructs.UserStruct) (string, bool) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	tokenSigned, err := token.SignedString([]byte(os.Getenv("JWT-Secret")))
 
+	// Insert our token into the database
+	tokenDB := authstructs.JWTDatabaseStruct{
+		UserAccessId: 0,
+		TokenVal:     tokenSigned,
+		TokenExpire:  time.Now().AddDate(0, 0, 3),
+		UserId:       user.UserId,
+	}
+
+	// Checking if ok
+	if !tokenDB.InsertIntoDB() {
+		return "", false
+	}
+
 	if err != nil {
 		logging.Log(logging.Error, err.Error())
 		return "", false

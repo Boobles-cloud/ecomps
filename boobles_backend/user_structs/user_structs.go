@@ -13,7 +13,21 @@ type UserStruct struct {
 	TenantId      uint
 }
 
-func (u *UserStruct) CreateUserInDB() bool
+// Creates a user in the database
+func (u *UserStruct) CreateUserInDB() (bool, uint) {
+
+	if result := database.ExecuteSQL("INSERT INTO Users() VALUES(DEFAULT, ?, ?, ?, ?, ?, ?, ?);", []any{u.UserName, u.UserPW, u.UserMail, u.UserTel, u.UserHas2FA, u.UserHasTenant, u.TenantId}); result.Ok {
+		return result.Ok, result.LastId
+	}
+	return false, 0
+}
+
+// Update a user in the database
+// TODO: is there a better way to do this?
+func (u *UserStruct) UpdateUserInDB() bool {
+	result := database.ExecuteSQL("UPDATE Users SET UserName = ?, UserPW = ?, UserMail = ?, UserTel = ?, UserHas2Fa = ?, UserHasTenant = ?, TenantId = ? WHERE UserId = ?", []any{u.UserName, u.UserPW, u.UserTel, u.UserHas2FA, u.UserHasTenant, u.TenantId, u.UserId})
+	return result.Ok
+}
 
 // Returns the tenant for the given user
 // TODO

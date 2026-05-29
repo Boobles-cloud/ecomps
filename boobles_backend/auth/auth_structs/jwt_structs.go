@@ -3,6 +3,7 @@ package authstructs
 import (
 	"time"
 
+	"boobles.cloud/backend/database"
 	"github.com/golang-jwt/jwt/v4"
 )
 
@@ -43,4 +44,11 @@ func (j *JWTDatabaseStruct) IsExpired() bool {
 	}
 
 	return false
+}
+
+// Inserts the given jwt into the database
+func (j *JWTDatabaseStruct) InsertIntoDB() bool {
+
+	result := database.ExecuteSQL("INSERT INTO UserAccesstokens() VALUES(DEFAULT, ?, ?, ?);", []any{j.TokenVal, j.TokenExpire, j.UserId})
+	return result.Ok
 }
