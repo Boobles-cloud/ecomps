@@ -22,7 +22,7 @@ type queryJsonStruct struct {
 }
 
 // Gets the wanted sql statement
-func selectWantedSqlStatement(statementType int, statementName string) (string, bool) {
+func getWantedSqlStatement(statementType int, statementName string) (string, bool) {
 	currDir, _ := os.Getwd()
 
 	wantedFolder := path.Join(currDir, "database_sql_statements")
@@ -48,6 +48,14 @@ func selectWantedSqlStatement(statementType int, statementName string) (string, 
 		return jsonStruct.QueryVal, true
 	case Select:
 		jsonStruct, ok := readJsonFile(path.Join(wantedFolder, "delete_querys.json"), statementName)
+
+		if !ok {
+			return "", false
+		}
+
+		return jsonStruct.QueryVal, true
+	case Update:
+		jsonStruct, ok := readJsonFile(path.Join(wantedFolder, "update_querys.json"), statementName)
 
 		if !ok {
 			return "", false

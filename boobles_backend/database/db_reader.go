@@ -23,7 +23,7 @@ func QueryDatabase[T any](queryName string, queryArgs []any) ([]T, bool) {
 	}
 
 	// Gets the wanted query
-	query, ok := selectWantedSqlStatement(Select, queryName)
+	query, ok := getWantedSqlStatement(Select, queryName)
 
 	if !ok {
 		return results, false

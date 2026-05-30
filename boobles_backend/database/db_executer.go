@@ -16,7 +16,7 @@ type Result struct {
 // It returns an struct with the last Id and an bool to indicate success.
 func ExecuteSQLStatement(statementName string, statementType int, args []any) *Result {
 
-	query, ok := selectWantedSqlStatement(statementType, statementName)
+	query, ok := getWantedSqlStatement(statementType, statementName)
 
 	if !ok {
 		return &Result{
