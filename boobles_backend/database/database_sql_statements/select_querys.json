@@ -1,0 +1,22 @@
+[
+  {
+    "QueryName": "SelectUserByUserNameAndPW",
+    "QueryVal": "SELECT * FROM Users WHERE UserName = ? AND UserPW = ?;",
+    "QueryType": 2
+  },
+  {
+    "QueryName": "SelectUserAccessTokenByValue",
+    "QueryVal": "SELECT * FROM UserAccesstokens WHERE TokenVal = ?;",
+    "QueryType": 2
+  },
+  {
+    "QueryName": "SelectAllToken",
+    "QueryVal": "SELECT * FROM UserAccessTokens;",
+    "QueryType": 2
+  },
+  {
+    "QueryName": "SelectPermissionsByUserId",
+    "QueryVal": "SELECT * FROM Permissions WHERE UserId = ?",
+    "QueryType": 2
+  }
+]

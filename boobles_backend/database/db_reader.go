@@ -6,7 +6,12 @@ import (
 	"boobles.cloud/backend/logging"
 )
 
-func QueryDatabase[T any](query string, queryArgs []any) ([]T, bool) {
+// Executes a query in the database and returns the result.
+// Wants:
+// - T -> struct
+// - queryName -> name defined in the json
+// - args -> any data you want to query after :)
+func QueryDatabase[T any](queryName string, queryArgs []any) ([]T, bool) {
 
 	var results []T
 
@@ -15,6 +20,13 @@ func QueryDatabase[T any](query string, queryArgs []any) ([]T, bool) {
 
 	if !ok {
 		return results, ok
+	}
+
+	// Gets the wanted query
+	query, ok := getWantedSqlStatement(Select, queryName)
+
+	if !ok {
+		return results, false
 	}
 
 	defer db.Close()

@@ -10,6 +10,7 @@ import (
 
 // Creates a connection to the database
 // Returns the connection and a bool to indicate success
+// Needs to be public, because other services use this :)
 func CreateDBConn() (*sql.DB, bool) {
 
 	db, err := sql.Open("mysql", os.Getenv("Database-Conn"))

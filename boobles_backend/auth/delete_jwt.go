@@ -22,7 +22,7 @@ deleteLoop:
 		case <-ctx.Done():
 			break deleteLoop
 		case <-timer.C:
-			allTokens, ok := database.QueryDatabase[authstructs.JWTDatabaseStruct]("SELECT * FROM UserAccessTokens;", []any{})
+			allTokens, ok := database.QueryDatabase[authstructs.JWTDatabaseStruct]("SelectAllToken", []any{})
 
 			if !ok {
 				timer.Reset(time.Hour * 24)
@@ -30,7 +30,7 @@ deleteLoop:
 
 			for i := range allTokens {
 				if allTokens[i].IsExpired() {
-					database.ExecuteSQL("DELETE FROM UserAccesstokens WHERE UserAccessId = ?;", []any{allTokens[i].UserAccessId})
+					database.ExecuteSQLStatement("DeleteUserAccestoken", database.Delete, []any{allTokens[i].UserAccessId})
 				}
 			}
 

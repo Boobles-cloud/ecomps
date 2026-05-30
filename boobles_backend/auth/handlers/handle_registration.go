@@ -10,6 +10,8 @@ import (
 	userstructs "boobles.cloud/backend/user_structs"
 )
 
+// TODO: implement func to check if user is already signed up!!!
+
 // Handels the registration of a user.
 // Sends back an access token.
 func HandleRegistration(w http.ResponseWriter, r *http.Request) {

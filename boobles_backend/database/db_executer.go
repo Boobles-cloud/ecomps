@@ -11,9 +11,19 @@ type Result struct {
 
 // This func executes an sql query
 // NOTE:
-// Only use this for executing DELETE, UPDATE or INSERT commads!!
+// Only use this for executing DELETE or INSERT commads!!
+// And only use the constants as statement contexts and types!
 // It returns an struct with the last Id and an bool to indicate success.
-func ExecuteSQL(sqlQuery string, args []any) *Result {
+func ExecuteSQLStatement(statementName string, statementType int, args []any) *Result {
+
+	query, ok := getWantedSqlStatement(statementType, statementName)
+
+	if !ok {
+		return &Result{
+			LastId: 0,
+			Ok:     ok,
+		}
+	}
 
 	db, ok := CreateDBConn()
 
@@ -27,7 +37,7 @@ func ExecuteSQL(sqlQuery string, args []any) *Result {
 	defer db.Close()
 
 	// Excecute the given command with all arguments
-	queryResult, err := db.Exec(sqlQuery, args...)
+	queryResult, err := db.Exec(query, args...)
 
 	if err != nil {
 		logging.Log(logging.Error, err.Error())

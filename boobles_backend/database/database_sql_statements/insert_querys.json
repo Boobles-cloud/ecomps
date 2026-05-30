@@ -1,0 +1,17 @@
+[
+  {
+    "QueryName": "InsertUserAccessToken",
+    "QueryVal": "INSERT INTO UserAccesstokens() VALUES(DEFAULT, ?, ?, ?);",
+    "QueryType": 0
+  },
+  {
+    "QueryName": "InsertUserPermission",
+    "QueryVal": "INSERT INTO Permissions() Values(DEFAULT, ?, ?, ?)",
+    "QueryType": 0
+  },
+  {
+    "QueryName": "InsertUser",
+    "QueryVal": "INSERT INTO Users() VALUES(DEFAULT, ?, ?, ?, ?, ?, ?, ?);",
+    "QueryType": 0
+  }
+]
