@@ -25,7 +25,7 @@ type queryJsonStruct struct {
 func selectWantedSqlStatement(statementType int, statementName string) (string, bool) {
 	currDir, _ := os.Getwd()
 
-	wantedFolder := path.Join(currDir, "sql_statements")
+	wantedFolder := path.Join(currDir, "database_sql_statements")
 
 	switch statementType {
 	case Insert:

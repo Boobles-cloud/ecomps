@@ -6,8 +6,11 @@ import (
 	"boobles.cloud/backend/logging"
 )
 
-// TODO: Update meeee
-// TODO: Add description
+// Executes a query in the database and returns the result.
+// Wants:
+// - T -> struct
+// - queryName -> name defined in the json
+// - args -> any data you want to query after :)
 func QueryDatabase[T any](queryName string, queryArgs []any) ([]T, bool) {
 
 	var results []T

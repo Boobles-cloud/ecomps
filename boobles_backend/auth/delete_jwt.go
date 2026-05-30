@@ -22,7 +22,7 @@ deleteLoop:
 		case <-ctx.Done():
 			break deleteLoop
 		case <-timer.C:
-			allTokens, ok := database.QueryDatabase[authstructs.JWTDatabaseStruct]("SELECT * FROM UserAccessTokens;", []any{})
+			allTokens, ok := database.QueryDatabase[authstructs.JWTDatabaseStruct]("SelectAllToken", []any{})
 
 			if !ok {
 				timer.Reset(time.Hour * 24)

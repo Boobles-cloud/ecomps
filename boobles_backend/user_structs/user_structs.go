@@ -35,5 +35,5 @@ func (u *UserStruct) GetTenantByUser()
 
 // Returns all permissions a user has
 func (u *UserStruct) GetPermissionsByUser() ([]UserPermission, bool) {
-	return database.QueryDatabase[UserPermission]("SELECT * FROM Permissions WHERE UserId = ?", []any{u.UserId})
+	return database.QueryDatabase[UserPermission]("SelectPermissionsByUserId", []any{u.UserId})
 }

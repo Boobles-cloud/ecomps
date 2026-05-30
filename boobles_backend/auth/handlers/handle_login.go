@@ -36,7 +36,7 @@ func HandleLogin(w http.ResponseWriter, r *http.Request) {
 
 	authSplitet := strings.Split(string(encodedAuthPWUser), ":")
 
-	userFromDB, ok := database.QueryDatabase[userstructs.UserStruct]("SELECT * FROM Users WHERE UserName = ? AND UserPW = ?;", []any{authSplitet[0], authSplitet[1]})
+	userFromDB, ok := database.QueryDatabase[userstructs.UserStruct]("SelectUserByUserNameAndPW", []any{authSplitet[0], authSplitet[1]})
 
 	if !ok {
 		w.WriteHeader(http.StatusUnauthorized)
