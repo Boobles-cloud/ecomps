@@ -7,7 +7,9 @@ import (
 	"boobles.cloud/backend/logging"
 )
 
-// TODO implement meee
+// For updating stuff in the database.
+// NOTE:
+// The names of the database tables must match the names of the struct fields!
 func UpdateDatabaseEntry[T any](queryName, filterValueName string, queryData T) bool {
 
 	// Gets our unfinished query from the json file
