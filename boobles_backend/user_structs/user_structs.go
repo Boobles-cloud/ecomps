@@ -24,10 +24,9 @@ func (u *UserStruct) CreateUserInDB() (bool, uint) {
 
 // Update a user in the database
 // TODO: Update this with the new update stuff
-// func (u *UserStruct) UpdateUserInDB() bool {
-// 	result := database.ExecuteSQL("UPDATE Users SET UserName = ?, UserPW = ?, UserMail = ?, UserTel = ?, UserHas2Fa = ?, UserHasTenant = ?, TenantId = ? WHERE UserId = ?", []any{u.UserName, u.UserPW, u.UserTel, u.UserHas2FA, u.UserHasTenant, u.TenantId, u.UserId})
-// 	return result.Ok
-// }
+func (u *UserStruct) UpdateUserInDB() bool {
+	return database.UpdateDatabaseEntry[UserStruct]("UpdateUser", "UserId", *u)
+}
 
 // Returns the tenant for the given user
 // TODO

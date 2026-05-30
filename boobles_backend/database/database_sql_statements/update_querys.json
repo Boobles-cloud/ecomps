@@ -1,7 +1,7 @@
 [
   {
-    "QueryName": "",
-    "QueryVal": "",
+    "QueryName": "UpdateUser",
+    "QueryVal": "UPDATE Users SET",
     "QueryType": 3
   }
 ]
