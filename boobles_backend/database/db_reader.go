@@ -8,7 +8,7 @@ import (
 
 // TODO: Update meeee
 // TODO: Add description
-func QueryDatabase[T any](query string, queryArgs []any) ([]T, bool) {
+func QueryDatabase[T any](queryName string, queryArgs []any) ([]T, bool) {
 
 	var results []T
 
@@ -17,6 +17,13 @@ func QueryDatabase[T any](query string, queryArgs []any) ([]T, bool) {
 
 	if !ok {
 		return results, ok
+	}
+
+	// Gets the wanted query
+	query, ok := selectWantedSqlStatement(Select, queryName)
+
+	if !ok {
+		return results, false
 	}
 
 	defer db.Close()
