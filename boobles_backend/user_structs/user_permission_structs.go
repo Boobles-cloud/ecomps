@@ -12,7 +12,7 @@ type UserPermission struct {
 // Sets a new permission for the given user permission struct
 func (up *UserPermission) SetNewPermission() (uint, bool) {
 
-	result := database.ExecuteSQLStatement(database.UserPermissionContext, database.Insert, []any{up.PermissionName, up.PermissionDescription, up.UserId})
+	result := database.ExecuteSQLStatement("InsertUserPermission", database.Insert, []any{up.PermissionName, up.PermissionDescription, up.UserId})
 	return result.LastId, result.Ok
 }
 

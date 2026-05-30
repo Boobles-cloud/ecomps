@@ -1,0 +1,7 @@
+[
+  {
+    "QueryName": "DeleteUserAccestoken",
+    "QueryVal": "DELETE FROM UserAccesstokens WHERE UserAccessId = ?;",
+    "QueryType": 1
+  }
+]

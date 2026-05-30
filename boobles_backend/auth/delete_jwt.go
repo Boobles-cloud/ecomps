@@ -30,7 +30,7 @@ deleteLoop:
 
 			for i := range allTokens {
 				if allTokens[i].IsExpired() {
-					database.ExecuteSQLStatement(database.UserAccessTokenContext, database.Delete, []any{allTokens[i].UserAccessId})
+					database.ExecuteSQLStatement("DeleteUserAccestoken", database.Delete, []any{allTokens[i].UserAccessId})
 				}
 			}
 

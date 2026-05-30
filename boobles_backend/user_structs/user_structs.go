@@ -16,7 +16,7 @@ type UserStruct struct {
 // Creates a user in the database
 func (u *UserStruct) CreateUserInDB() (bool, uint) {
 
-	if result := database.ExecuteSQLStatement(database.UserContext, database.Insert, []any{u.UserName, u.UserPW, u.UserMail, u.UserTel, u.UserHas2FA, u.UserHasTenant, u.TenantId}); result.Ok {
+	if result := database.ExecuteSQLStatement("InsertUser", database.Insert, []any{u.UserName, u.UserPW, u.UserMail, u.UserTel, u.UserHas2FA, u.UserHasTenant, u.TenantId}); result.Ok {
 		return result.Ok, result.LastId
 	}
 	return false, 0
