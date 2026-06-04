@@ -22,7 +22,7 @@ func SetupTabels() bool {
 	data, err := os.ReadFile(os.Getenv("tables_path"))
 
 	if err != nil {
-		logging.Log(logging.Error, err.Error())
+		logging.Log(logging.Error, "[Startup | SetupTabels]"+err.Error())
 		return false
 	}
 
@@ -32,7 +32,7 @@ func SetupTabels() bool {
 	conn, ok := database.CreateDBConn()
 
 	if !ok {
-		fmt.Println("Failed to connect to db! See logs for details")
+		fmt.Println(logging.ErrorColor, "Failed to connect to db! See logs for details", logging.ResetColor)
 		return false
 	}
 
@@ -41,7 +41,7 @@ func SetupTabels() bool {
 	for i := range splited {
 
 		if _, err := conn.Exec(splited[i]); err != nil {
-			logging.Log(logging.Error, err.Error())
+			logging.Log(logging.Error, "[Startup | SetupTabels]"+err.Error())
 			return false
 		}
 	}

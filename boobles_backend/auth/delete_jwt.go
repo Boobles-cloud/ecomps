@@ -16,11 +16,10 @@ func DeleteExpiredJWT(ctx context.Context) {
 
 	defer timer.Stop()
 
-deleteLoop:
 	for {
 		select {
 		case <-ctx.Done():
-			break deleteLoop
+			return
 		case <-timer.C:
 			allTokens, ok := database.QueryDatabase[authstructs.JWTDatabaseStruct]("SelectAllToken", []any{})
 

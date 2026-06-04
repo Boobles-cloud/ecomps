@@ -2,6 +2,7 @@ package logging
 
 import (
 	"errors"
+	"fmt"
 	"log"
 	"os"
 	"path"
@@ -12,6 +13,12 @@ const (
 	// Spaces for better view :)
 	Error       string = " [Error] "
 	Information string = " [Information] "
+)
+
+const (
+	ErrorColor       string = "\033[31m"
+	InformationColor string = "\033[32m"
+	ResetColor       string = "\033[0m"
 )
 
 // Creates a new log entry.
@@ -29,8 +36,17 @@ func Log(logType, logMsg string) {
 
 	defer currLogFile.Close()
 
-	if _, err := currLogFile.WriteString("\n" + time.Now().Format("2006/01/02 15:04:05") + logType + logMsg); err != nil {
+	if _, err := currLogFile.WriteString("\n" + "[" + time.Now().Format("2006/01/02 15:04:05") + "]" + logType + logMsg); err != nil {
 		log.Fatal(err)
+	}
+
+	switch logType {
+	case Error:
+		fmt.Println(ErrorColor, "["+time.Now().Format("2006/01/02 15:04:05")+"]"+logType+logMsg, ResetColor)
+	case Information:
+		fmt.Println("["+time.Now().Format("2006/01/02 15:04:05")+"]"+logType+logMsg, ResetColor)
+	default:
+		fmt.Println("["+time.Now().Format("2006/01/02 15:04:05")+"]"+logType+logMsg, ResetColor)
 	}
 }
 
@@ -39,7 +55,7 @@ func getCurrLogFile() string {
 	currDir += "\\logs"
 
 	if _, err := os.Stat(currDir); errors.Is(err, os.ErrNotExist) {
-		os.Mkdir(currDir, os.ModeDir)
+		os.Mkdir(currDir, 0700)
 	}
 
 	files, err := os.ReadDir(currDir)

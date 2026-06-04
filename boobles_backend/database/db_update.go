@@ -108,17 +108,27 @@ func buildQueryForUpdate(unfinishedQuery, filterValueName string, queryArgs map[
 	// loops over the filter values
 	var tmpCounter2 = 0
 	for key := range filterValue {
+
 		if tmpCounter2 == 0 {
 			unfinishedQuery += "WHERE "
 		}
 
-		// Adds our key to the query
-		unfinishedQuery += key + " = ?"
-		// Add all our arguments
-		allArgumentsInOrder = append(allArgumentsInOrder, filterValue[key])
+		// Just check if its one and then return
+		if len(filterValue) == 1 {
+			unfinishedQuery += key + " = ?;"
+			allArgumentsInOrder = append(allArgumentsInOrder, filterValue[key])
+			break
+		} else {
 
-		if tmpCounter2 == len(filterValue) {
-			unfinishedQuery += ";"
+			if tmpCounter2 == len(filterValue) {
+				// Adds the last item to the query
+				unfinishedQuery += key + " = ?;"
+			} else {
+				// Adds our key to the query
+				unfinishedQuery += key + " = ? AND"
+			}
+			// Add all our arguments
+			allArgumentsInOrder = append(allArgumentsInOrder, filterValue[key])
 		}
 		tmpCounter2++
 	}

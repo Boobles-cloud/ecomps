@@ -30,7 +30,7 @@ func (u *UserStruct) UpdateUserInDB() bool {
 
 // Returns the tenant for the given user
 // TODO
-func (u *UserStruct) GetTenantByUser()
+func (u *UserStruct) GetTenantByUser() {}
 
 // Returns all permissions a user has
 func (u *UserStruct) GetPermissionsByUser() ([]UserPermission, bool) {

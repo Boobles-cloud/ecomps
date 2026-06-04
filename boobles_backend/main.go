@@ -18,10 +18,10 @@ func main() {
 
 	defer ctx.Done()
 
-	fmt.Println("Starting...")
+	logging.Log(logging.Information, "Startig application")
 
 	if !startup.SetupTabels() {
-		fmt.Println("Failed to connect to the database... \n Check the logs for more information!")
+		fmt.Println(logging.ErrorColor, "Failed to connect to the database... \nCheck the logs for more information!", logging.ResetColor)
 		os.Exit(1)
 	}
 

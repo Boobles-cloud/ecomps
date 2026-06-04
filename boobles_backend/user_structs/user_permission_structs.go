@@ -17,4 +17,4 @@ func (up *UserPermission) SetNewPermission() (uint, bool) {
 }
 
 // TODO
-func (up *UserPermission) UpdatePermission() bool
+func (up *UserPermission) UpdatePermission() bool { return false }
