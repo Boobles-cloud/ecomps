@@ -6,8 +6,8 @@ import (
 	"net/http"
 	"time"
 
+	userstructs "boobles.cloud/backend/internal/internal_structs/user_structs"
 	"boobles.cloud/backend/logging"
-	userstructs "boobles.cloud/backend/user_structs"
 )
 
 // TODO: implement func to check if user is already signed up!!!

@@ -7,10 +7,10 @@ import (
 	"strings"
 	"time"
 
-	authstructs "boobles.cloud/backend/auth/auth_structs"
 	"boobles.cloud/backend/database"
+	authstructs "boobles.cloud/backend/internal/auth/auth_structs"
+	userstructs "boobles.cloud/backend/internal/internal_structs/user_structs"
 	"boobles.cloud/backend/logging"
-	userstructs "boobles.cloud/backend/user_structs"
 	"github.com/golang-jwt/jwt/v4"
 )
 

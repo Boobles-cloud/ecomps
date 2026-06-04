@@ -5,8 +5,8 @@ import (
 	"os"
 	"strings"
 
-	authstructs "boobles.cloud/backend/auth/auth_structs"
 	"boobles.cloud/backend/database"
+	authstructs "boobles.cloud/backend/internal/auth/auth_structs"
 	"boobles.cloud/backend/logging"
 	"github.com/golang-jwt/jwt/v4"
 )

@@ -23,7 +23,6 @@ func (u *UserStruct) CreateUserInDB() (bool, uint) {
 }
 
 // Update a user in the database
-// TODO: Update this with the new update stuff
 func (u *UserStruct) UpdateUserInDB() bool {
 	return database.UpdateDatabaseEntry[UserStruct]("UpdateUser", "UserId", *u)
 }

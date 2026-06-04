@@ -6,8 +6,8 @@ import (
 	"net/http"
 	"os"
 
-	"boobles.cloud/backend/auth"
-	"boobles.cloud/backend/auth/handlers"
+	"boobles.cloud/backend/internal/auth"
+	"boobles.cloud/backend/internal/auth/handlers"
 	"boobles.cloud/backend/logging"
 	"boobles.cloud/backend/startup"
 )

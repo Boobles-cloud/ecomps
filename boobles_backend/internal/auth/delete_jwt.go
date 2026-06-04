@@ -4,8 +4,8 @@ import (
 	"context"
 	"time"
 
-	authstructs "boobles.cloud/backend/auth/auth_structs"
 	"boobles.cloud/backend/database"
+	authstructs "boobles.cloud/backend/internal/auth/auth_structs"
 )
 
 // Deletes all expired jwt.
