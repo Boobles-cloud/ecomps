@@ -9,7 +9,7 @@ import (
 
 	"boobles.cloud/backend/database"
 	authstructs "boobles.cloud/backend/internal/auth/auth_structs"
-	userstructs "boobles.cloud/backend/internal/internal_structs/user_structs"
+	userstructs "boobles.cloud/backend/internal/user/user_structs"
 	"boobles.cloud/backend/logging"
 	"github.com/golang-jwt/jwt/v4"
 )

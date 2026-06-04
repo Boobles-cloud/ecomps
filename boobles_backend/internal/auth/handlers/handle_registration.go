@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"time"
 
-	userstructs "boobles.cloud/backend/internal/internal_structs/user_structs"
+	userstructs "boobles.cloud/backend/internal/user/user_structs"
 	"boobles.cloud/backend/logging"
 )
 
