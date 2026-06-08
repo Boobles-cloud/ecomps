@@ -46,13 +46,20 @@ CREATE TABLE Permissions(
 CREATE TABLE Tenant(
     TenantId int unsigned NOT NULL AUTO_INCREMENT PRIMARY KEY,
     TenantName varchar(100) NOT NULL,
-    TenantPw varchar(250) NOT NULL, -- The tenant PW (or key) where all data gets encrypted by it -> generated automaticly on setup?
     TenantCreation DATETIME NOT NULL,
     TenantAdminUserId int unsigned NOT NULL,
+    TenantPwId int unsigned NOT NULL,
     -- TODO: Add more tenant data
-
+    FOREIGN KEY(TenantPwId) REFERENCES TenantPw(TenantPwId),
     FOREIGN KEY(TenantAdminUserId) REFERENCES Users(UserId)
 );
+
+-- For storring the tenant pw
+CREATE TABLE TenantPw(
+    TenantPwId int unsigned NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    TenantPwVal varchar(255)
+);
+
 
 -- All tokens for applications like: Ebay, Amazon, etc.
 CREATE TABLE TenantOAuthTokens(
