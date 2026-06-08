@@ -45,6 +45,8 @@ func Decrypt[T any](toDecrypt *T, key string) (*T, bool) {
 // Returns a bool and the decrypted val
 func decryptHelper(fieldVal, key string) (string, bool) {
 
+	// Masive thanks to: https://tutorialedge.net/golang/go-encrypt-decrypt-aes-tutorial/
+
 	fieldValByte, err := base64.StdEncoding.DecodeString(fieldVal)
 
 	if err != nil {
