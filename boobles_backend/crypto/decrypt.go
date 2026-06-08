@@ -3,6 +3,7 @@ package crypto
 import (
 	"crypto/aes"
 	"crypto/cipher"
+	"encoding/base64"
 	"reflect"
 
 	"boobles.cloud/backend/logging"
@@ -44,7 +45,12 @@ func Decrypt[T any](toDecrypt *T, key string) (*T, bool) {
 // Returns a bool and the decrypted val
 func decryptHelper(fieldVal, key string) (string, bool) {
 
-	fieldValByte := []byte(fieldVal)
+	fieldValByte, err := base64.StdEncoding.DecodeString(fieldVal)
+
+	if err != nil {
+		logging.Log(logging.Error, "[Crypto | Decrypt] "+err.Error())
+		return "", false
+	}
 
 	// Creates our cipher block
 	c, err := aes.NewCipher([]byte(key))
@@ -54,7 +60,7 @@ func decryptHelper(fieldVal, key string) (string, bool) {
 		return "", false
 	}
 
-	// Returns our symetric
+	// Returns our symetric cipher
 	gcm, err := cipher.NewGCM(c)
 
 	if err != nil {
