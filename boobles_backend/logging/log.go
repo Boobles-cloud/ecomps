@@ -17,7 +17,7 @@ const (
 
 const (
 	ErrorColor       string = "\033[31m"
-	InformationColor string = "\033[32m"
+	InformationColor string = "\033[36m"
 	ResetColor       string = "\033[0m"
 )
 
@@ -44,7 +44,7 @@ func Log(logType, logMsg string) {
 	case Error:
 		fmt.Println(ErrorColor, "["+time.Now().Format("2006/01/02 15:04:05")+"]"+logType+logMsg, ResetColor)
 	case Information:
-		fmt.Println("["+time.Now().Format("2006/01/02 15:04:05")+"]"+logType+logMsg, ResetColor)
+		fmt.Println(InformationColor, "["+time.Now().Format("2006/01/02 15:04:05")+"]"+logType+logMsg, ResetColor)
 	default:
 		fmt.Println("["+time.Now().Format("2006/01/02 15:04:05")+"]"+logType+logMsg, ResetColor)
 	}
