@@ -1,11 +1,11 @@
-package crypto
+package tenantstructs
 
 import (
 	"encoding/base64"
 	"math/rand"
 	"time"
 
-	tenantstructs "boobles.cloud/backend/internal/tenant/tenant_structs"
+	"boobles.cloud/backend/database"
 )
 
 const (
@@ -16,14 +16,17 @@ const (
 // TODO: Rethink this -> is there a better way to do this?
 
 // Creates the master key for the given tenant
-func CreateMasterKey(t tenantstructs.Tenant) (string, bool) {
+func createMasterKey(t Tenant) (uint, bool) {
 
 	tenantPw := t.TenantName
 	tenantPw += createRandomString(len(t.TenantName) - maxLengthOfKey)
 
 	tenantPwBase64 := base64.StdEncoding.EncodeToString([]byte(tenantPw))
 
-	return tenantPwBase64, true
+	// TODO: Add the insert command here!!
+	result := database.ExecuteSQLStatement("InsertTenantPw", database.Insert, []any{tenantPwBase64})
+
+	return result.LastId, result.Ok
 }
 
 // Create a random string
