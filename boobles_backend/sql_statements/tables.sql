@@ -60,6 +60,18 @@ CREATE TABLE TenantPw(
     TenantPwVal varchar(255)
 );
 
+-- Here are all tenants storred that are free for deletion
+CREATE TABLE TenantDelitions(
+    TenantDelitionId int unsigned NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    IssuedFrom varchar(250) NOT NULL,
+    IssuedOn DATETIME,
+    WhenToComplete DATETIME,
+    Deleted bool,
+    TenantId int unsigned NOT NULL,
+
+    FOREIGN KEY(TenantId) REFERENCES Tenant(TenantId)
+);
+
 
 -- All tokens for applications like: Ebay, Amazon, etc.
 CREATE TABLE TenantOAuthTokens(
