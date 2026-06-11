@@ -73,14 +73,14 @@ func readJsonFile(filePath, statementName string) (*queryJsonStruct, bool) {
 	byteFileData, err := os.ReadFile(filePath)
 
 	if err != nil {
-		logging.Log(logging.Error, err.Error())
+		logging.Log(logging.Error, "[Database | readingJsonFile] "+err.Error())
 		return &queryJsonStruct{}, false
 	}
 
 	var querys = make([]queryJsonStruct, 20)
 
 	if err := json.Unmarshal(byteFileData, &querys); err != nil {
-		logging.Log(logging.Error, err.Error())
+		logging.Log(logging.Error, "[Database | readingJsonFile] "+err.Error())
 		return &queryJsonStruct{}, false
 	}
 
@@ -89,5 +89,6 @@ func readJsonFile(filePath, statementName string) (*queryJsonStruct, bool) {
 			return &querys[i], true
 		}
 	}
+	logging.Log(logging.Error, "[Database | readingJsonFile] Cannot find statement, with name: "+statementName)
 	return &queryJsonStruct{}, false
 }

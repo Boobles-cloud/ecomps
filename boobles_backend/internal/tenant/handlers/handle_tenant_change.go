@@ -1,19 +1,48 @@
 package handlers
 
 import (
+	"encoding/json"
+	"io"
 	"net/http"
+
+	"boobles.cloud/backend/database"
+	tenantstructs "boobles.cloud/backend/internal/tenant/tenant_structs"
+	"boobles.cloud/backend/logging"
 )
+
+// TODO: Come back here, when the permissions stuff is finished!!!!
 
 func HandleTenantChange(w http.ResponseWriter, r *http.Request) {
 
-	// fail := func(status int, err error) {
+	fail := func(status int, err error) {
 
-	// 	if err != nil {
-	// 		logging.Log(logging.Error, "[Tenant | HandleTenantChange] "+err.Error())
-	// 	}
+		if err != nil {
+			logging.Log(logging.Error, "[Tenant | HandleTenantChange] "+err.Error())
+		}
 
-	// 	w.WriteHeader(status)
-	// }
+		w.WriteHeader(status)
+	}
 
-	// TODO
+	wantedUpdateType := r.URL.Query().Get("type")
+
+	if wantedUpdateType == "" {
+		fail(http.StatusBadRequest, nil)
+	}
+
+	body, err := io.ReadAll(r.Body)
+
+	if err != nil {
+		fail(http.StatusBadRequest, err)
+	}
+
+	var tenant tenantstructs.Tenant
+	if err := json.Unmarshal(body, &tenant); err != nil {
+		fail(http.StatusBadRequest, err)
+	}
+
+	if !database.UpdateDatabaseEntry[tenantstructs.Tenant]("UpdateTenant", "TenantId", tenant) {
+		fail(http.StatusInternalServerError, nil)
+	}
+
+	w.WriteHeader(http.StatusOK)
 }
