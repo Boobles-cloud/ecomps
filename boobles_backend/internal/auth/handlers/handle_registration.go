@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"time"
 
-	userstructs "boobles.cloud/backend/internal/internal_structs/user_structs"
+	userstructs "boobles.cloud/backend/internal/user/user_structs"
 	"boobles.cloud/backend/logging"
 )
 
@@ -16,29 +16,33 @@ import (
 // Sends back an access token.
 func HandleRegistration(w http.ResponseWriter, r *http.Request) {
 
+	fail := func(status int, err error) {
+
+		if err != nil {
+			logging.Log(logging.Error, "[Auth | HandleRegistration] "+err.Error())
+		}
+
+		w.WriteHeader(status)
+	}
+
 	body, err := io.ReadAll(r.Body)
 
 	if err != nil {
-		logging.Log(logging.Error, err.Error())
-		w.WriteHeader(http.StatusBadRequest)
-		return
+		fail(http.StatusBadRequest, err)
 	}
 
 	var tmpUserStruct userstructs.UserStruct
 
 	// Get all content from the body
 	if err := json.Unmarshal(body, &tmpUserStruct); err != nil {
-		logging.Log(logging.Error, err.Error())
-		w.WriteHeader(http.StatusBadRequest)
-		return
+		fail(http.StatusBadRequest, err)
 	}
 
 	// Creates the user in the database
 	ok, id := tmpUserStruct.CreateUserInDB()
 
 	if !ok {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
+		fail(http.StatusInternalServerError, nil)
 	}
 
 	// Sets the id for a user
@@ -48,8 +52,7 @@ func HandleRegistration(w http.ResponseWriter, r *http.Request) {
 	token, ok := createJWT(tmpUserStruct)
 
 	if !ok {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
+		fail(http.StatusInternalServerError, nil)
 	}
 
 	cookie := http.Cookie{

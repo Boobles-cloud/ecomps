@@ -3,5 +3,10 @@
     "QueryName": "UpdateUser",
     "QueryVal": "UPDATE Users SET",
     "QueryType": 3
+  },
+  {
+    "QueryName": "UpdateTenant",
+    "QueryVal": "UPDATE Tenant SET",
+    "QueryType": 3
   }
 ]

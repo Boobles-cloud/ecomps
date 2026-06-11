@@ -1,3 +1,0 @@
-package tenantstructs
-
-// TODO

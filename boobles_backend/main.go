@@ -7,7 +7,8 @@ import (
 	"os"
 
 	"boobles.cloud/backend/internal/auth"
-	"boobles.cloud/backend/internal/auth/handlers"
+	authHandlers "boobles.cloud/backend/internal/auth/handlers"
+	tenantHandlers "boobles.cloud/backend/internal/tenant/handlers"
 	"boobles.cloud/backend/logging"
 	"boobles.cloud/backend/startup"
 )
@@ -30,12 +31,22 @@ func main() {
 
 	muxRouter := http.NewServeMux()
 
-	muxRouter.HandleFunc("GET /authwall/login", handlers.HandleLogin)
-	muxRouter.HandleFunc("POST /authwall/register", handlers.HandleRegistration)
+	// ============ Auth stuff ============
+	muxRouter.HandleFunc("GET /authwall/login", authHandlers.HandleLogin)
+	muxRouter.HandleFunc("POST /authwall/register", authHandlers.HandleRegistration)
+
+	// ============ Tenant stuff ============
+	// NOTE: if you add more always go through the middleware!!
+	muxRouter.Handle("POST /tenant/create", auth.AuthMiddleware(http.HandlerFunc(tenantHandlers.HandleTenantCreation)))
+	muxRouter.Handle("POST /tenant/change", auth.AuthMiddleware(http.HandlerFunc(tenantHandlers.HandleTenantChange)))
+	muxRouter.Handle("POST /tenant/delete", auth.AuthMiddleware(http.HandlerFunc(tenantHandlers.HandleTenantDeltion)))
+
+	muxRouter.Handle("GET /tenant/byId", auth.AuthMiddleware(http.HandlerFunc(tenantHandlers.HandleGetTenantByTenantId)))
+	muxRouter.Handle("GET /tenant/byUserId", auth.AuthMiddleware(http.HandlerFunc(tenantHandlers.HandleGetTenantByUserId)))
 
 	if err := http.ListenAndServe(":8080", muxRouter); err != nil {
 		logging.Log(logging.Error, err.Error())
-		fmt.Println("Failed to start: ", err)
+		fmt.Println(logging.ErrorColor, "Failed to start: ", err, logging.ResetColor)
 		os.Exit(1)
 	}
 }

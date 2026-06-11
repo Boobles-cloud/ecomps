@@ -12,7 +12,7 @@ type Result struct {
 // This func executes an sql query
 // NOTE:
 // Only use this for executing DELETE or INSERT commads!!
-// And only use the constants as statement contexts and types!
+// And only use the constants as statement types!
 // It returns an struct with the last Id and an bool to indicate success.
 func ExecuteSQLStatement(statementName string, statementType int, args []any) *Result {
 

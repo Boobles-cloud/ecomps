@@ -46,14 +46,38 @@ CREATE TABLE Permissions(
 CREATE TABLE Tenant(
     TenantId int unsigned NOT NULL AUTO_INCREMENT PRIMARY KEY,
     TenantName varchar(100) NOT NULL,
-    TenantPw varchar(250) NOT NULL -- The tenant PW (or key) where all data gets encrypted by it -> generated automaticly on setup?
+    TenantCreation DATETIME NOT NULL,
+    TenantAdminUserId int unsigned NOT NULL,
+    TenantPwId int unsigned NOT NULL,
     -- TODO: Add more tenant data
+    FOREIGN KEY(TenantPwId) REFERENCES TenantPw(TenantPwId),
+    FOREIGN KEY(TenantAdminUserId) REFERENCES Users(UserId)
 );
+
+-- For storring the tenant pw
+CREATE TABLE TenantPw(
+    TenantPwId int unsigned NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    TenantPwVal varchar(255)
+);
+
+-- Here are all tenants storred that are free for deletion
+CREATE TABLE TenantDelitions(
+    TenantDelitionId int unsigned NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    IssuedFrom varchar(250) NOT NULL,
+    IssuedOn DATETIME,
+    WhenToComplete DATETIME,
+    Deleted bool,
+    TenantId int unsigned NOT NULL,
+
+    FOREIGN KEY(TenantId) REFERENCES Tenant(TenantId)
+);
+
 
 -- All tokens for applications like: Ebay, Amazon, etc.
 CREATE TABLE TenantOAuthTokens(
     TokenId int unsigned NOT NULL AUTO_INCREMENT PRIMARY KEY,
     TokenVal varchar(250) NOT NULL,
+    LasChanget DATETIME,
     AppId int unsigned NOT NULL,
     TenantId int unsigned NOT NULL,
 
@@ -67,6 +91,7 @@ CREATE TABLE OAuthApplications(
     AppId int unsigned NOT NULL AUTO_INCREMENT PRIMARY KEY,
     AppName varchar(150) NOT NULL,
     AppStruct varchar(150) NOT NULL,
+    AppSyncActivated DATETIME NOT NULL,
     AppSync BOOL,
     AppSyncInterval int unsigned,
     TenantId int unsigned NOT NULL,
@@ -81,6 +106,7 @@ CREATE TABLE Customer(
     CustomerPostalCode varchar(50),
     CustomerStreetAndHouseNr varchar(200),
     CustomerCity varchar(100),
+    CustomerLastChanged DATETIME,
     TenantId int unsigned NOT NULL,
 
     FOREIGN KEY(TenantId) REFERENCES Tenant(TenantId)
@@ -95,6 +121,9 @@ CREATE TABLE Order(
     OrderPostalCode varchar(50), -- if the address isnt the same
     OrderStreetAndHouseNr varchar(200),
     OrderCity varchar(200),
+    OrderLastChanged DATETIME,
+
+    FOREIGN KEY(OrderStatus) REFERENCES OrderStatus(StatusId)
 );
 
 -- To indicate which state an order has
@@ -152,3 +181,7 @@ CREATE TABLE Warehouse(
 -- To set the default version
 -- TODO: Change version here, before releasing a new version!
 INSERT INTO Versions VALUES(DEFAULT, 'Alpha', '0.1', 'Alpha', '0.1');
+
+-- We set the tenant default
+-- We do this, so we can filter if the user has a tenant or not :)
+INSERT INTO Tenant(TenantId, TenantName) VALUES(0, "USER_HAS_NO_TENANT");

@@ -13,5 +13,15 @@
     "QueryName": "InsertUser",
     "QueryVal": "INSERT INTO Users() VALUES(DEFAULT, ?, ?, ?, ?, ?, ?, ?);",
     "QueryType": 0
+  },
+  {
+    "QueryName": "InsertTenantPw",
+    "QueryVal": "INSERT INTO TenantPw() VALUES(DEFAULT, ?);",
+    "QueryType": 0
+  },
+  {
+    "QueryName": "InsertTenantDeletion",
+    "QueryVal": "INSERT INTO TenantDelitions() VALUES(DEFAULT, ?, ?, ?, ?, ?);",
+    "QueryType": 0
   }
 ]
