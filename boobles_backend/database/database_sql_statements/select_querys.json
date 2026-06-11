@@ -28,5 +28,15 @@
     "QueryName": "SelectAllUsersByTenant",
     "QueryVal": "SELECT * FROM Users WHERE TenantId = ?;",
     "QueryType": 2
+  },
+  {
+    "QueryName": "SelectTenantByUserId",
+    "QueryVal": "SELECT * FROM Tenant WHERE TenantAdminUserId = ?;",
+    "QueryType": 2
+  },
+  {
+    "QueryName": "SelectTenantById",
+    "QueryVal": "SELECT * FROM Tenant WHERE TenantId = ?;",
+    "QueryType": 2
   }
 ]

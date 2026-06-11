@@ -63,6 +63,8 @@ func (t *Tenant) CreateTenantInDatabase() bool {
 	result, err := tx.ExecContext(ctx, "INSERT INTO Tenant() VALUES(DEFAULT, ?, ?, ?, ?)", []any{t.TenantName, t.TenantAdminUserId, t.TenantCreation, t.TenantPwId})
 
 	lastId, _ := result.LastInsertId()
+	// Set the last Id here
+	t.TenantId = uint(lastId)
 
 	if err != nil {
 		logging.Log(logging.Error, "[Tenant | CreateTenantInDatabase] "+err.Error())

@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/base64"
+	"errors"
 	"net/http"
 	"os"
 	"strings"
@@ -17,11 +18,20 @@ import (
 // Creates a new JWT for the given user.
 // The pw from the user, is encrypted via the frontend.
 func HandleLogin(w http.ResponseWriter, r *http.Request) {
+
+	fail := func(status int, err error) {
+
+		if err != nil {
+			logging.Log(logging.Error, "[Auth | HandleLogin] "+err.Error())
+		}
+
+		w.WriteHeader(status)
+	}
+
 	basicAuth := r.Header.Get("Authorization")
 
 	if basicAuth == "" {
-		w.WriteHeader(http.StatusBadRequest)
-		return
+		fail(http.StatusBadRequest, nil)
 	}
 
 	authPWUser := strings.ReplaceAll(basicAuth, "Basic ", "")
@@ -29,9 +39,7 @@ func HandleLogin(w http.ResponseWriter, r *http.Request) {
 	encodedAuthPWUser, err := base64.StdEncoding.DecodeString(authPWUser)
 
 	if err != nil {
-		logging.Log(logging.Error, err.Error())
-		w.WriteHeader(http.StatusBadRequest)
-		return
+		fail(http.StatusBadRequest, err)
 	}
 
 	authSplitet := strings.Split(string(encodedAuthPWUser), ":")
@@ -44,16 +52,13 @@ func HandleLogin(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if len(userFromDB) != 1 {
-		logging.Log(logging.Error, "Multiple users from database. [login handler]")
-		w.WriteHeader(http.StatusInternalServerError)
-		return
+		fail(http.StatusInternalServerError, errors.New("More than one user!"))
 	}
 
 	token, ok := createJWT(userFromDB[0])
 
 	if !ok {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
+		fail(http.StatusInternalServerError, nil)
 	}
 
 	cookie := http.Cookie{
