@@ -35,7 +35,7 @@ func main() {
 
 	if err := http.ListenAndServe(":8080", muxRouter); err != nil {
 		logging.Log(logging.Error, err.Error())
-		fmt.Println("Failed to start: ", err)
+		fmt.Println(logging.ErrorColor, "Failed to start: ", err, logging.ResetColor)
 		os.Exit(1)
 	}
 }

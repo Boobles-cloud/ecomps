@@ -28,6 +28,7 @@ func (t *Tenant) CreateTenantInDatabase() bool {
 
 	t.TenantCreation = time.Now()
 
+	// Creates a connection
 	db, ok := database.CreateDBConn()
 
 	if !ok {
@@ -96,7 +97,18 @@ func (t *Tenant) CreateTenantInDatabase() bool {
 }
 
 // Checks if a user is the admin of the tenant
-func (t *Tenant) IsUserAdmin(u *userstructs.UserStruct) bool { return false }
+func (t *Tenant) IsUserAdmin(u *userstructs.UserStruct) bool {
+
+	if t.TenantAdminUserId == u.UserId {
+		return true
+	}
+	return false
+}
 
 // Gets all Users for the given tenant
-func (t *Tenant) GetAllUsersForTenant() []userstructs.UserStruct { return []userstructs.UserStruct{} }
+func (t *Tenant) GetAllUsersForTenant() []userstructs.UserStruct {
+
+	users, _ := database.QueryDatabase[userstructs.UserStruct]("SelectAllUsersByTenant", []any{t.TenantId})
+
+	return users
+}
