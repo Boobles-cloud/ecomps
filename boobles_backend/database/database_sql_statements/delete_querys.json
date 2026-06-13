@@ -3,5 +3,10 @@
     "QueryName": "DeleteUserAccestoken",
     "QueryVal": "DELETE FROM UserAccesstokens WHERE UserAccessId = ?;",
     "QueryType": 1
+  },
+  {
+    "QueryName": "DeleteUserAccestokenByValue",
+    "QueryVal": "DELETE FROM UserAccesstokens WHERE TokenVal = ?;",
+    "QueryType": 1
   }
 ]
