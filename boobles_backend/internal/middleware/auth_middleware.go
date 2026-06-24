@@ -1,8 +1,10 @@
-package auth
+package middleware
 
 import (
+	"context"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
 
 	"boobles.cloud/backend/database"
@@ -10,6 +12,8 @@ import (
 	"boobles.cloud/backend/logging"
 	"github.com/golang-jwt/jwt/v4"
 )
+
+const UserIdContextKey = "User.Id.Context"
 
 // Our middleware to handle authentication
 func AuthMiddleware(nextHandler http.Handler) http.Handler {
@@ -31,17 +35,24 @@ func AuthMiddleware(nextHandler http.Handler) http.Handler {
 			tokenWithoutBaerer = strings.ReplaceAll(token, "Bearer ", "")
 		}
 
-		if !tokenValid(tokenWithoutBaerer) && !tokenInDB(tokenWithoutBaerer) {
+		tokenValid, userId := tokenValid(tokenWithoutBaerer)
+
+		if !tokenValid && !tokenInDB(tokenWithoutBaerer) {
 			w.WriteHeader(http.StatusUnauthorized)
 			return
 		}
 
-		nextHandler.ServeHTTP(w, r)
+		c := context.Background()
+		ctx := context.WithValue(c, UserIdContextKey, strconv.Itoa(int(userId)))
+
+		rCtx := r.WithContext(ctx)
+
+		nextHandler.ServeHTTP(w, rCtx)
 	})
 }
 
 // checks if the token is valid
-func tokenValid(token string) bool {
+func tokenValid(token string) (bool, uint) {
 
 	claims := authstructs.JWTClaimsStruct{}
 
@@ -51,10 +62,10 @@ func tokenValid(token string) bool {
 
 	if err != nil {
 		logging.Log(logging.Error, err.Error())
-		return false
+		return false, 0
 	}
 
-	return parsedToken.Valid
+	return parsedToken.Valid, claims.UserId
 }
 
 // Checks if the token is in the database
