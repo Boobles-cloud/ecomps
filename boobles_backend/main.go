@@ -34,15 +34,17 @@ func main() {
 	// ============ Auth stuff ============
 	muxRouter.HandleFunc("GET /authwall/login", authHandlers.HandleLogin)
 	muxRouter.HandleFunc("POST /authwall/register", authHandlers.HandleRegistration)
+	muxRouter.HandleFunc("GET /authwall/logout", authHandlers.HandleLogout)
 
 	// ============ Tenant stuff ============
 	// NOTE: if you add more always go through the middleware!!
+	// TODO: Add permissions middleware to check if the user has the rights to do this
 	muxRouter.Handle("POST /tenant/create", auth.AuthMiddleware(http.HandlerFunc(tenantHandlers.HandleTenantCreation)))
 	muxRouter.Handle("POST /tenant/change", auth.AuthMiddleware(http.HandlerFunc(tenantHandlers.HandleTenantChange)))
 	muxRouter.Handle("POST /tenant/delete", auth.AuthMiddleware(http.HandlerFunc(tenantHandlers.HandleTenantDeltion)))
 
-	muxRouter.Handle("GET /tenant/byId", auth.AuthMiddleware(http.HandlerFunc(tenantHandlers.HandleGetTenantByTenantId)))
-	muxRouter.Handle("GET /tenant/byUserId", auth.AuthMiddleware(http.HandlerFunc(tenantHandlers.HandleGetTenantByUserId)))
+	muxRouter.Handle("GET /tenant/{tenant-id}", auth.AuthMiddleware(http.HandlerFunc(tenantHandlers.HandleGetTenantByTenantId)))
+	muxRouter.Handle("GET /tenant/by/user={user-id}", auth.AuthMiddleware(http.HandlerFunc(tenantHandlers.HandleGetTenantByUserId)))
 
 	if err := http.ListenAndServe(":8080", muxRouter); err != nil {
 		logging.Log(logging.Error, err.Error())
