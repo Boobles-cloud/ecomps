@@ -10,6 +10,7 @@ import (
 	authHandlers "boobles.cloud/backend/internal/auth/handlers"
 	"boobles.cloud/backend/internal/middleware"
 	tenantHandlers "boobles.cloud/backend/internal/tenant/handlers"
+	userHandlers "boobles.cloud/backend/internal/user/handlers"
 	"boobles.cloud/backend/logging"
 	"boobles.cloud/backend/startup"
 )
@@ -48,13 +49,12 @@ func main() {
 	// ============ Tenant stuff ============
 	// Tenant middleware config
 	tenantMiddleware := middleware.CreateNewMiddlewareStack(
-		middleware.PanicRecoverMiddleware,
 		middleware.AuthMiddleware,
 		middleware.PermissionMiddleware,
 	)
 
 	tenantRouter := http.NewServeMux()
-	tenantRouter.Handle("/", tenantMiddleware(tenantRouter))
+	muxRouter.Handle("/", tenantMiddleware(tenantRouter))
 
 	// POST Requests
 	tenantRouter.HandleFunc("POST /tenant/create", tenantHandlers.HandleTenantCreation)
@@ -64,6 +64,18 @@ func main() {
 	// GET Requests
 	tenantRouter.HandleFunc("GET /tenant/{tenant-id}", tenantHandlers.HandleGetTenantByTenantId)
 	tenantRouter.HandleFunc("GET /tenant/by/user={user-id}", tenantHandlers.HandleGetTenantByUserId)
+
+	// ============ User stuff ============
+	// User middleware config
+	userMiddlewareConfig := middleware.CreateNewMiddlewareStack(
+		middleware.AuthMiddleware,
+	)
+
+	userRouter := http.NewServeMux()
+	muxRouter.Handle("/", userMiddlewareConfig(userRouter))
+
+	// POST Requests
+	userRouter.HandleFunc("POST /user/change", userHandlers.HandleUserChange)
 
 	// Creating our http server
 	httpServer := http.Server{
