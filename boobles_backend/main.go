@@ -8,6 +8,7 @@ import (
 
 	"boobles.cloud/backend/internal/auth"
 	authHandlers "boobles.cloud/backend/internal/auth/handlers"
+	"boobles.cloud/backend/internal/middleware"
 	tenantHandlers "boobles.cloud/backend/internal/tenant/handlers"
 	"boobles.cloud/backend/logging"
 	"boobles.cloud/backend/startup"
@@ -29,6 +30,14 @@ func main() {
 	// Starts our goroutine for deleting expired JWT
 	go auth.DeleteExpiredJWT(ctx)
 
+	// ============ REST-API config stuff ============
+
+	// Configuring our global middleware
+	globalMiddlewareConfig := middleware.CreateNewMiddlewareStack(
+		middleware.PanicRecoverMiddleware,
+		// TODO: add logging middleware here
+	)
+
 	muxRouter := http.NewServeMux()
 
 	// ============ Auth stuff ============
@@ -37,16 +46,32 @@ func main() {
 	muxRouter.HandleFunc("GET /authwall/logout", authHandlers.HandleLogout)
 
 	// ============ Tenant stuff ============
-	// NOTE: if you add more always go through the middleware!!
-	// TODO: Add permissions middleware to check if the user has the rights to do this
-	muxRouter.Handle("POST /tenant/create", auth.AuthMiddleware(http.HandlerFunc(tenantHandlers.HandleTenantCreation)))
-	muxRouter.Handle("POST /tenant/change", auth.AuthMiddleware(http.HandlerFunc(tenantHandlers.HandleTenantChange)))
-	muxRouter.Handle("POST /tenant/delete", auth.AuthMiddleware(http.HandlerFunc(tenantHandlers.HandleTenantDeltion)))
+	// Tenant middleware config
+	tenantMiddleware := middleware.CreateNewMiddlewareStack(
+		middleware.PanicRecoverMiddleware,
+		middleware.AuthMiddleware,
+		middleware.PermissionMiddleware,
+	)
 
-	muxRouter.Handle("GET /tenant/{tenant-id}", auth.AuthMiddleware(http.HandlerFunc(tenantHandlers.HandleGetTenantByTenantId)))
-	muxRouter.Handle("GET /tenant/by/user={user-id}", auth.AuthMiddleware(http.HandlerFunc(tenantHandlers.HandleGetTenantByUserId)))
+	tenantRouter := http.NewServeMux()
+	tenantRouter.Handle("/", tenantMiddleware(tenantRouter))
 
-	if err := http.ListenAndServe(":8080", muxRouter); err != nil {
+	// POST Requests
+	tenantRouter.HandleFunc("POST /tenant/create", tenantHandlers.HandleTenantCreation)
+	tenantRouter.HandleFunc("POST /tenant/change", tenantHandlers.HandleTenantChange)
+	tenantRouter.HandleFunc("POST /tenant/delete", tenantHandlers.HandleTenantDeltion)
+
+	// GET Requests
+	tenantRouter.HandleFunc("GET /tenant/{tenant-id}", tenantHandlers.HandleGetTenantByTenantId)
+	tenantRouter.HandleFunc("GET /tenant/by/user={user-id}", tenantHandlers.HandleGetTenantByUserId)
+
+	// Creating our http server
+	httpServer := http.Server{
+		Addr:    ":8080",
+		Handler: globalMiddlewareConfig(muxRouter),
+	}
+
+	if err := httpServer.ListenAndServe(); err != nil {
 		logging.Log(logging.Error, err.Error())
 		fmt.Println(logging.ErrorColor, "Failed to start: ", err, logging.ResetColor)
 		os.Exit(1)
