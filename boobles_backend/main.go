@@ -69,6 +69,7 @@ func main() {
 	// User middleware config
 	userMiddlewareConfig := middleware.CreateNewMiddlewareStack(
 		middleware.AuthMiddleware,
+		// TODO: implement frontend authentication middleware
 	)
 
 	userRouter := http.NewServeMux()
