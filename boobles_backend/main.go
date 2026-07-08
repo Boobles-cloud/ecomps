@@ -35,8 +35,8 @@ func main() {
 
 	// Configuring our global middleware
 	globalMiddlewareConfig := middleware.CreateNewMiddlewareStack(
+		middleware.LoggingMiddleware,
 		middleware.PanicRecoverMiddleware,
-		// TODO: add logging middleware here
 	)
 
 	muxRouter := http.NewServeMux()

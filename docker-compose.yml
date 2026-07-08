@@ -1,8 +1,24 @@
 services:
   # boobles-frontend:
+  #   env_file:
+  #     - .env
   #   build: "/boobles_frontend/."
   #   ports:
-  #     - "8080:8080"
+  #     - "8081:8080"
+  #   depends_on:
+  #     - boobles-backend
+  #   volumes:
+  #     - shared-env:/app/shared:ro
+  #   entrypoint: >
+  #     /bin/sh -c "
+  #     echo 'Waiting for API Key...';
+  #     while [ ! -f /app/shared/.env ] || ! grep -q 'API_KEY' /app/shared/.env; do
+  #       sleep 2;
+  #     done;
+  #     echo 'API Key found! Copying .env file';
+  #     cp /app/shared/.env /.env;
+  #     npm run start
+  #
 
   boobles-backend:
     build: "/boobles_backend/."
@@ -17,6 +33,8 @@ services:
       Database-Conn: "boobles_backend:YOUR-PW-HERE@tcp(boobles-db:3306)/Boobles?parseTime=true"
     ports:
       - "8080:8080"
+    volumes:
+      - shared-env:/app/shared
     links:
       - "boobles-db"
 
@@ -35,3 +53,7 @@ services:
       retries: 10
     ports:
       - "3306:3306"
+
+# Volume for sharing the .env
+volumes:
+  shared-env:
