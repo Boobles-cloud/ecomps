@@ -59,7 +59,7 @@ func main() {
 	// POST Requests
 	tenantRouter.HandleFunc("POST /tenant/create", tenantHandlers.HandleTenantCreation)
 	tenantRouter.HandleFunc("POST /tenant/change", tenantHandlers.HandleTenantChange)
-	tenantRouter.HandleFunc("POST /tenant/delete", tenantHandlers.HandleTenantDeltion)
+	tenantRouter.HandleFunc("POST /tenant/delete", tenantHandlers.HandleTenantDeletion)
 
 	// GET Requests
 	tenantRouter.HandleFunc("GET /tenant/{tenant-id}", tenantHandlers.HandleGetTenantByTenantId)

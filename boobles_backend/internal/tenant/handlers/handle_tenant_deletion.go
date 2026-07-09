@@ -14,7 +14,7 @@ import (
 // TODO: Come back here, when the permissions stuff is ready!!!
 
 // Handels the deletion of a tenant
-func HandleTenantDeltion(w http.ResponseWriter, r *http.Request) {
+func HandleTenantDeletion(w http.ResponseWriter, r *http.Request) {
 
 	fail := func(status int, err error) {
 
