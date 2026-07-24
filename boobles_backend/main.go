@@ -23,6 +23,16 @@ func main() {
 		os.Exit(1)
 	}
 
+	if !startup.GenerateFrontendApiToken() {
+		fmt.Println(logging.ErrorColor, "Failed to generate api key...", logging.ResetColor)
+		os.Exit(1)
+	}
+
+	// If first init -> set to false
+	if f := os.Getenv("first-init"); f == "true" {
+		os.Setenv("first-init", "false")
+	}
+
 	// Starts our goroutine for deleting expired JWT
 	go auth.DeleteExpiredJWT(ctx)
 

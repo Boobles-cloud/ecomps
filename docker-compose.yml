@@ -28,6 +28,7 @@ services:
       boobles-db:
         condition: service_healthy
     environment:
+      first-init: "true"
       tables_path: "/boobles_backend/sql_statements/tables.sql"
       JWT-Secret: ""
       Database-Conn: "boobles_backend:YOUR-PW-HERE@tcp(boobles-db:3306)/Boobles?parseTime=true"
