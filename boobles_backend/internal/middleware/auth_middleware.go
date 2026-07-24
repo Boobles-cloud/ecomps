@@ -13,7 +13,10 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 )
 
-const UserIdContextKey = "User.Id.Context"
+const (
+	UserIdContextKey   = "User.Id.Context"
+	TenantIdContextKey = "Tenant.Id.Context"
+)
 
 // Our middleware to handle authentication
 func AuthMiddleware(nextHandler http.Handler) http.Handler {
@@ -29,13 +32,15 @@ func AuthMiddleware(nextHandler http.Handler) http.Handler {
 
 		var tokenWithoutBaerer string
 
+		// Replaces the bearer with empty string
 		if strings.Contains(token, "bearer") {
 			tokenWithoutBaerer = strings.ReplaceAll(token, "bearer ", "")
 		} else {
 			tokenWithoutBaerer = strings.ReplaceAll(token, "Bearer ", "")
 		}
 
-		tokenValid, userId := tokenValid(tokenWithoutBaerer)
+		// Checks if the token is valid and gets all claims
+		tokenValid, claims := tokenValid(tokenWithoutBaerer)
 
 		if !tokenValid && !tokenInDB(tokenWithoutBaerer) {
 			w.WriteHeader(http.StatusUnauthorized)
@@ -43,7 +48,9 @@ func AuthMiddleware(nextHandler http.Handler) http.Handler {
 		}
 
 		c := context.Background()
-		ctx := context.WithValue(c, UserIdContextKey, strconv.Itoa(int(userId)))
+		// Adds the user and tenant Id to the context
+		ct := context.WithValue(c, UserIdContextKey, strconv.Itoa(int(claims.UserId)))
+		ctx := context.WithValue(ct, TenantIdContextKey, strconv.Itoa(int(claims.TenantId)))
 
 		rCtx := r.WithContext(ctx)
 
@@ -52,7 +59,7 @@ func AuthMiddleware(nextHandler http.Handler) http.Handler {
 }
 
 // checks if the token is valid
-func tokenValid(token string) (bool, uint) {
+func tokenValid(token string) (bool, authstructs.JWTClaimsStruct) {
 
 	claims := authstructs.JWTClaimsStruct{}
 
@@ -62,10 +69,10 @@ func tokenValid(token string) (bool, uint) {
 
 	if err != nil {
 		logging.Log(logging.Error, err.Error())
-		return false, 0
+		return false, claims
 	}
 
-	return parsedToken.Valid, claims.UserId
+	return parsedToken.Valid, claims
 }
 
 // Checks if the token is in the database

@@ -11,6 +11,10 @@ import (
 	"boobles.cloud/backend/logging"
 )
 
+// ============= NOTE =============
+// 	This needs the frontend auth
+// ================================
+
 // Handles getting all permissions for a user
 func HandleGettingUserPermissions(w http.ResponseWriter, r *http.Request) {
 	fail := func(status int, err error) {

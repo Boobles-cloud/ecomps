@@ -15,6 +15,3 @@ func (up *UserPermission) SetNewPermission() (uint, bool) {
 	result := database.ExecuteSQLStatement("InsertUserPermission", database.Insert, []any{up.PermissionName, up.PermissionDescription, up.UserId})
 	return result.LastId, result.Ok
 }
-
-// TODO
-func (up *UserPermission) UpdatePermission() bool { return false }
