@@ -35,12 +35,17 @@ CREATE TABLE UserAccesstokens(
 -- Like Admin, etc.
 CREATE TABLE Permissions(
     PermissionId int unsigned NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    PermissionName varchar(100),
-    PermissionDescription varchar(150),
+    TenantActionId int unsigned NOT NULL,
     UserId int unsigned NOT NULL,
 
+    FOREIGN KEY(TenantActionId) REFERENCES TenantActions(ActionId),
     FOREIGN KEY(UserId) REFERENCES Users(UserId)
 );
+
+
+-- ############################################################
+--                      Tenant Configuration Stuff
+-- ############################################################
 
 -- The tenant all users are connected to
 CREATE TABLE Tenant(
@@ -52,6 +57,14 @@ CREATE TABLE Tenant(
     -- TODO: Add more tenant data
     FOREIGN KEY(TenantPwId) REFERENCES TenantPw(TenantPwId),
     FOREIGN KEY(TenantAdminUserId) REFERENCES Users(UserId)
+);
+
+
+-- Table to store all actions and permissions a tenant has
+CREATE TABLE TenantActions(
+    ActionId int unsigned NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    ActionName varchar(50) NOT NULL,
+    ActionDescription varchar(50) NOT NULL
 );
 
 -- For storring the tenant pw
@@ -98,6 +111,13 @@ CREATE TABLE OAuthApplications(
 
     FOREIGN KEY(TenantId) REFERENCES Tenant(TenantId)
 );
+
+
+
+-- ############################################################
+--                         Tenant data stuff
+--                       Like orders, Customers
+-- ############################################################
 
 -- All customers for a specific tenant
 CREATE TABLE Customer(
@@ -178,6 +198,13 @@ CREATE TABLE Warehouse(
     FOREIGN KEY(TenantId) REFERENCES Tenant(TenantId)
 );
 
+
+
+-- ############################################################
+--                      Development Stuff
+-- ############################################################
+
+
 -- To set the default version
 -- TODO: Change version here, before releasing a new version!
 INSERT INTO Versions VALUES(DEFAULT, 'Alpha', '0.1', 'Alpha', '0.1');
@@ -185,3 +212,27 @@ INSERT INTO Versions VALUES(DEFAULT, 'Alpha', '0.1', 'Alpha', '0.1');
 -- We set the tenant default
 -- We do this, so we can filter if the user has a tenant or not :)
 INSERT INTO Tenant(TenantId, TenantName) VALUES(0, "USER_HAS_NO_TENANT");
+
+-- TODO: change this, so it allows different languages
+-- All Actions a tenant can do
+INSERT INTO TenantActions VALUES
+    (DEFAULT, "AddUser", "Permission to add a new user to this tenant"),
+    (DEFAULT, "AddOAuthApp", "Permission to add new third party applications, to sync data"),
+    (DEFAULT, "AddCustomer", "Permission to add a new customer"),
+    (DEFAULT, "AddOrder", "Permission to add new order"),
+    (DEFAULT, "AddOrderStatus", "Permission to add new order status"),
+    (DEFAULT, "AddProduct", "Permission to add new product"),
+    (DEFAULT, "AddWarehouse", "Permission to add a new warehouse"),
+    (DEFAULT, "EditUserPermission", "Permission to edit a users permissions"),
+    (DEFAULT, "EditTenantConfiguration", "Permission to edit the tenant"),
+    (DEFAULT, "EditOAuthApp", "Permission to edit third party application"),
+    (DEFAULT, "EditCustomer", "Permission to edit a customer"),
+    (DEFAULT, "EditOrder", "Permission to edit an order"),
+    (DEFAULT, "EditProduct", "Permission to edit a product"),
+    (DEFAULT, "EditWarehouse", "Permission to edit a warehouse"),
+    (DEFAULT, "DeleteUser", "Permission to delete a user"),
+    (DEFAULT, "DeleteOAuthApp", "Permission to delete an third party application"),
+    (DEFAULT, "DeleteCustomer", "Permission to delete a customer"),
+    (DEFAULT, "DeleteOrder", "Permission to delete an order"),
+    (DEFAULT, "DeleteProduct", "Permission to delete a product"),
+    (DEFAULT, "DeleteWarehouse", "Permission to delete a warehouse");

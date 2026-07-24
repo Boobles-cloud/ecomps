@@ -99,9 +99,9 @@ func (t *Tenant) CreateTenantInDatabase() bool {
 }
 
 // Checks if a user is the admin of the tenant
-func (t *Tenant) IsUserAdmin(u *userstructs.UserStruct) bool {
+func (t *Tenant) IsUserAdmin(userId uint) bool {
 
-	if t.TenantAdminUserId == u.UserId {
+	if t.TenantAdminUserId == userId {
 		return true
 	}
 	return false

@@ -59,12 +59,13 @@ func main() {
 	// POST Requests
 	tenantRouter.HandleFunc("POST /tenant/create", tenantHandlers.HandleTenantCreation)
 	tenantRouter.HandleFunc("POST /tenant/change", tenantHandlers.HandleTenantChange)
-	tenantRouter.HandleFunc("POST /tenant/delete", tenantHandlers.HandleTenantDeltion)
+	tenantRouter.HandleFunc("POST /tenant/delete", tenantHandlers.HandleTenantDeletion)
 
 	// GET Requests
 	tenantRouter.HandleFunc("GET /tenant/{tenant-id}", tenantHandlers.HandleGetTenantByTenantId)
 	tenantRouter.HandleFunc("GET /tenant/by/user={user-id}", tenantHandlers.HandleGetTenantByUserId)
 
+	// TODO: change this concept. We want some endpoints to have a user authentication and some to have the frontend auth
 	// ============ User stuff ============
 	// User middleware config
 	userMiddlewareConfig := middleware.CreateNewMiddlewareStack(
