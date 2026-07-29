@@ -5,14 +5,14 @@ import (
 )
 
 type UserStruct struct {
-	UserId        uint
-	UserName      string
-	UserPW        string
-	UserMail      string
-	UserTel       string
-	UserHas2FA    bool
-	UserHasTenant bool
-	TenantId      uint
+	UserId        uint   `json:"UserId"`
+	UserName      string `json:"UserName"`
+	UserPW        string `json:"UserPw"`
+	UserMail      string `json:"UserMail"`
+	UserTel       string `json:"UserTel"`
+	UserHas2FA    bool   `json:"UserHas2Fa"`
+	UserHasTenant bool   `json:"UserHasTenant"`
+	TenantId      uint   `json:"TenantId"`
 }
 
 // Creates a user in the database

@@ -5,6 +5,7 @@ import (
 	"io"
 	"net/http"
 
+	"boobles.cloud/backend/internal/middleware"
 	tenantstructs "boobles.cloud/backend/internal/tenant/tenant_structs"
 	"boobles.cloud/backend/logging"
 )
@@ -35,7 +36,7 @@ func HandleTenantCreation(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Create the tenant
-	if !tenantStruct.CreateTenantInDatabase() {
+	if !tenantStruct.CreateTenantInDatabase(r.Context().Value(middleware.UserIdContextKey).(int)) {
 		fail(http.StatusInternalServerError, nil)
 	}
 
