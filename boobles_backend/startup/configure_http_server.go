@@ -82,7 +82,7 @@ func ConfigureHTTPServer() http.Server {
 
 	// Normal user querys
 	userFrontendRouter.HandleFunc("GET /user/by/auth={authtoken}", userHandlers.HandleGettingUserByAuthTokenVal)
-	userFrontendRouter.HandleFunc("GET /user/by/id={user-id}", userHandlers.HandleGettingUserById)
+	userFrontendRouter.HandleFunc("GET /user/by/id", userHandlers.HandleGettingUserById)
 	userFrontendRouter.HandleFunc("GET /user/by/tenant-id={tenant-id}&user-name={user-name}", userHandlers.HandleGettingUserByTenantIdAndUserName)
 	userFrontendRouter.HandleFunc("GET /user/has-tenant", userHandlers.HandleHasUserATenant)
 	userFrontendRouter.HandleFunc("GET /user/permission/all", userHandlers.HandleGettingAllPermissions)
