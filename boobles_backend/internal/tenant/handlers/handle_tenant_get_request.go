@@ -22,7 +22,7 @@ func HandleGetTenantByUserId(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(status)
 	}
 
-	userIdInt, err := strconv.Atoi(r.URL.Query().Get("user-id"))
+	userIdInt, err := strconv.Atoi(r.PathValue("user-id"))
 
 	if err != nil {
 		fail(http.StatusBadRequest, err)
@@ -56,7 +56,7 @@ func HandleGetTenantByTenantId(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(status)
 	}
 
-	tenantId, err := strconv.Atoi(r.URL.Query().Get("tenant-id"))
+	tenantId, err := strconv.Atoi(r.PathValue("tenant-id"))
 
 	if err != nil {
 		fail(http.StatusBadRequest, err)

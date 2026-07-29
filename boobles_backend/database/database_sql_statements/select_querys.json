@@ -25,6 +25,16 @@
     "QueryType": 2
   },
   {
+    "QueryName": "SelectUserByTenantIdAndUserName",
+    "QueryVal": "SELECT * FROM Users WHERE TenantId = ? AND UserName = ?;",
+    "QueryType": 2
+  },
+  {
+    "QueryName": "SelectUserByAuthToken",
+    "QueryVal": "SELECT * FROM Users AS u INNER JOIN UserAccessTokens AS ua ON u.UserId = ua.UserId WHERE ua.TokenVal = ?",
+    "QueryType": 2
+  },
+  {
     "QueryName": "SelectAllUsersByTenant",
     "QueryVal": "SELECT * FROM Users WHERE TenantId = ?;",
     "QueryType": 2
