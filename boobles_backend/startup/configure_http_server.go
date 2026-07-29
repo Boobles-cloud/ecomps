@@ -6,7 +6,8 @@ import (
 	"boobles.cloud/backend/caching"
 	authHandlers "boobles.cloud/backend/internal/auth/handlers"
 	"boobles.cloud/backend/internal/middleware"
-	tenantHandlers "boobles.cloud/backend/internal/tenant/handlers"
+	tenanthandlers "boobles.cloud/backend/internal/tenant/handlers"
+	tenantstructs "boobles.cloud/backend/internal/tenant/tenant_structs"
 	userHandlers "boobles.cloud/backend/internal/user/handlers"
 	userstructs "boobles.cloud/backend/internal/user/user_structs"
 )
@@ -22,7 +23,8 @@ func ConfigureHTTPServer() http.Server {
 	userHandler := userHandlers.CreateNewUserHander(userCache, permissionCache)
 
 	// Tenant cache config
-	// TODO
+	tenantCache := caching.CreateNewCacheManager[tenantstructs.Tenant]()
+	tenantHandler := tenanthandlers.CreateNewUserHander(tenantCache)
 
 	// ============ Middleware config stuff ============
 
@@ -70,13 +72,13 @@ func ConfigureHTTPServer() http.Server {
 	tenantRouter := http.NewServeMux()
 
 	// POST Requests
-	tenantRouter.HandleFunc("POST /tenant/create", tenantHandlers.HandleTenantCreation)
-	tenantRouter.HandleFunc("POST /tenant/change", tenantHandlers.HandleTenantChange)
-	tenantRouter.HandleFunc("POST /tenant/delete", tenantHandlers.HandleTenantDeletion)
+	tenantRouter.HandleFunc("POST /tenant/create", tenantHandler.HandleTenantCreation)
+	tenantRouter.HandleFunc("POST /tenant/change", tenantHandler.HandleTenantChange)
+	tenantRouter.HandleFunc("POST /tenant/delete", tenantHandler.HandleTenantDeletion)
 
 	// GET Requests
-	tenantRouter.HandleFunc("GET /tenant/{tenant-id}", tenantHandlers.HandleGetTenantByTenantId)
-	tenantRouter.HandleFunc("GET /tenant/by/user={user-id}", tenantHandlers.HandleGetTenantByUserId)
+	tenantRouter.HandleFunc("GET /tenant/{tenant-id}", tenantHandler.HandleGetTenantByTenantId)
+	tenantRouter.HandleFunc("GET /tenant/by/user={user-id}", tenantHandler.HandleGetTenantByUserId)
 
 	// ==== Changing permission on tenant ====
 	tenantPermissionRouter := http.NewServeMux()

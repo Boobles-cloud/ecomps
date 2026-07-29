@@ -10,9 +10,7 @@ import (
 	"boobles.cloud/backend/logging"
 )
 
-// TODO: Come back here, when the permissions stuff is finished!!!!
-
-func HandleTenantChange(w http.ResponseWriter, r *http.Request) {
+func (t *TenantHandler) HandleTenantChange(w http.ResponseWriter, r *http.Request) {
 
 	fail := func(status int, err error) {
 

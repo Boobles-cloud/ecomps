@@ -11,7 +11,7 @@ import (
 )
 
 // Handles the tenant creation
-func HandleTenantCreation(w http.ResponseWriter, r *http.Request) {
+func (t *TenantHandler) HandleTenantCreation(w http.ResponseWriter, r *http.Request) {
 
 	fail := func(status int, err error) {
 
