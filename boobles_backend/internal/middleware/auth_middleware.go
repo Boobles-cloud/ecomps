@@ -1,14 +1,21 @@
-package auth
+package middleware
 
 import (
+	"context"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
 
 	"boobles.cloud/backend/database"
 	authstructs "boobles.cloud/backend/internal/auth/auth_structs"
 	"boobles.cloud/backend/logging"
 	"github.com/golang-jwt/jwt/v4"
+)
+
+const (
+	UserIdContextKey   = "User.Id.Context"
+	TenantIdContextKey = "Tenant.Id.Context"
 )
 
 // Our middleware to handle authentication
@@ -25,23 +32,34 @@ func AuthMiddleware(nextHandler http.Handler) http.Handler {
 
 		var tokenWithoutBaerer string
 
+		// Replaces the bearer with empty string
 		if strings.Contains(token, "bearer") {
 			tokenWithoutBaerer = strings.ReplaceAll(token, "bearer ", "")
 		} else {
 			tokenWithoutBaerer = strings.ReplaceAll(token, "Bearer ", "")
 		}
 
-		if !tokenValid(tokenWithoutBaerer) && !tokenInDB(tokenWithoutBaerer) {
+		// Checks if the token is valid and gets all claims
+		tokenValid, claims := tokenValid(tokenWithoutBaerer)
+
+		if !tokenValid && !tokenInDB(tokenWithoutBaerer) {
 			w.WriteHeader(http.StatusUnauthorized)
 			return
 		}
 
-		nextHandler.ServeHTTP(w, r)
+		c := context.Background()
+		// Adds the user and tenant Id to the context
+		ct := context.WithValue(c, UserIdContextKey, strconv.Itoa(int(claims.UserId)))
+		ctx := context.WithValue(ct, TenantIdContextKey, strconv.Itoa(int(claims.TenantId)))
+
+		rCtx := r.WithContext(ctx)
+
+		nextHandler.ServeHTTP(w, rCtx)
 	})
 }
 
 // checks if the token is valid
-func tokenValid(token string) bool {
+func tokenValid(token string) (bool, authstructs.JWTClaimsStruct) {
 
 	claims := authstructs.JWTClaimsStruct{}
 
@@ -51,10 +69,10 @@ func tokenValid(token string) bool {
 
 	if err != nil {
 		logging.Log(logging.Error, err.Error())
-		return false
+		return false, claims
 	}
 
-	return parsedToken.Valid
+	return parsedToken.Valid, claims
 }
 
 // Checks if the token is in the database

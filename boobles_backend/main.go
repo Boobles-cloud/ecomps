@@ -3,12 +3,9 @@ package main
 import (
 	"context"
 	"fmt"
-	"net/http"
 	"os"
 
 	"boobles.cloud/backend/internal/auth"
-	authHandlers "boobles.cloud/backend/internal/auth/handlers"
-	tenantHandlers "boobles.cloud/backend/internal/tenant/handlers"
 	"boobles.cloud/backend/logging"
 	"boobles.cloud/backend/startup"
 )
@@ -26,25 +23,23 @@ func main() {
 		os.Exit(1)
 	}
 
+	if !startup.GenerateFrontendApiToken() {
+		fmt.Println(logging.ErrorColor, "Failed to generate api key...", logging.ResetColor)
+		os.Exit(1)
+	}
+
+	// If first init -> set to false
+	if f := os.Getenv("first-init"); f == "true" {
+		os.Setenv("first-init", "false")
+	}
+
 	// Starts our goroutine for deleting expired JWT
 	go auth.DeleteExpiredJWT(ctx)
 
-	muxRouter := http.NewServeMux()
+	// ============ REST-API config stuff ============
+	httpServer := startup.ConfigureHTTPServer()
 
-	// ============ Auth stuff ============
-	muxRouter.HandleFunc("GET /authwall/login", authHandlers.HandleLogin)
-	muxRouter.HandleFunc("POST /authwall/register", authHandlers.HandleRegistration)
-
-	// ============ Tenant stuff ============
-	// NOTE: if you add more always go through the middleware!!
-	muxRouter.Handle("POST /tenant/create", auth.AuthMiddleware(http.HandlerFunc(tenantHandlers.HandleTenantCreation)))
-	muxRouter.Handle("POST /tenant/change", auth.AuthMiddleware(http.HandlerFunc(tenantHandlers.HandleTenantChange)))
-	muxRouter.Handle("POST /tenant/delete", auth.AuthMiddleware(http.HandlerFunc(tenantHandlers.HandleTenantDeltion)))
-
-	muxRouter.Handle("GET /tenant/byId", auth.AuthMiddleware(http.HandlerFunc(tenantHandlers.HandleGetTenantByTenantId)))
-	muxRouter.Handle("GET /tenant/byUserId", auth.AuthMiddleware(http.HandlerFunc(tenantHandlers.HandleGetTenantByUserId)))
-
-	if err := http.ListenAndServe(":8080", muxRouter); err != nil {
+	if err := httpServer.ListenAndServe(); err != nil {
 		logging.Log(logging.Error, err.Error())
 		fmt.Println(logging.ErrorColor, "Failed to start: ", err, logging.ResetColor)
 		os.Exit(1)
