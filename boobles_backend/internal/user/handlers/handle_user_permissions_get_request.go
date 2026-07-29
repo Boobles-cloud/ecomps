@@ -16,7 +16,7 @@ import (
 // ================================
 
 // Handles getting all permissions for a user
-func HandleGettingUserPermissions(w http.ResponseWriter, r *http.Request) {
+func (u *UserHandler) HandleGettingUserPermissions(w http.ResponseWriter, r *http.Request) {
 	fail := func(status int, err error) {
 
 		if err != nil {
@@ -58,7 +58,7 @@ func HandleGettingUserPermissions(w http.ResponseWriter, r *http.Request) {
 }
 
 // Handels getting permission by the given permission id
-func HandleGettingPermissionById(w http.ResponseWriter, r *http.Request) {
+func (u *UserHandler) HandleGettingPermissionById(w http.ResponseWriter, r *http.Request) {
 	fail := func(status int, err error) {
 
 		if err != nil {
@@ -94,7 +94,7 @@ func HandleGettingPermissionById(w http.ResponseWriter, r *http.Request) {
 }
 
 // Handels getting all permissions
-func HandleGettingAllPermissions(w http.ResponseWriter, r *http.Request) {
+func (u *UserHandler) HandleGettingAllPermissions(w http.ResponseWriter, r *http.Request) {
 
 	fail := func(status int, err error) {
 

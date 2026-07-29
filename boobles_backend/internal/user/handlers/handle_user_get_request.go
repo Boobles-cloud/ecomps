@@ -17,7 +17,7 @@ import (
 // ================================
 
 // Handles the getting the user by the accesstoken val
-func HandleGettingUserByAuthTokenVal(w http.ResponseWriter, r *http.Request) {
+func (u *UserHandler) HandleGettingUserByAuthTokenVal(w http.ResponseWriter, r *http.Request) {
 
 	fail := func(status int, err error) {
 		logging.Log(logging.Error, err.Error())
@@ -47,7 +47,7 @@ func HandleGettingUserByAuthTokenVal(w http.ResponseWriter, r *http.Request) {
 }
 
 // Handles getting the user by the user id
-func HandleGettingUserById(w http.ResponseWriter, r *http.Request) {
+func (u *UserHandler) HandleGettingUserById(w http.ResponseWriter, r *http.Request) {
 
 	fail := func(status int, err error) {
 		logging.Log(logging.Error, err.Error())
@@ -73,7 +73,7 @@ func HandleGettingUserById(w http.ResponseWriter, r *http.Request) {
 }
 
 // Handles getting the user by tenant and user name
-func HandleGettingUserByTenantIdAndUserName(w http.ResponseWriter, r *http.Request) {
+func (u *UserHandler) HandleGettingUserByTenantIdAndUserName(w http.ResponseWriter, r *http.Request) {
 
 	fail := func(status int, err error) {
 		logging.Log(logging.Error, err.Error())
@@ -111,7 +111,7 @@ func HandleGettingUserByTenantIdAndUserName(w http.ResponseWriter, r *http.Reque
 }
 
 // Handles the request for checking if a user has a tenant
-func HandleHasUserATenant(w http.ResponseWriter, r *http.Request) {
+func (u *UserHandler) HandleHasUserATenant(w http.ResponseWriter, r *http.Request) {
 
 	fail := func(status int, err error) {
 		logging.Log(logging.Error, err.Error())

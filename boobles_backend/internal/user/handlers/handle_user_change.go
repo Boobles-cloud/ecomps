@@ -10,7 +10,7 @@ import (
 )
 
 // Handels the user change stuff
-func HandleUserChange(w http.ResponseWriter, r *http.Request) {
+func (u *UserHandler) HandleUserChange(w http.ResponseWriter, r *http.Request) {
 
 	fail := func(status int, err error) {
 

@@ -14,7 +14,7 @@ import (
 // Handels the adding of a new permission for the user
 // NOTE: for this to work, use the [CheckAdminMiddleware]
 // Only admins can access it
-func HandleAddingNewUserPermission(w http.ResponseWriter, r *http.Request) {
+func (u *UserHandler) HandleAddingNewUserPermission(w http.ResponseWriter, r *http.Request) {
 
 	fail := func(status int, err error) {
 
@@ -49,7 +49,7 @@ func HandleAddingNewUserPermission(w http.ResponseWriter, r *http.Request) {
 // Handels the removing of a user permission
 // NOTE: for this to work, use the [CheckAdminMiddleware]
 // Only admins can access it.
-func HandleRemovingUserPermission(w http.ResponseWriter, r *http.Request) {
+func (u *UserHandler) HandleRemovingUserPermission(w http.ResponseWriter, r *http.Request) {
 
 	fail := func(status int, err error) {
 
