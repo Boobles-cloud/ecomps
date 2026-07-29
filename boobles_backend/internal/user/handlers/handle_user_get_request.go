@@ -6,7 +6,7 @@ import "net/http"
 // These are funcs, that only our frontend can access!!
 
 // Handles the getting the user by the accesstoken val
-func HandleGettingUserByTokenVal(w http.ResponseWriter, r *http.Request)
+func HandleGettingUserByAuthTokenVal(w http.ResponseWriter, r *http.Request)
 
 // Handles getting the user by the user id
 func HandleGettingUserById(w http.ResponseWriter, r *http.Request)

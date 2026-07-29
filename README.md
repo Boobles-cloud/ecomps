@@ -9,7 +9,7 @@ Currently just errors
 
 Feature | Status / Version it is included
 --- | --- |
-Multiple users with different permissions | Not started yet -> V1
+Multiple users with different permissions | Done
 Creating orders | Not started yet -> V1
 Creating customers | Not started yet -> V1
 Syncronize storrage data from multiple shops | Not started yet -> V1

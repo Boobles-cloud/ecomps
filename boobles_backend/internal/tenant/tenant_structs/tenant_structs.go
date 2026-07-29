@@ -15,12 +15,11 @@ type Tenant struct {
 	TenantAdminUserId uint      `json:"TenantAdminUser"`
 	TenantCreation    time.Time `json:"-"`
 	TenantPwId        uint      `json:"-"`
-	// TODO: add more stuff here and also in the tables.sql
 }
 
 // TODO: Refactor this!!
 // Creates a tenant in the database
-func (t *Tenant) CreateTenantInDatabase() bool {
+func (t *Tenant) CreateTenantInDatabase(userId int) bool {
 
 	ctx, cancel := context.WithCancel(context.Background())
 
@@ -72,7 +71,7 @@ func (t *Tenant) CreateTenantInDatabase() bool {
 	}
 
 	// Get the wanted User
-	user, ok := database.QueryDatabase[userstructs.UserStruct]("SelectUserById", []any{t.TenantId})
+	user, ok := database.QueryDatabase[userstructs.UserStruct]("SelectUserById", []any{userId})
 
 	// Check that its only one user and its ok
 	if !ok || len(user) > 1 {
@@ -99,9 +98,9 @@ func (t *Tenant) CreateTenantInDatabase() bool {
 }
 
 // Checks if a user is the admin of the tenant
-func (t *Tenant) IsUserAdmin(u *userstructs.UserStruct) bool {
+func (t *Tenant) IsUserAdmin(userId uint) bool {
 
-	if t.TenantAdminUserId == u.UserId {
+	if t.TenantAdminUserId == userId {
 		return true
 	}
 	return false

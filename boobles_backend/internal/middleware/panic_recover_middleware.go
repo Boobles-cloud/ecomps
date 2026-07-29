@@ -6,6 +6,7 @@ import (
 	"boobles.cloud/backend/logging"
 )
 
+// Used to log any panics our program does
 func PanicRecoverMiddleware(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
