@@ -7,6 +7,13 @@ CREATE TABLE Versions(
     VersionDatabaseNum varchar(50)
 );
 
+CREATE TABLE Languages(
+    LangId int unsigned NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    LangName varchar(40),
+    Country varchar(40)
+);
+
+
 -- All users for a tenant
 CREATE TABLE Users(
     UserId int unsigned NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -64,7 +71,10 @@ CREATE TABLE Tenant(
 CREATE TABLE TenantActions(
     ActionId int unsigned NOT NULL AUTO_INCREMENT PRIMARY KEY,
     ActionName varchar(50) NOT NULL,
-    ActionDescription varchar(50) NOT NULL
+    ActionDescription varchar(50) NOT NULL,
+    LanguageId int unsigned NOT NULL,
+
+    FOREIGN KEY(LanguageId) REFERENCES Languages(LangId)
 );
 
 -- For storring the tenant pw
@@ -149,7 +159,10 @@ CREATE TABLE Order(
 -- To indicate which state an order has
 CREATE TABLE OrderStatus(
     StatusId int unsigned NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    StatusName varchar(200) NOT NULL
+    StatusName varchar(200) NOT NULL,
+    LanguageId int unsigned NOT NULL,
+
+    FOREIGN KEY(LanguageId) REFERENCES Languages(LangId)
 );
 
 
@@ -205,6 +218,12 @@ CREATE TABLE Warehouse(
 -- ############################################################
 
 
+INSERT INTO Languages VALUES
+    (1, "Deutsch", "Deutschland"),
+    (2, "English GB", "Great Britin"),
+    (3, "Svenska", "Sverige");
+
+
 -- To set the default version
 -- TODO: Change version here, before releasing a new version!
 INSERT INTO Versions VALUES(DEFAULT, 'Alpha', '0.1', 'Alpha', '0.1');
@@ -216,23 +235,74 @@ INSERT INTO Tenant(TenantId, TenantName) VALUES(0, "USER_HAS_NO_TENANT");
 -- TODO: change this, so it allows different languages
 -- All Actions a tenant can do
 INSERT INTO TenantActions VALUES
-    (DEFAULT, "AddUser", "Permission to add a new user to this tenant"),
-    (DEFAULT, "AddOAuthApp", "Permission to add new third party applications, to sync data"),
-    (DEFAULT, "AddCustomer", "Permission to add a new customer"),
-    (DEFAULT, "AddOrder", "Permission to add new order"),
-    (DEFAULT, "AddOrderStatus", "Permission to add new order status"),
-    (DEFAULT, "AddProduct", "Permission to add new product"),
-    (DEFAULT, "AddWarehouse", "Permission to add a new warehouse"),
-    (DEFAULT, "EditUserPermission", "Permission to edit a users permissions"),
-    (DEFAULT, "EditTenantConfiguration", "Permission to edit the tenant"),
-    (DEFAULT, "EditOAuthApp", "Permission to edit third party application"),
-    (DEFAULT, "EditCustomer", "Permission to edit a customer"),
-    (DEFAULT, "EditOrder", "Permission to edit an order"),
-    (DEFAULT, "EditProduct", "Permission to edit a product"),
-    (DEFAULT, "EditWarehouse", "Permission to edit a warehouse"),
-    (DEFAULT, "DeleteUser", "Permission to delete a user"),
-    (DEFAULT, "DeleteOAuthApp", "Permission to delete an third party application"),
-    (DEFAULT, "DeleteCustomer", "Permission to delete a customer"),
-    (DEFAULT, "DeleteOrder", "Permission to delete an order"),
-    (DEFAULT, "DeleteProduct", "Permission to delete a product"),
-    (DEFAULT, "DeleteWarehouse", "Permission to delete a warehouse");
+-- -------------------------------------------------------------
+-- Deutsch (LanguageId = 1)
+-- -------------------------------------------------------------
+(DEFAULT, "AddUser", "Berechtigung, einen neuen Benutzer hinzuzufügen", 1),
+(DEFAULT, "AddOAuthApp", "Berechtigung, Drittanbieter-Apps zum Synchro hinzuzufügen", 1),
+(DEFAULT, "AddCustomer", "Berechtigung, einen neuen Kunden hinzuzufügen", 1),
+(DEFAULT, "AddOrder", "Berechtigung, eine neue Bestellung hinzuzufügen", 1),
+(DEFAULT, "AddOrderStatus", "Berechtigung, einen neuen Bestellstatus hinzuzufügen", 1),
+(DEFAULT, "AddProduct", "Berechtigung, ein neues Produkt hinzuzufügen", 1),
+(DEFAULT, "AddWarehouse", "Berechtigung, ein neues Lager hinzuzufügen", 1),
+(DEFAULT, "EditUserPermission", "Berechtigung, Benutzerrechte zu bearbeiten", 1),
+(DEFAULT, "EditTenantConfiguration", "Berechtigung, den Mandanten zu bearbeiten", 1),
+(DEFAULT, "EditOAuthApp", "Berechtigung, Drittanbieter-Apps zu bearbeiten", 1),
+(DEFAULT, "EditCustomer", "Berechtigung, einen Kunden zu bearbeiten", 1),
+(DEFAULT, "EditOrder", "Berechtigung, eine Bestellung zu bearbeiten", 1),
+(DEFAULT, "EditProduct", "Berechtigung, ein Produkt zu bearbeiten", 1),
+(DEFAULT, "EditWarehouse", "Berechtigung, ein Lager zu bearbeiten", 1),
+(DEFAULT, "DeleteUser", "Berechtigung, einen Benutzer zu löschen", 1),
+(DEFAULT, "DeleteOAuthApp", "Berechtigung, eine Drittanbieter-App zu löschen", 1),
+(DEFAULT, "DeleteCustomer", "Berechtigung, einen Kunden zu löschen", 1),
+(DEFAULT, "DeleteOrder", "Berechtigung, eine Bestellung zu löschen", 1),
+(DEFAULT, "DeleteProduct", "Berechtigung, ein Produkt zu löschen", 1),
+(DEFAULT, "DeleteWarehouse", "Berechtigung, ein Lager zu löschen", 1),
+
+-- -------------------------------------------------------------
+-- English GB (LanguageId = 2)
+-- -------------------------------------------------------------
+(DEFAULT, "AddUser", "Permission to add a new user to this tenant", 2),
+(DEFAULT, "AddOAuthApp", "Permission to add new third party applications, to sync data", 2),
+(DEFAULT, "AddCustomer", "Permission to add a new customer", 2),
+(DEFAULT, "AddOrder", "Permission to add new order", 2),
+(DEFAULT, "AddOrderStatus", "Permission to add new order status", 2),
+(DEFAULT, "AddProduct", "Permission to add new product", 2),
+(DEFAULT, "AddWarehouse", "Permission to add a new warehouse", 2),
+(DEFAULT, "EditUserPermission", "Permission to edit a users permissions", 2),
+(DEFAULT, "EditTenantConfiguration", "Permission to edit the tenant", 2),
+(DEFAULT, "EditOAuthApp", "Permission to edit third party application", 2),
+(DEFAULT, "EditCustomer", "Permission to edit a customer", 2),
+(DEFAULT, "EditOrder", "Permission to edit an order", 2),
+(DEFAULT, "EditProduct", "Permission to edit a product", 2),
+(DEFAULT, "EditWarehouse", "Permission to edit a warehouse", 2),
+(DEFAULT, "DeleteUser", "Permission to delete a user", 2),
+(DEFAULT, "DeleteOAuthApp", "Permission to delete an third party application", 2),
+(DEFAULT, "DeleteCustomer", "Permission to delete a customer", 2),
+(DEFAULT, "DeleteOrder", "Permission to delete an order", 2),
+(DEFAULT, "DeleteProduct", "Permission to delete a product", 2),
+(DEFAULT, "DeleteWarehouse", "Permission to delete a warehouse", 2),
+
+-- -------------------------------------------------------------
+-- Svenska / Schwedisch (LanguageId = 3)
+-- -------------------------------------------------------------
+(DEFAULT, "AddUser", "Behörighet att lägga till en ny användare", 3),
+(DEFAULT, "AddOAuthApp", "Behörighet att lägga till tredjepartsapplikationer", 3),
+(DEFAULT, "AddCustomer", "Behörighet att lägga till en ny kund", 3),
+(DEFAULT, "AddOrder", "Behörighet att lägga till en ny order", 3),
+(DEFAULT, "AddOrderStatus", "Behörighet att lägga till en ny orderstatus", 3),
+(DEFAULT, "AddProduct", "Behörighet att lägga till en ny produkt", 3),
+(DEFAULT, "AddWarehouse", "Behörighet att lägga till ett nytt lager", 3),
+(DEFAULT, "EditUserPermission", "Behörighet att redigera användarbehörigheter", 3),
+(DEFAULT, "EditTenantConfiguration", "Behörighet att redigera organisationen", 3),
+(DEFAULT, "EditOAuthApp", "Behörighet att redigera tredjepartsapplikation", 3),
+(DEFAULT, "EditCustomer", "Behörighet att redigera en kund", 3),
+(DEFAULT, "EditOrder", "Behörighet att redigera en order", 3),
+(DEFAULT, "EditProduct", "Behörighet att redigera en produkt", 3),
+(DEFAULT, "EditWarehouse", "Behörighet att redigera ett lager", 3),
+(DEFAULT, "DeleteUser", "Behörighet att ta bort en användare", 3),
+(DEFAULT, "DeleteOAuthApp", "Behörighet att ta bort en tredjepartsapplikation", 3),
+(DEFAULT, "DeleteCustomer", "Behörighet att ta bort en kund", 3),
+(DEFAULT, "DeleteOrder", "Behörighet att ta bort en order", 3),
+(DEFAULT, "DeleteProduct", "Behörighet att ta bort en produkt", 3),
+(DEFAULT, "DeleteWarehouse", "Behörighet att ta bort ett lager", 3);

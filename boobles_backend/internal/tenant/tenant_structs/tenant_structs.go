@@ -113,3 +113,15 @@ func (t *Tenant) GetAllUsersForTenant() []userstructs.UserStruct {
 
 	return users
 }
+
+// Gets the tenant pw
+func (t *Tenant) GetPw() string {
+	tp, ok := database.QueryDatabase[TenantPwStruct]("SelectTenantPwByTenantId", []any{t.TenantPwId})
+
+	if !ok || len(tp) != 1 {
+		logging.Log(logging.Error, "Got more then one tenant pw...")
+		return ""
+	}
+
+	return tp[0].TenantPwVal
+}

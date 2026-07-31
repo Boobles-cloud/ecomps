@@ -50,6 +50,11 @@
     "QueryType": 2
   },
   {
+    "QueryName": "SelectTenantPwByTenantId",
+    "QueryVal": "SELECT * FROM TenantPw WHERE TenantPwId = ?;",
+    "QueryType": 2
+  },
+  {
     "QueryName": "SelectTenantActionById",
     "QueryVal": "SELECT * FROM TenantAction WHERE ActionId = ?;",
     "QueryType": 2
@@ -57,6 +62,16 @@
   {
     "QueryName": "SelectPermissionsByName",
     "QueryVal": "SELECT * FROM TenantAction WHERE ActionName = ?;",
+    "QueryType": 2
+  },
+  {
+    "QueryName": "SelectOrderStatusById",
+    "QueryVal": "SELECT * FROM OrderStatus WHERE StatusId = ?;",
+    "QueryType": 2
+  },
+  {
+    "QueryName": "SelectOrderById",
+    "QueryVal": "SELECT * FROM Order WHERE OrderId = ?;",
     "QueryType": 2
   }
 ]

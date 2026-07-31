@@ -23,5 +23,10 @@
     "QueryName": "InsertTenantDeletion",
     "QueryVal": "INSERT INTO TenantDelitions() VALUES(DEFAULT, ?, ?, ?, ?, ?);",
     "QueryType": 0
+  },
+  {
+    "QueryName": "InsertOrder",
+    "QueryVal": "INSERT INTO Order() VALUES(DEFAULT, ?, ?, ?, ?, ?, ?, ?);",
+    "QueryType": 0
   }
 ]
