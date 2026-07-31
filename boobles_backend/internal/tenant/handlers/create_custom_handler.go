@@ -10,6 +10,7 @@ type TenantHandler struct {
 }
 
 // Creates a new Tenant handler
+// NOTE: We dont use the cache here, but for future stuff its already there
 func CreateNewUserHander(tc *caching.CacheManager[tenantstructs.Tenant]) *TenantHandler {
 	return &TenantHandler{
 		TenantCache: tc,

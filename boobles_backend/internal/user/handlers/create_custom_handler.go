@@ -11,6 +11,7 @@ type UserHandler struct {
 }
 
 // Creates a new UserHandler
+// NOTE: We dont use the cache here, but for future stuff its already there
 func CreateNewUserHander(uc *caching.CacheManager[userstructs.UserStruct], pc *caching.CacheManager[userstructs.UserPermission]) *UserHandler {
 	return &UserHandler{
 		UserCache:       uc,
