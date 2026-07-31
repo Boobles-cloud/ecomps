@@ -11,7 +11,7 @@ import (
 )
 
 // Handels the request for getting a tenant by the user Id
-func HandleGetTenantByUserId(w http.ResponseWriter, r *http.Request) {
+func (t *TenantHandler) HandleGetTenantByUserId(w http.ResponseWriter, r *http.Request) {
 
 	fail := func(status int, err error) {
 
@@ -45,7 +45,7 @@ func HandleGetTenantByUserId(w http.ResponseWriter, r *http.Request) {
 }
 
 // Handels getting the tenant by the given id
-func HandleGetTenantByTenantId(w http.ResponseWriter, r *http.Request) {
+func (t *TenantHandler) HandleGetTenantByTenantId(w http.ResponseWriter, r *http.Request) {
 
 	fail := func(status int, err error) {
 

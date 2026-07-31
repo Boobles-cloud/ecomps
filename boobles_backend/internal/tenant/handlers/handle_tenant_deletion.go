@@ -11,10 +11,8 @@ import (
 	"boobles.cloud/backend/logging"
 )
 
-// TODO: Come back here, when the permissions stuff is ready!!!
-
 // Handels the deletion of a tenant
-func HandleTenantDeletion(w http.ResponseWriter, r *http.Request) {
+func (t *TenantHandler) HandleTenantDeletion(w http.ResponseWriter, r *http.Request) {
 
 	fail := func(status int, err error) {
 

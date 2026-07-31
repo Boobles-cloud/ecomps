@@ -3,14 +3,28 @@ package startup
 import (
 	"net/http"
 
+	"boobles.cloud/backend/caching"
 	authHandlers "boobles.cloud/backend/internal/auth/handlers"
 	"boobles.cloud/backend/internal/middleware"
-	tenantHandlers "boobles.cloud/backend/internal/tenant/handlers"
+	tenanthandlers "boobles.cloud/backend/internal/tenant/handlers"
+	tenantstructs "boobles.cloud/backend/internal/tenant/tenant_structs"
 	userHandlers "boobles.cloud/backend/internal/user/handlers"
+	userstructs "boobles.cloud/backend/internal/user/user_structs"
 )
 
 // Creates and configures the rest api
 func ConfigureHTTPServer() http.Server {
+
+	// ============ Cache config stuff ============
+
+	// User cache config
+	userCache := caching.CreateNewCacheManager[userstructs.UserStruct]()
+	permissionCache := caching.CreateNewCacheManager[userstructs.UserPermission]()
+	userHandler := userHandlers.CreateNewUserHander(userCache, permissionCache)
+
+	// Tenant cache config
+	tenantCache := caching.CreateNewCacheManager[tenantstructs.Tenant]()
+	tenantHandler := tenanthandlers.CreateNewUserHander(tenantCache)
 
 	// ============ Middleware config stuff ============
 
@@ -58,38 +72,38 @@ func ConfigureHTTPServer() http.Server {
 	tenantRouter := http.NewServeMux()
 
 	// POST Requests
-	tenantRouter.HandleFunc("POST /tenant/create", tenantHandlers.HandleTenantCreation)
-	tenantRouter.HandleFunc("POST /tenant/change", tenantHandlers.HandleTenantChange)
-	tenantRouter.HandleFunc("POST /tenant/delete", tenantHandlers.HandleTenantDeletion)
+	tenantRouter.HandleFunc("POST /tenant/create", tenantHandler.HandleTenantCreation)
+	tenantRouter.HandleFunc("POST /tenant/change", tenantHandler.HandleTenantChange)
+	tenantRouter.HandleFunc("POST /tenant/delete", tenantHandler.HandleTenantDeletion)
 
 	// GET Requests
-	tenantRouter.HandleFunc("GET /tenant/{tenant-id}", tenantHandlers.HandleGetTenantByTenantId)
-	tenantRouter.HandleFunc("GET /tenant/by/user={user-id}", tenantHandlers.HandleGetTenantByUserId)
+	tenantRouter.HandleFunc("GET /tenant/{tenant-id}", tenantHandler.HandleGetTenantByTenantId)
+	tenantRouter.HandleFunc("GET /tenant/by/user={user-id}", tenantHandler.HandleGetTenantByUserId)
 
 	// ==== Changing permission on tenant ====
 	tenantPermissionRouter := http.NewServeMux()
-	tenantPermissionRouter.HandleFunc("POST /user/permission/add", userHandlers.HandleAddingNewUserPermission)
-	tenantPermissionRouter.HandleFunc("POST /user/permission/remove", userHandlers.HandleRemovingUserPermission)
+	tenantPermissionRouter.HandleFunc("POST /user/permission/add", userHandler.HandleAddingNewUserPermission)
+	tenantPermissionRouter.HandleFunc("POST /user/permission/remove", userHandler.HandleRemovingUserPermission)
 
 	// ============ User stuff ============
 
 	userRouter := http.NewServeMux()
-	userRouter.HandleFunc("/user/change", userHandlers.HandleUserChange)
+	userRouter.HandleFunc("/user/change", userHandler.HandleUserChange)
 	// TODO: add more stuff here
 
 	// ==== User frontend stuff ====
 	userFrontendRouter := http.NewServeMux()
 
 	// Normal user querys
-	userFrontendRouter.HandleFunc("GET /user/by/auth={authtoken}", userHandlers.HandleGettingUserByAuthTokenVal)
-	userFrontendRouter.HandleFunc("GET /user/by/id", userHandlers.HandleGettingUserById)
-	userFrontendRouter.HandleFunc("GET /user/by/tenant-id={tenant-id}&user-name={user-name}", userHandlers.HandleGettingUserByTenantIdAndUserName)
-	userFrontendRouter.HandleFunc("GET /user/has-tenant", userHandlers.HandleHasUserATenant)
-	userFrontendRouter.HandleFunc("GET /user/permission/all", userHandlers.HandleGettingAllPermissions)
+	userFrontendRouter.HandleFunc("GET /user/by/auth={authtoken}", userHandler.HandleGettingUserByAuthTokenVal)
+	userFrontendRouter.HandleFunc("GET /user/by/id", userHandler.HandleGettingUserById)
+	userFrontendRouter.HandleFunc("GET /user/by/tenant-id={tenant-id}&user-name={user-name}", userHandler.HandleGettingUserByTenantIdAndUserName)
+	userFrontendRouter.HandleFunc("GET /user/has-tenant", userHandler.HandleHasUserATenant)
+	userFrontendRouter.HandleFunc("GET /user/permission/all", userHandler.HandleGettingAllPermissions)
 
 	// User permission stuff
-	userFrontendRouter.HandleFunc("GET /user/permission/all/by/user-id={user-id}", userHandlers.HandleGettingUserPermissions)
-	userFrontendRouter.HandleFunc("GET /user/permission/permission-id={permission-id}", userHandlers.HandleGettingPermissionById)
+	userFrontendRouter.HandleFunc("GET /user/permission/all/by/user-id={user-id}", userHandler.HandleGettingUserPermissions)
+	userFrontendRouter.HandleFunc("GET /user/permission/permission-id={permission-id}", userHandler.HandleGettingPermissionById)
 
 	// ============ Adding all subrouters ============
 	muxMainRouter.Handle("/", authMux)
