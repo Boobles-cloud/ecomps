@@ -73,5 +73,15 @@
     "QueryName": "SelectOrderById",
     "QueryVal": "SELECT * FROM Order WHERE OrderId = ?;",
     "QueryType": 2
+  },
+  {
+    "QueryName": "SelectProductById",
+    "QueryVal": "SELECT * FROM Product WHERE ProductId = ?;",
+    "QueryType": 2
+  }
+  {
+    "QueryName": "SelectProductByTenantId",
+    "QueryVal": "SELECT * FROM Product WHERE TenantId = ?;",
+    "QueryType": 2
   }
 ]

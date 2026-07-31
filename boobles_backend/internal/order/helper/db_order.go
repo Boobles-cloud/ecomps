@@ -27,3 +27,5 @@ func GetOrder(orderId uint, key string) (*orderstructs.Order, bool) {
 
 	return orderEncrypted, true
 }
+
+// TODO: implement getting all orders for tenant id
