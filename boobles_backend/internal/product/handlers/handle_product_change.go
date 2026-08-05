@@ -6,8 +6,11 @@ import (
 	"io"
 	"net/http"
 
+	"boobles.cloud/backend/crypto"
 	"boobles.cloud/backend/database"
+	"boobles.cloud/backend/internal/middleware"
 	productstructs "boobles.cloud/backend/internal/product/product_structs"
+	tenantstructs "boobles.cloud/backend/internal/tenant/tenant_structs"
 	"boobles.cloud/backend/logging"
 )
 
@@ -31,7 +34,24 @@ func (p *ProductHandler) HandleChangingProduct(w http.ResponseWriter, r *http.Re
 		fail(http.StatusBadRequest, err)
 	}
 
-	if !database.UpdateDatabaseEntry[productstructs.Product]("UpdateProduct", "ProductId", product) {
+	// Get the tenant id
+	tenantId := r.Context().Value(middleware.TenantIdContextKey).(int)
+
+	// Get the tenant for encryption stuff
+	tenant, ok := database.QueryDatabase[tenantstructs.Tenant]("SelectTenantById", []any{tenantId})
+
+	if !ok || len(tenant) != 1 {
+		fail(http.StatusInternalServerError, errors.New("Failed getting Tenant"))
+	}
+
+	// Encrypt the product
+	encryptedProduct, ok := crypto.Encrypt[productstructs.Product](product, tenant[0].GetPw())
+
+	if !ok {
+		fail(http.StatusInternalServerError, errors.New("Failed to encrypt product"))
+	}
+
+	if !database.UpdateDatabaseEntry[productstructs.Product]("UpdateProduct", "ProductId", encryptedProduct) {
 		fail(http.StatusInternalServerError, errors.New("Failed to update product"))
 	}
 

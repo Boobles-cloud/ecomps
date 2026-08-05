@@ -188,6 +188,17 @@ CREATE TABLE Product(
     FOREIGN KEY(TenantId) REFERENCES Tenant(TenantId)
 );
 
+-- For storring all product pictures
+CREATE TABLE ProductPictures(
+    PictureId int unsigned NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    PicturePath varchar(250) NOT NULL,
+    PicturePosition int unsigned,
+    ProductId int unsigned NOT NULL,
+
+    FOREIGN KEY(ProductId) REFERENCES Product(ProductId)
+);
+
+
 -- If a Product is storred in multiple warehouses
 CREATE TABLE ProductWarehouses(
     ProdWareId int unsigned NOT NULL AUTO_INCREMENT PRIMARY KEY,

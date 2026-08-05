@@ -6,8 +6,11 @@ import (
 	"io"
 	"net/http"
 
+	"boobles.cloud/backend/crypto"
 	"boobles.cloud/backend/database"
+	"boobles.cloud/backend/internal/middleware"
 	productstructs "boobles.cloud/backend/internal/product/product_structs"
+	tenantstructs "boobles.cloud/backend/internal/tenant/tenant_structs"
 	"boobles.cloud/backend/logging"
 )
 
@@ -31,8 +34,22 @@ func (p *ProductHandler) HandleCreatingProduct(w http.ResponseWriter, r *http.Re
 		fail(http.StatusBadRequest, err)
 	}
 
-	result := database.ExecuteSQLStatement("InsertProduct", database.Insert, []any{product.ProductName, product.ProductPrice,
-		product.ProductDescription, product.ProductPicturePath, product.TenantId})
+	tenantId := r.Context().Value(middleware.TenantIdContextKey).(int)
+
+	tenant, ok := database.QueryDatabase[tenantstructs.Tenant]("SelectTenantById", []any{tenantId})
+
+	if !ok || len(tenant) != 1 {
+		fail(http.StatusInternalServerError, errors.New("Failed getting Tenant"))
+	}
+
+	encryptedProduct, ok := crypto.Encrypt[productstructs.Product](product, tenant[0].GetPw())
+
+	if !ok {
+		fail(http.StatusInternalServerError, errors.New("Failed to encrypt product"))
+	}
+
+	result := database.ExecuteSQLStatement("InsertProduct", database.Insert, []any{encryptedProduct.ProductName, encryptedProduct.ProductPrice,
+		encryptedProduct.ProductDescription, encryptedProduct.ProductPicturePath, encryptedProduct.TenantId})
 
 	if !result.Ok {
 		fail(http.StatusInternalServerError, errors.New("Failed to create product"))
