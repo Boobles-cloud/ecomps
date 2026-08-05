@@ -127,8 +127,6 @@ withOutCache:
 		fail(http.StatusInternalServerError, err)
 	}
 
-	// TODO: set cache items
-
 	w.Write(jsonData)
 	w.WriteHeader(http.StatusOK)
 }

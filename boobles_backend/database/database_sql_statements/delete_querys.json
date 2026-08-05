@@ -8,5 +8,10 @@
     "QueryName": "DeleteUserAccestokenByValue",
     "QueryVal": "DELETE FROM UserAccesstokens WHERE TokenVal = ?;",
     "QueryType": 1
+  },
+  {
+    "QueryName": "DeleteProductById",
+    "QueryVal": "DELETE FROM Product WHERE ProductId = ?;",
+    "QueryType": 1
   }
 ]

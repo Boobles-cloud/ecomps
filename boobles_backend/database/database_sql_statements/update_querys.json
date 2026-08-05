@@ -8,5 +8,10 @@
     "QueryName": "UpdateTenant",
     "QueryVal": "UPDATE Tenant SET",
     "QueryType": 3
+  },
+  {
+    "QueryName": "UpdateProduct",
+    "QueryVal": "UPDATE Product SET",
+    "QueryType": 3
   }
 ]
