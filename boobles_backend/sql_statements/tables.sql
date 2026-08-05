@@ -243,7 +243,7 @@ INSERT INTO Versions VALUES(DEFAULT, 'Alpha', '0.1', 'Alpha', '0.1');
 -- We do this, so we can filter if the user has a tenant or not :)
 INSERT INTO Tenant(TenantId, TenantName) VALUES(0, "USER_HAS_NO_TENANT");
 
--- TODO: change this, so it allows different languages
+
 -- All Actions a tenant can do
 INSERT INTO TenantActions VALUES
 -- -------------------------------------------------------------

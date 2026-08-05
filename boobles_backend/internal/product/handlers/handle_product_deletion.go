@@ -9,7 +9,10 @@ import (
 	"boobles.cloud/backend/logging"
 )
 
+// Handels the deletion of a prodcut
 func (p *ProductHandler) HandleDeletingProduct(w http.ResponseWriter, r *http.Request) {
+
+	// TODO: also delete all product pictures
 
 	fail := func(status int, err error) {
 		logging.Log(logging.Error, err.Error())

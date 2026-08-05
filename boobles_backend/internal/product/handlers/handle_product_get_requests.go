@@ -132,7 +132,7 @@ withOutCache:
 }
 
 // TODO: Change this, so we can get more pictures from one item
-func (p *ProductHandler) HandleGettingPictureById(w http.ResponseWriter, r *http.Request) {
+func (p *ProductHandler) HandleGettingPictureByProductId(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("TODO"))
 	w.WriteHeader(http.StatusBadRequest)
 }
