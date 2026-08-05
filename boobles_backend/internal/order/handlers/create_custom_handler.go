@@ -15,7 +15,7 @@ type OrderHandler struct {
 	OrderCache *caching.CacheManager[orderstructs.Order]
 }
 
-func CreateNewHandler(o *caching.CacheManager[orderstructs.Order]) *OrderHandler {
+func CreateNewOrderHandler(o *caching.CacheManager[orderstructs.Order]) *OrderHandler {
 	return &OrderHandler{
 		OrderCache: o,
 	}
