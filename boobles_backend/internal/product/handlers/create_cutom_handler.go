@@ -16,7 +16,7 @@ type ProductHandler struct {
 }
 
 // Creates a new handler for products
-func CreateNewHandler(c *caching.CacheManager[productstructs.Product]) *ProductHandler {
+func CreateNewProductHandler(c *caching.CacheManager[productstructs.Product]) *ProductHandler {
 	return &ProductHandler{
 		ProductCache: c,
 	}

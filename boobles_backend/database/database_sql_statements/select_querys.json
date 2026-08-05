@@ -75,13 +75,33 @@
     "QueryType": 2
   },
   {
+    "QueryName": "SelectOrdersByTenantId",
+    "QueryVal": "SELECT * FROM Order WHERE TenantId = ?;",
+    "QueryType": 2
+  },
+  {
     "QueryName": "SelectProductById",
     "QueryVal": "SELECT * FROM Product WHERE ProductId = ?;",
     "QueryType": 2
-  }
+  },
   {
     "QueryName": "SelectProductByTenantId",
     "QueryVal": "SELECT * FROM Product WHERE TenantId = ?;",
+    "QueryType": 2
+  },
+  {
+    "QueryName": "SelectOrderProductsByOrderId",
+    "QueryVal": "SELECT * FROM OrderProduct WHERE OrderId = ?;",
+    "QueryType": 2
+  },
+  {
+    "QueryName": "SelectOrderStatusByIdAndLanguageId",
+    "QueryVal": "SELECT * FROM OrderStatus WHERE StatusId = ? AND LanguageId = ?;",
+    "QueryType": 2
+  },
+  {
+    "QueryName": "SelectAllStatusByLanguageId",
+    "QueryVal": "SELECT * FROM OrderStatus WHERE LanguageId = ?;",
     "QueryType": 2
   }
 ]

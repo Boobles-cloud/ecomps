@@ -33,5 +33,10 @@
     "QueryName": "InserProduct",
     "QueryVal": "INSERT INTO Product() VALUES(DEFAULT, ?, ?, ?, ?, ?);",
     "QueryType": 0
+  },
+  {
+    "QueryName": "InsertOrderProduct",
+    "QueryVal": "INSERT INTO OrderProduct() VALUES(DEFAULT, ?, ?, ?);",
+    "QueryType": 0
   }
 ]

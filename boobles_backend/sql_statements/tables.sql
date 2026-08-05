@@ -158,7 +158,7 @@ CREATE TABLE Order(
 
 -- To indicate which state an order has
 CREATE TABLE OrderStatus(
-    StatusId int unsigned NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    StatusId int unsigned NOT NULL AUTO_INCREMENT,
     StatusName varchar(200) NOT NULL,
     LanguageId int unsigned NOT NULL,
 
@@ -170,6 +170,7 @@ CREATE TABLE OrderStatus(
 CREATE TABLE OrderProducts(
     OPId int unsigned NOT NULL AUTO_INCREMENT PRIMARY KEY,
     ProductId int unsigned NOT NULL,
+    Amount int unsigned NOT NULL,
     OrderId int unsigned NOT NULL,
 
     FOREIGN KEY(ProductId) REFERENCES Product(ProductId),
@@ -242,6 +243,50 @@ INSERT INTO Versions VALUES(DEFAULT, 'Alpha', '0.1', 'Alpha', '0.1');
 -- We set the tenant default
 -- We do this, so we can filter if the user has a tenant or not :)
 INSERT INTO Tenant(TenantId, TenantName) VALUES(0, "USER_HAS_NO_TENANT");
+
+-- Status stuff
+INSERT INTO OrderStatus() VALUES
+-- -------------------------------------------------------------
+-- Deutsch (LanguageId: 1)
+-- -------------------------------------------------------------
+(1, 'Offen / Ausstehend', 1),
+(2, 'Zahlung ausstehend', 1),
+(3, 'Zahlung erhalten', 1),
+(4, 'In Bearbeitung', 1),
+(5, 'Versandbereit', 1),
+(6, 'Versandt', 1),
+(7, 'Zugestellt', 1),
+(8, 'Abgeschlossen', 1),
+(9, 'Storniert', 1),
+(10, 'Rückabwicklung / Retoure', 1),
+
+-- -------------------------------------------------------------
+-- English GB (LanguageId: 2)
+-- -------------------------------------------------------------
+(1, 'Pending', 2),
+(2, 'Payment Pending', 2),
+(3, 'Payment Received', 2),
+(4, 'Processing', 2),
+(5, 'Ready for Dispatch', 2),
+(6, 'Dispatched', 2),
+(7, 'Delivered', 2),
+(8, 'Completed', 2),
+(9, 'Cancelled', 2),
+(10, 'Returned', 2),
+
+-- -------------------------------------------------------------
+-- Svenska (LanguageId: 3)
+-- -------------------------------------------------------------
+(1, 'Väntande', 3),
+(2,'Väntar på betalning', 3),
+(3, 'Betalning mottagen', 3),
+(4, 'Behandlas', 3),
+(5, 'Redo för skickas', 3),
+(6, 'Skickad', 3),
+(7, 'Levererad', 3),
+(8, 'Slutförd', 3),
+(9, 'Avbruten', 3),
+(10, 'Returnerad', 3);
 
 
 -- All Actions a tenant can do

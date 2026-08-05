@@ -8,14 +8,15 @@ import (
 )
 
 type Order struct {
-	OrderId               uint      `json:"OrderId"`
-	OrderName             string    `json:"OrderName"`
-	OrderDate             time.Time `json:"OderDate"`
-	OrderStatus           uint      `json:"OrderStatus"`
-	OrderPostalCode       string    `json:"OrderPostalCode"`
-	OrderStreetAndHouseNr string    `json:"OrderStreetAndHouseNr"`
-	OrderCity             string    `json:"OrderCity"`
-	OrderLastChanged      time.Time `json:"OrderLastChanged"`
+	OrderId               uint           `json:"OrderId"`
+	OrderName             string         `json:"OrderName"`
+	OrderDate             time.Time      `json:"OderDate"`
+	OrderStatus           uint           `json:"OrderStatus"`
+	OrderPostalCode       string         `json:"OrderPostalCode"`
+	OrderStreetAndHouseNr string         `json:"OrderStreetAndHouseNr"`
+	OrderCity             string         `json:"OrderCity"`
+	OrderLastChanged      time.Time      `json:"OrderLastChanged"`
+	Products              []OrderProduct `json:"Products,omitempty"`
 }
 
 // Encrypts the order and creates a order in database
@@ -34,6 +35,10 @@ func (o *Order) CreateOrderInDatabase(key string) (uint, bool) {
 
 func (o *Order) GetOrderStatus() string
 
-// func (o *Order) GetAllProducts() []productstructs.Product
+// Gets all product ids and amount for a order
+func (o *Order) GetAllProducts() {
+	allProducts, _ := database.QueryDatabase[OrderProduct]("SelectOrderProductsByOrderId", []any{o.OrderId})
+	o.Products = allProducts
+}
 
 func (o *Order) GetCurrentStatusAsString() string
