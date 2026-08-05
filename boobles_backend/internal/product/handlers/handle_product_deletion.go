@@ -29,5 +29,8 @@ func (p *ProductHandler) HandleDeletingProduct(w http.ResponseWriter, r *http.Re
 		fail(http.StatusInternalServerError, errors.New("Failed deleting product"))
 	}
 
+	key := ProductCacheKey + strconv.Itoa(productId)
+	p.ProductCache.RemoveItem(key)
+
 	w.WriteHeader(http.StatusOK)
 }

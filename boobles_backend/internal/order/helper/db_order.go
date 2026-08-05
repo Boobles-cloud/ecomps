@@ -28,4 +28,27 @@ func GetOrder(orderId uint, key string) (*orderstructs.Order, bool) {
 	return orderEncrypted, true
 }
 
-// TODO: implement getting all orders for tenant id
+// Gets and decrypts all orders
+func GetAllOrders(tenantId uint, key string) ([]orderstructs.Order, bool) {
+	orders, ok := database.QueryDatabase[orderstructs.Order]("SelectOrdersByTenantId", []any{tenantId})
+
+	if !ok {
+		logging.Log(logging.Error, "[Order helper | GetAllOrders] Failed getting order from db...")
+		return nil, false
+	}
+
+	allDecryptedOrders := make([]orderstructs.Order, len(orders))
+
+	for i := range orders {
+		o, ok := crypto.Encrypt[orderstructs.Order](orders[i], key)
+
+		if !ok {
+			logging.Log(logging.Error, "[Order helper | GetAllOrders] Failed decrypting order...")
+			continue
+		}
+
+		allDecryptedOrders = append(allDecryptedOrders, o)
+	}
+
+	return allDecryptedOrders, len(allDecryptedOrders) != 0
+}

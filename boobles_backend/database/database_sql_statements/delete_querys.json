@@ -13,5 +13,15 @@
     "QueryName": "DeleteProductById",
     "QueryVal": "DELETE FROM Product WHERE ProductId = ?;",
     "QueryType": 1
+  },
+  {
+    "QueryName": "DeleteOrderById",
+    "QueryVal": "DELETE FROM Order WHERE OrderId = ?;",
+    "QueryType": 1
+  },
+  {
+    "QueryName": "DeleteOrderProductsByOrderId",
+    "QueryVal": "DELETE FROM OrderProduct WHERE OrderId = ?;",
+    "QueryType": 1
   }
 ]

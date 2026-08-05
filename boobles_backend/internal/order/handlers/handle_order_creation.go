@@ -50,8 +50,8 @@ func (ho *OrderHandler) HandleCreatingOrder(w http.ResponseWriter, r *http.Reque
 	}
 
 	// Loop over the tmp product struct and insert it
-	for i := range order.ProductCreation {
-		if !order.ProductCreation[i].InsertIntoDatabase(id) {
+	for i := range order.Products {
+		if !order.Products[i].InsertIntoDatabase(id) {
 			fail(http.StatusInternalServerError, errors.New("Failed to create product order"))
 		}
 	}

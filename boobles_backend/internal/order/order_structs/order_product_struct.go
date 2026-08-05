@@ -4,29 +4,15 @@ import "boobles.cloud/backend/database"
 
 // This struct is used for the relationship between order and product inside the db
 type OrderProduct struct {
-	OPId      uint
-	ProductId uint
-	Amount    uint
-	OrderId   uint
-}
-
-// Struct used only for creating a order
-// So we can directly create all "OrderProduct" entrys in database
-type OrderProductCreation struct {
+	OPId      uint `json:"-"`
 	ProductId uint `json:"ProductId"`
 	Amount    uint `json:"Amount"`
+	OrderId   uint `json:"-"`
 }
 
-// Transforms and inserts into database
-func (op *OrderProductCreation) InsertIntoDatabase(orderId uint) bool {
+// Inserts the product in the databas
+func (op *OrderProduct) InsertIntoDatabase(orderId uint) bool {
 
-	orderProduct := OrderProduct{
-		OPId:      0,
-		ProductId: op.ProductId,
-		Amount:    op.Amount,
-		OrderId:   orderId,
-	}
-
-	result := database.ExecuteSQLStatement("InsertOrderProduct", database.Insert, []any{orderProduct.ProductId, orderProduct.Amount, orderProduct.OrderId})
+	result := database.ExecuteSQLStatement("InsertOrderProduct", database.Insert, []any{op.ProductId, op.Amount, op.OrderId})
 	return result.Ok
 }
