@@ -5,13 +5,15 @@ import (
 )
 
 type CacheEntry[T any] struct {
+	TenantId       uint
 	Item           T
 	ExpirationTime time.Time
 }
 
 // Creates a new cache entry
-func CreateNewCacheEntry[T any](item T) CacheEntry[T] {
+func CreateNewCacheEntry[T any](item T, tenantId uint) CacheEntry[T] {
 	return CacheEntry[T]{
+		TenantId:       tenantId,
 		Item:           item,
 		ExpirationTime: time.Now().Add(2 * time.Hour),
 	}
