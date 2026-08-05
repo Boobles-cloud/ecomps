@@ -16,3 +16,7 @@ func (op *OrderProduct) InsertIntoDatabase(orderId uint) bool {
 	result := database.ExecuteSQLStatement("InsertOrderProduct", database.Insert, []any{op.ProductId, op.Amount, op.OrderId})
 	return result.Ok
 }
+
+func (op *OrderProduct) UpdateOrderProduct() {
+	database.UpdateDatabaseEntry("UpdateOrderProduct", "OPId", op)
+}
