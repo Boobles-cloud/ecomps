@@ -170,6 +170,7 @@ CREATE TABLE OrderStatus(
 CREATE TABLE OrderProducts(
     OPId int unsigned NOT NULL AUTO_INCREMENT PRIMARY KEY,
     ProductId int unsigned NOT NULL,
+    Amount int unsigned NOT NULL,
     OrderId int unsigned NOT NULL,
 
     FOREIGN KEY(ProductId) REFERENCES Product(ProductId),
@@ -242,6 +243,50 @@ INSERT INTO Versions VALUES(DEFAULT, 'Alpha', '0.1', 'Alpha', '0.1');
 -- We set the tenant default
 -- We do this, so we can filter if the user has a tenant or not :)
 INSERT INTO Tenant(TenantId, TenantName) VALUES(0, "USER_HAS_NO_TENANT");
+
+-- Status stuff
+INSERT INTO OrderStatus (StatusName, LanguageId) VALUES
+-- -------------------------------------------------------------
+-- Deutsch (LanguageId: 1)
+-- -------------------------------------------------------------
+('Offen / Ausstehend', 1),
+('Zahlung ausstehend', 1),
+('Zahlung erhalten', 1),
+('In Bearbeitung', 1),
+('Versandbereit', 1),
+('Versandt', 1),
+('Zugestellt', 1),
+('Abgeschlossen', 1),
+('Storniert', 1),
+('Rückabwicklung / Retoure', 1),
+
+-- -------------------------------------------------------------
+-- English GB (LanguageId: 2)
+-- -------------------------------------------------------------
+('Pending', 2),
+('Payment Pending', 2),
+('Payment Received', 2),
+('Processing', 2),
+('Ready for Dispatch', 2),
+('Dispatched', 2),
+('Delivered', 2),
+('Completed', 2),
+('Cancelled', 2),
+('Returned', 2),
+
+-- -------------------------------------------------------------
+-- Svenska (LanguageId: 3)
+-- -------------------------------------------------------------
+('Väntande', 3),
+('Väntar på betalning', 3),
+('Betalning mottagen', 3),
+('Behandlas', 3),
+('Redo för skickas', 3),
+('Skickad', 3),
+('Levererad', 3),
+('Slutförd', 3),
+('Avbruten', 3),
+('Returnerad', 3);
 
 
 -- All Actions a tenant can do
