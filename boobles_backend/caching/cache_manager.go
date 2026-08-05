@@ -15,23 +15,13 @@ func CreateNewCacheManager[T any]() *CacheManager[T] {
 }
 
 // Sets or updates the wanted item
-func (c *CacheManager[T]) SetOrUpdateItem(key string, item T) {
+func (c *CacheManager[T]) SetOrUpdateItem(key string, item T, tenantId uint) {
 
 	c.Lock.Lock()
 	defer c.Lock.Unlock()
 
-	entry := CreateNewCacheEntry[T](item)
+	entry := CreateNewCacheEntry[T](item, tenantId)
 	c.Items[key] = entry
-}
-
-// Checks if a key exists
-func (c *CacheManager[T]) keyExists(key string) bool {
-	for k := range c.Items {
-		if k == key {
-			return true
-		}
-	}
-	return false
 }
 
 // Returns a item by its key
@@ -56,6 +46,23 @@ func (c *CacheManager[T]) GetItem(key string) (T, bool) {
 	return c.Items[key].Item, true
 }
 
+// Gets all items for a tenantId
+func (c *CacheManager[T]) GetItems(tenantId uint) ([]T, bool) {
+
+	c.Lock.Lock()
+	defer c.Lock.Unlock()
+
+	allItems := make([]T, 100)
+
+	for k := range c.Items {
+		if c.Items[k].TenantId == tenantId {
+			allItems = append(allItems, c.Items[k].Item)
+		}
+	}
+
+	return allItems, len(allItems) != 0
+}
+
 // Removes an item
 func (c *CacheManager[T]) RemoveItem(key string) {
 
@@ -67,4 +74,14 @@ func (c *CacheManager[T]) RemoveItem(key string) {
 	}
 
 	delete(c.Items, key)
+}
+
+// Checks if a key exists
+func (c *CacheManager[T]) keyExists(key string) bool {
+	for k := range c.Items {
+		if k == key {
+			return true
+		}
+	}
+	return false
 }

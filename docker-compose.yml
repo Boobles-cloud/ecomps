@@ -36,6 +36,7 @@ services:
       - "8080:8080"
     volumes:
       - shared-env:/app/shared
+      - product-pictures:/app/product-pictures
     links:
       - "boobles-db"
 
@@ -58,3 +59,4 @@ services:
 # Volume for sharing the .env
 volumes:
   shared-env:
+  product-pictures:
