@@ -1,0 +1,54 @@
+package handlers
+
+import (
+	"encoding/json"
+	"errors"
+	"io"
+	"net/http"
+
+	"boobles.cloud/backend/database"
+	customerstructs "boobles.cloud/backend/internal/customer/customer_structs"
+	"boobles.cloud/backend/internal/middleware"
+	tenantstructs "boobles.cloud/backend/internal/tenant/tenant_structs"
+	"boobles.cloud/backend/logging"
+)
+
+// Handels creating a customer
+func (ch *CustomerHandler) HandleCustomerCreation(w http.ResponseWriter, r *http.Request) {
+
+	fail := func(status int, err error) {
+		logging.Log(logging.Error, "[Customer | HandleCustomerCreation]"+err.Error())
+		w.WriteHeader(status)
+	}
+
+	body, err := io.ReadAll(r.Body)
+
+	if err != nil {
+		fail(http.StatusBadRequest, err)
+	}
+
+	var customer customerstructs.Customer
+
+	if err := json.Unmarshal(body, &customer); err != nil {
+		fail(http.StatusBadRequest, err)
+	}
+
+	tenantId := r.Context().Value(middleware.TenantIdContextKey).(int)
+
+	tenant, ok := database.QueryDatabase[tenantstructs.Tenant]("SelectTenantById", []any{tenantId})
+
+	if !ok || len(tenant) != 1 {
+		fail(http.StatusInternalServerError, errors.New("Failed getting tenant"))
+	}
+
+	id, ok := customer.CreateCustomerInDatabase(tenant[0].GetPw())
+
+	if !ok {
+		fail(http.StatusInternalServerError, errors.New("Failed creating customer"))
+	}
+
+	customer.CustomerId = id
+
+	go ch.insertItem(customer)
+	w.WriteHeader(http.StatusOK)
+}

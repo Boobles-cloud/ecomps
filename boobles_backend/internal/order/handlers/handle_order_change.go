@@ -5,6 +5,7 @@ import (
 	"errors"
 	"io"
 	"net/http"
+	"time"
 
 	"boobles.cloud/backend/crypto"
 	"boobles.cloud/backend/database"
@@ -33,6 +34,8 @@ func (ho *OrderHandler) HandleChangingOrder(w http.ResponseWriter, r *http.Reque
 	if err := json.Unmarshal(body, &order); err != nil {
 		fail(http.StatusBadRequest, err)
 	}
+
+	order.OrderLastChanged = time.Now()
 
 	tenantId := r.Context().Value(middleware.TenantIdContextKey).(int)
 	tenant, ok := database.QueryDatabase[tenantstructs.Tenant]("SelectTenantById", []any{tenantId})

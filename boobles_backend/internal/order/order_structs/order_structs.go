@@ -22,6 +22,7 @@ type Order struct {
 // Encrypts the order and creates a order in database
 func (o *Order) CreateOrderInDatabase(key string) (uint, bool) {
 
+	o.OrderLastChanged = time.Now()
 	order, ok := crypto.Encrypt(o, key)
 
 	if !ok {
@@ -33,12 +34,8 @@ func (o *Order) CreateOrderInDatabase(key string) (uint, bool) {
 	return result.LastId, result.Ok
 }
 
-func (o *Order) GetOrderStatus() string
-
 // Gets all product ids and amount for a order
 func (o *Order) GetAllProducts() {
 	allProducts, _ := database.QueryDatabase[OrderProduct]("SelectOrderProductsByOrderId", []any{o.OrderId})
 	o.Products = allProducts
 }
-
-func (o *Order) GetCurrentStatusAsString() string
