@@ -19,43 +19,47 @@ const (
 )
 
 // Our middleware to handle authentication
-func AuthMiddleware(nextHandler http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+func AuthMiddleware(dh *database.DbHandler) Middleware {
+	return func(h http.Handler) http.Handler {
 
-		token := r.Header.Get("Authorization")
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
-		if token == "" {
-			logging.Log(logging.Information, "Request, to authorize user, from: "+r.RemoteAddr+" failed!")
-			w.WriteHeader(http.StatusUnauthorized)
-			return
-		}
+			token := r.Header.Get("Authorization")
 
-		var tokenWithoutBaerer string
+			if token == "" {
+				logging.Log(logging.Information, "Request, to authorize user, from: "+r.RemoteAddr+" failed!")
+				w.WriteHeader(http.StatusUnauthorized)
+				return
+			}
 
-		// Replaces the bearer with empty string
-		if strings.Contains(token, "bearer") {
-			tokenWithoutBaerer = strings.ReplaceAll(token, "bearer ", "")
-		} else {
-			tokenWithoutBaerer = strings.ReplaceAll(token, "Bearer ", "")
-		}
+			var tokenWithoutBaerer string
 
-		// Checks if the token is valid and gets all claims
-		tokenValid, claims := tokenValid(tokenWithoutBaerer)
+			// Replaces the bearer with empty string
+			if strings.Contains(token, "bearer") {
+				tokenWithoutBaerer = strings.ReplaceAll(token, "bearer ", "")
+			} else {
+				tokenWithoutBaerer = strings.ReplaceAll(token, "Bearer ", "")
+			}
 
-		if !tokenValid && !tokenInDB(tokenWithoutBaerer) {
-			w.WriteHeader(http.StatusUnauthorized)
-			return
-		}
+			c := context.Background()
 
-		c := context.Background()
-		// Adds the user and tenant Id to the context
-		ct := context.WithValue(c, UserIdContextKey, strconv.Itoa(int(claims.UserId)))
-		ctx := context.WithValue(ct, TenantIdContextKey, strconv.Itoa(int(claims.TenantId)))
+			// Checks if the token is valid and gets all claims
+			tokenValid, claims := tokenValid(tokenWithoutBaerer)
 
-		rCtx := r.WithContext(ctx)
+			if !tokenValid && !tokenInDB(tokenWithoutBaerer, dh, c) {
+				w.WriteHeader(http.StatusUnauthorized)
+				return
+			}
 
-		nextHandler.ServeHTTP(w, rCtx)
-	})
+			// Adds the user and tenant Id to the context
+			ct := context.WithValue(c, UserIdContextKey, strconv.Itoa(int(claims.UserId)))
+			ctx := context.WithValue(ct, TenantIdContextKey, strconv.Itoa(int(claims.TenantId)))
+
+			rCtx := r.WithContext(ctx)
+
+			h.ServeHTTP(w, rCtx)
+		})
+	}
 }
 
 // checks if the token is valid
@@ -76,9 +80,9 @@ func tokenValid(token string) (bool, authstructs.JWTClaimsStruct) {
 }
 
 // Checks if the token is in the database
-func tokenInDB(token string) bool {
+func tokenInDB(token string, dh *database.DbHandler, ctx context.Context) bool {
 
-	if _, ok := database.QueryDatabase[authstructs.JWTDatabaseStruct]("SelectUserAccessTokenByValue", []any{token}); !ok {
+	if _, ok := database.QueryOne[authstructs.JWTDatabaseStruct](ctx, dh, "SelectUserAccessTokenByValue", []any{token}); !ok {
 		return false
 	}
 

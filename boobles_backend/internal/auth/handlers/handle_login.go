@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"encoding/base64"
-	"errors"
 	"net/http"
 	"os"
 	"strings"
@@ -17,7 +16,7 @@ import (
 
 // Creates a new JWT for the given user.
 // The pw from the user, is encrypted via the frontend.
-func HandleLogin(w http.ResponseWriter, r *http.Request) {
+func (ha *AuthHandler) HandleLogin(w http.ResponseWriter, r *http.Request) {
 
 	fail := func(status int, err error) {
 
@@ -44,18 +43,14 @@ func HandleLogin(w http.ResponseWriter, r *http.Request) {
 
 	authSplitet := strings.Split(string(encodedAuthPWUser), ":")
 
-	userFromDB, ok := database.QueryDatabase[userstructs.UserStruct]("SelectUserByUserNameAndPW", []any{authSplitet[0], authSplitet[1]})
+	userFromDB, ok := database.QueryOne[userstructs.UserStruct](r.Context(), ha.Dh, "SelectUserByUserNameAndPW", []any{authSplitet[0], authSplitet[1]})
 
 	if !ok {
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 
-	if len(userFromDB) != 1 {
-		fail(http.StatusInternalServerError, errors.New("More than one user!"))
-	}
-
-	token, ok := createJWT(userFromDB[0])
+	token, ok := createJWT(userFromDB, ha.Dh)
 
 	if !ok {
 		fail(http.StatusInternalServerError, nil)
@@ -74,7 +69,7 @@ func HandleLogin(w http.ResponseWriter, r *http.Request) {
 }
 
 // Creates the jwt
-func createJWT(user userstructs.UserStruct) (string, bool) {
+func createJWT(user userstructs.UserStruct, dh *database.DbHandler) (string, bool) {
 
 	claims := authstructs.JWTClaimsStruct{
 		UserId:   user.UserId,
@@ -98,7 +93,7 @@ func createJWT(user userstructs.UserStruct) (string, bool) {
 	}
 
 	// Checking if ok
-	if !tokenDB.InsertIntoDB() {
+	if !tokenDB.InsertIntoDB(dh) {
 		return "", false
 	}
 

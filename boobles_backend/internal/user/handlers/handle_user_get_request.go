@@ -30,9 +30,9 @@ func (u *UserHandler) HandleGettingUserByAuthTokenVal(w http.ResponseWriter, r *
 		fail(http.StatusBadRequest, errors.New("Failed getting authtoken or token is null"))
 	}
 
-	user, ok := database.QueryDatabase[userstructs.UserStruct]("SelectUserByAuthToken", []any{authToken})
+	user, ok := database.QueryOne[userstructs.UserStruct](r.Context(), u.Dh, "SelectUserByAuthToken", []any{authToken})
 
-	if !ok || len(user) != 1 {
+	if !ok {
 		fail(http.StatusInternalServerError, errors.New("Failed getting user or user is more then one"))
 	}
 
@@ -56,9 +56,9 @@ func (u *UserHandler) HandleGettingUserById(w http.ResponseWriter, r *http.Reque
 
 	userId := r.Context().Value(middleware.UserIdContextKey).(int)
 
-	user, ok := database.QueryDatabase[userstructs.UserStruct]("SelectUserById", []any{userId})
+	user, ok := database.QueryOne[userstructs.UserStruct](r.Context(), u.Dh, "SelectUserById", []any{userId})
 
-	if !ok || len(user) != 1 {
+	if !ok {
 		fail(http.StatusInternalServerError, errors.New("Failed to get user or more then one user"))
 	}
 
@@ -93,9 +93,9 @@ func (u *UserHandler) HandleGettingUserByTenantIdAndUserName(w http.ResponseWrit
 		fail(http.StatusBadRequest, err)
 	}
 
-	user, ok := database.QueryDatabase[userstructs.UserStruct]("SelectUserByTenantIdAndUserName", []any{tenantId, userName})
+	user, ok := database.QueryOne[userstructs.UserStruct](r.Context(), u.Dh, "SelectUserByTenantIdAndUserName", []any{tenantId, userName})
 
-	if !ok || len(user) != 1 {
+	if !ok {
 		fail(http.StatusInternalServerError, errors.New("Failed getting user or user is more then one"))
 	}
 
@@ -120,13 +120,13 @@ func (u *UserHandler) HandleHasUserATenant(w http.ResponseWriter, r *http.Reques
 
 	userId := r.Context().Value(middleware.UserIdContextKey).(int)
 
-	user, ok := database.QueryDatabase[userstructs.UserStruct]("SelectUserById", []any{userId})
+	user, ok := database.QueryOne[userstructs.UserStruct](r.Context(), u.Dh, "SelectUserById", []any{userId})
 
-	if !ok || len(user) != 1 {
+	if !ok {
 		fail(http.StatusInternalServerError, errors.New("Failed to get user or user is more then one"))
 	}
 
-	if user[0].UserHasTenant && user[0].TenantId != 0 {
+	if user.UserHasTenant && user.TenantId != 0 {
 		jsonData, err := json.Marshal("Tenant = true")
 
 		if err != nil {

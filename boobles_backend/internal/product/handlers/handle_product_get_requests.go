@@ -47,13 +47,13 @@ func (p *ProductHandler) HandleGettingProductById(w http.ResponseWriter, r *http
 
 withOutCache:
 
-	tenant, ok := database.QueryDatabase[tenantstructs.Tenant]("SelectTenantById", []any{tenantId.(int)})
+	tenant, ok := database.QueryOne[tenantstructs.Tenant](r.Context(), p.Dh, "SelectTenantById", []any{tenantId.(int)})
 
-	if !ok || len(tenant) != 1 {
+	if !ok {
 		fail(http.StatusBadRequest, errors.New("Failed getting tenant"))
 	}
 
-	product, ok := helper.GetProductById(uint(id), tenant[0].GetPw())
+	product, ok := helper.GetProductById(uint(id), tenant.GetPw(p.Dh, r.Context()), r.Context(), p.Dh)
 
 	go p.insertItem(*product)
 
@@ -105,14 +105,14 @@ func (p *ProductHandler) HandleGettingAllProductsByTenantId(w http.ResponseWrite
 withOutCache:
 
 	// We always need to get the tenant, because all items are encrypted in the database
-	tenant, ok := database.QueryDatabase[tenantstructs.Tenant]("SelectTenantById", []any{tenantId})
+	tenant, ok := database.QueryOne[tenantstructs.Tenant](r.Context(), p.Dh, "SelectTenantById", []any{tenantId})
 
-	if !ok || len(tenant) != 1 {
+	if !ok {
 		fail(http.StatusBadRequest, errors.New("Failed getting tenant"))
 	}
 
 	// Gets all decrypted products
-	allProducts, ok := helper.GetAllProductsForTenant(tenant[0].TenantId, tenant[0].GetPw())
+	allProducts, ok := helper.GetAllProductsForTenant(tenant.TenantId, tenant.GetPw(p.Dh, r.Context()), r.Context(), p.Dh)
 
 	// Write the stuff to the cache
 	go p.insertItems(allProducts)

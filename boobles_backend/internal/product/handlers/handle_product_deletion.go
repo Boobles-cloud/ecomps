@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"strconv"
 
-	"boobles.cloud/backend/database"
 	"boobles.cloud/backend/logging"
 )
 
@@ -25,7 +24,7 @@ func (p *ProductHandler) HandleDeletingProduct(w http.ResponseWriter, r *http.Re
 		fail(http.StatusBadRequest, err)
 	}
 
-	if result := database.ExecuteSQLStatement("DeleteProductById", database.Delete, []any{productId}); !result.Ok {
+	if result := p.Dh.ExecuteSQLStatement("DeleteProductById", []any{productId}); !result.Ok {
 		fail(http.StatusInternalServerError, errors.New("Failed deleting product"))
 	}
 

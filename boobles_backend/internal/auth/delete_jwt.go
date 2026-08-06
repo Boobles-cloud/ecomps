@@ -10,7 +10,7 @@ import (
 
 // Deletes all expired jwt.
 // This runs once a day
-func DeleteExpiredJWT(ctx context.Context) {
+func DeleteExpiredJWT(ctx context.Context, dh *database.DbHandler) {
 
 	timer := time.NewTicker(time.Hour * 24)
 
@@ -21,7 +21,7 @@ func DeleteExpiredJWT(ctx context.Context) {
 		case <-ctx.Done():
 			return
 		case <-timer.C:
-			allTokens, ok := database.QueryDatabase[authstructs.JWTDatabaseStruct]("SelectAllToken", []any{})
+			allTokens, ok := database.QueryMany[authstructs.JWTDatabaseStruct](ctx, dh, "SelectAllToken", []any{})
 
 			if !ok {
 				timer.Reset(time.Hour * 24)
@@ -29,7 +29,7 @@ func DeleteExpiredJWT(ctx context.Context) {
 
 			for i := range allTokens {
 				if allTokens[i].IsExpired() {
-					database.ExecuteSQLStatement("DeleteUserAccestoken", database.Delete, []any{allTokens[i].UserAccessId})
+					dh.ExecuteSQLStatement("DeleteUserAccestoken", []any{allTokens[i].UserAccessId})
 				}
 			}
 

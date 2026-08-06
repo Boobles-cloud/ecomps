@@ -31,7 +31,7 @@ func (u *UserHandler) HandleUserChange(w http.ResponseWriter, r *http.Request) {
 		fail(http.StatusBadRequest, err)
 	}
 
-	if !user.UpdateUserInDB() {
+	if !user.UpdateUserInDB(u.Dh) {
 		fail(http.StatusInternalServerError, nil)
 	}
 

@@ -19,7 +19,7 @@ type Tenant struct {
 
 // TODO: Refactor this!!
 // Creates a tenant in the database
-func (t *Tenant) CreateTenantInDatabase(userId int) bool {
+func (t *Tenant) CreateTenantInDatabase(userId int, dh *database.DbHandler) bool {
 
 	ctx, cancel := context.WithCancel(context.Background())
 
@@ -27,18 +27,8 @@ func (t *Tenant) CreateTenantInDatabase(userId int) bool {
 
 	t.TenantCreation = time.Now()
 
-	// Creates a connection
-	db, ok := database.CreateDBConn()
-
-	if !ok {
-		return ok
-	}
-
-	// Always close connection!
-	defer db.Close()
-
 	// Creates our transaction stuff
-	tx, err := db.BeginTx(ctx, nil)
+	tx, err := dh.DbConnection.BeginTx(ctx, nil)
 
 	if err != nil {
 		logging.Log(logging.Error, "[Tenant | CreateTenantInDatabase] "+err.Error())
@@ -49,7 +39,7 @@ func (t *Tenant) CreateTenantInDatabase(userId int) bool {
 	defer tx.Rollback()
 
 	// Create our master key and insert it
-	id, ok := createMasterKey(*t)
+	id, ok := createMasterKey(*t, dh)
 
 	if !ok {
 		logging.Log(logging.Error, "[Tenant | CreateTenantInDatabase] Failed to create master key!")
@@ -71,18 +61,18 @@ func (t *Tenant) CreateTenantInDatabase(userId int) bool {
 	}
 
 	// Get the wanted User
-	user, ok := database.QueryDatabase[userstructs.UserStruct]("SelectUserById", []any{userId})
+	user, ok := database.QueryOne[userstructs.UserStruct](ctx, dh, "SelectUserById", []any{userId})
 
 	// Check that its only one user and its ok
-	if !ok || len(user) > 1 {
+	if !ok {
 		return ok
 	}
 
 	// Set the tenant id
-	user[0].TenantId = uint(lastId)
+	user.TenantId = uint(lastId)
 
 	// Update our User
-	if _, err := tx.ExecContext(ctx, "UPDATE Users VALUES TenantId = ? WHERE UserId = ?", []any{user[0].TenantId, user[0].UserId}); err != nil {
+	if _, err := tx.ExecContext(ctx, "UPDATE Users VALUES TenantId = ? WHERE UserId = ?", []any{user.TenantId, user.UserId}); err != nil {
 		logging.Log(logging.Error, "[Tenant | CreateTenantInDatabase] "+err.Error())
 		return false
 	}
@@ -106,22 +96,14 @@ func (t *Tenant) IsUserAdmin(userId uint) bool {
 	return false
 }
 
-// Gets all Users for the given tenant
-func (t *Tenant) GetAllUsersForTenant() []userstructs.UserStruct {
-
-	users, _ := database.QueryDatabase[userstructs.UserStruct]("SelectAllUsersByTenant", []any{t.TenantId})
-
-	return users
-}
-
 // Gets the tenant pw
-func (t *Tenant) GetPw() string {
-	tp, ok := database.QueryDatabase[TenantPwStruct]("SelectTenantPwByTenantId", []any{t.TenantPwId})
+func (t *Tenant) GetPw(dh *database.DbHandler, ctx context.Context) string {
+	tp, ok := database.QueryOne[TenantPwStruct](ctx, dh, "SelectTenantPwByTenantId", []any{t.TenantPwId})
 
-	if !ok || len(tp) != 1 {
+	if !ok {
 		logging.Log(logging.Error, "Got more then one tenant pw...")
 		return ""
 	}
 
-	return tp[0].TenantPwVal
+	return tp.TenantPwVal
 }

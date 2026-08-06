@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"strconv"
 
-	"boobles.cloud/backend/database"
 	"boobles.cloud/backend/logging"
 )
 
@@ -23,11 +22,11 @@ func (ho OrderHandler) HandleOrderDeletion(w http.ResponseWriter, r *http.Reques
 		fail(http.StatusBadRequest, err)
 	}
 
-	if result := database.ExecuteSQLStatement("DeleteOrderById", database.Delete, []any{orderId}); !result.Ok {
+	if result := ho.Dh.ExecuteSQLStatement("DeleteOrderById", []any{orderId}); !result.Ok {
 		fail(http.StatusInternalServerError, errors.New("Failed to delete order"))
 	}
 
-	database.ExecuteSQLStatement("DeleteOrderProductsByOrderId", database.Delete, []any{orderId})
+	ho.Dh.ExecuteSQLStatement("DeleteOrderProductsByOrderId", []any{orderId})
 
 	key := OrderCacheKey + strconv.Itoa(orderId)
 	ho.OrderCache.RemoveItem(key)

@@ -5,12 +5,11 @@ import (
 	"strings"
 	"time"
 
-	"boobles.cloud/backend/database"
 	"boobles.cloud/backend/logging"
 )
 
 // Handels the user logout
-func HandleLogout(w http.ResponseWriter, r *http.Request) {
+func (ha *AuthHandler) HandleLogout(w http.ResponseWriter, r *http.Request) {
 
 	fail := func(status int, err error) {
 
@@ -34,7 +33,7 @@ func HandleLogout(w http.ResponseWriter, r *http.Request) {
 		tokenWithoutBaerer = strings.ReplaceAll(token, "Bearer ", "")
 	}
 
-	if result := database.ExecuteSQLStatement("DeleteUserAccestokenByValue", database.Delete, []any{tokenWithoutBaerer}); !result.Ok {
+	if result := ha.Dh.ExecuteSQLStatement("DeleteUserAccestokenByValue", []any{tokenWithoutBaerer}); !result.Ok {
 		fail(http.StatusInternalServerError, nil)
 	}
 

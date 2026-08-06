@@ -38,7 +38,7 @@ func (t *TenantHandler) HandleTenantChange(w http.ResponseWriter, r *http.Reques
 		fail(http.StatusBadRequest, err)
 	}
 
-	if !database.UpdateDatabaseEntry[tenantstructs.Tenant]("UpdateTenant", "TenantId", tenant) {
+	if !database.UpdateDatabaseEntry[tenantstructs.Tenant](t.Dh, "UpdateTenant", "TenantId", tenant) {
 		fail(http.StatusInternalServerError, nil)
 	}
 

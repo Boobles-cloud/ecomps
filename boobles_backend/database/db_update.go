@@ -10,14 +10,15 @@ import (
 // For updating stuff in the database.
 // NOTE:
 // The names of the database tables must match the names of the struct fields!
-func UpdateDatabaseEntry[T any](queryName, filterValueName string, queryData T) bool {
+func UpdateDatabaseEntry[T any](dh *DbHandler, queryName, filterValueName string, queryData T) bool {
 
 	// Gets our unfinished query from the json file
-	unfinishedQuery, ok := getWantedSqlStatement(Update, queryName)
+	unfinishedQuery, ok := dh.findQuery(queryName)
 
 	if !ok {
 		return false
 	}
+
 	valOfT := reflect.ValueOf(queryData)
 
 	// Check if there is any pointer
@@ -51,23 +52,14 @@ func UpdateDatabaseEntry[T any](queryName, filterValueName string, queryData T) 
 		}
 	}
 
-	// Create a connection
-	db, ok := CreateDBConn()
-
-	if !ok {
-		return false
-	}
-
-	defer db.Close()
-
 	// Builds our query
-	query, args, ok := buildQueryForUpdate(unfinishedQuery, filterValueName, tmpMap)
+	query, args, ok := buildQueryForUpdate(unfinishedQuery.QueryVal, filterValueName, tmpMap)
 
 	if !ok {
 		return false
 	}
 
-	if _, err := db.Exec(query, args...); err != nil {
+	if _, err := dh.DbConnection.Exec(query, args...); err != nil {
 		logging.Log(logging.Error, err.Error())
 		return false
 	}

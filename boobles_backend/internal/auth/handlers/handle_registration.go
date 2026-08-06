@@ -14,7 +14,7 @@ import (
 
 // Handels the registration of a user.
 // Sends back an access token.
-func HandleRegistration(w http.ResponseWriter, r *http.Request) {
+func (ha *AuthHandler) HandleRegistration(w http.ResponseWriter, r *http.Request) {
 
 	fail := func(status int, err error) {
 
@@ -39,7 +39,7 @@ func HandleRegistration(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Creates the user in the database
-	ok, id := tmpUserStruct.CreateUserInDB()
+	ok, id := tmpUserStruct.CreateUserInDB(ha.Dh)
 
 	if !ok {
 		fail(http.StatusInternalServerError, nil)
@@ -49,7 +49,7 @@ func HandleRegistration(w http.ResponseWriter, r *http.Request) {
 	tmpUserStruct.UserId = id
 
 	// Creates a token for the user
-	token, ok := createJWT(tmpUserStruct)
+	token, ok := createJWT(tmpUserStruct, ha.Dh)
 
 	if !ok {
 		fail(http.StatusInternalServerError, nil)

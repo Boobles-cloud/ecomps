@@ -16,7 +16,7 @@ type Product struct {
 }
 
 // Encrypts a product and stores it in database
-func (p *Product) CreateProductInDatabase(key string) (uint, bool) {
+func (p *Product) CreateProductInDatabase(key string, dh *database.DbHandler) (uint, bool) {
 
 	product, ok := crypto.Encrypt(p, key)
 
@@ -25,7 +25,7 @@ func (p *Product) CreateProductInDatabase(key string) (uint, bool) {
 		return 0, false
 	}
 
-	if res := database.ExecuteSQLStatement("InserProduct", database.Insert, []any{product.ProductId, product.ProductName,
+	if res := dh.ExecuteSQLStatement("InserProduct", []any{product.ProductId, product.ProductName,
 		product.ProductPrice, product.ProductPrice, product.ProductDescription, product.ProductPrice, product.TenantId}); res.Ok {
 		return res.LastId, true
 	}

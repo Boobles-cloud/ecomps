@@ -11,12 +11,12 @@ type OrderProduct struct {
 }
 
 // Inserts the product in the databas
-func (op *OrderProduct) InsertIntoDatabase(orderId uint) bool {
+func (op *OrderProduct) InsertIntoDatabase(orderId uint, dh *database.DbHandler) bool {
 
-	result := database.ExecuteSQLStatement("InsertOrderProduct", database.Insert, []any{op.ProductId, op.Amount, op.OrderId})
+	result := dh.ExecuteSQLStatement("InsertOrderProduct", []any{op.ProductId, op.Amount, op.OrderId})
 	return result.Ok
 }
 
-func (op *OrderProduct) UpdateOrderProduct() {
-	database.UpdateDatabaseEntry("UpdateOrderProduct", "OPId", op)
+func (op *OrderProduct) UpdateOrderProduct(dh *database.DbHandler) {
+	database.UpdateDatabaseEntry[OrderProduct](dh, "UpdateOrderProduct", "OPId", *op)
 }
