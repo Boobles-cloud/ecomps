@@ -1,6 +1,7 @@
 package orderstructs
 
 import (
+	"context"
 	"time"
 
 	"boobles.cloud/backend/crypto"
@@ -20,7 +21,7 @@ type Order struct {
 }
 
 // Encrypts the order and creates a order in database
-func (o *Order) CreateOrderInDatabase(key string) (uint, bool) {
+func (o *Order) CreateOrderInDatabase(key string, dh *database.DbHandler) (uint, bool) {
 
 	order, ok := crypto.Encrypt(o, key)
 
@@ -28,7 +29,7 @@ func (o *Order) CreateOrderInDatabase(key string) (uint, bool) {
 		return 0, false
 	}
 
-	result := database.ExecuteSQLStatement("InsertOrder", database.Insert, []any{order.OrderId, order.OrderName, order.OrderDate, order.OrderStatus, order.OrderPostalCode, order.OrderStreetAndHouseNr, order.OrderCity, order.OrderLastChanged})
+	result := dh.ExecuteSQLStatement("InsertOrder", []any{order.OrderId, order.OrderName, order.OrderDate, order.OrderStatus, order.OrderPostalCode, order.OrderStreetAndHouseNr, order.OrderCity, order.OrderLastChanged})
 
 	return result.LastId, result.Ok
 }
@@ -36,8 +37,8 @@ func (o *Order) CreateOrderInDatabase(key string) (uint, bool) {
 func (o *Order) GetOrderStatus() string
 
 // Gets all product ids and amount for a order
-func (o *Order) GetAllProducts() {
-	allProducts, _ := database.QueryDatabase[OrderProduct]("SelectOrderProductsByOrderId", []any{o.OrderId})
+func (o *Order) GetAllProducts(ctx context.Context, dh *database.DbHandler) {
+	allProducts, _ := database.QueryMany[OrderProduct](ctx, dh, "SelectOrderProductsByOrderId", []any{o.OrderId})
 	o.Products = allProducts
 }
 

@@ -36,7 +36,7 @@ func (t *TenantHandler) HandleTenantCreation(w http.ResponseWriter, r *http.Requ
 	}
 
 	// Create the tenant
-	if !tenantStruct.CreateTenantInDatabase(r.Context().Value(middleware.UserIdContextKey).(int)) {
+	if !tenantStruct.CreateTenantInDatabase(r.Context().Value(middleware.UserIdContextKey).(int), t.Dh) {
 		fail(http.StatusInternalServerError, nil)
 	}
 

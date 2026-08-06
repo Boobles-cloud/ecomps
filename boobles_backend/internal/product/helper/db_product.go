@@ -1,6 +1,8 @@
 package helper
 
 import (
+	"context"
+
 	"boobles.cloud/backend/crypto"
 	"boobles.cloud/backend/database"
 	productstructs "boobles.cloud/backend/internal/product/product_structs"
@@ -8,16 +10,16 @@ import (
 )
 
 // Gets a product by its id
-func GetProductById(productId uint, key string) (*productstructs.Product, bool) {
+func GetProductById(productId uint, key string, ctx context.Context, dh *database.DbHandler) (*productstructs.Product, bool) {
 
-	p, ok := database.QueryDatabase[productstructs.Product]("SelectProductById", []any{productId})
+	p, ok := database.QueryOne[productstructs.Product](ctx, dh, "SelectProductById", []any{productId})
 
-	if !ok || len(p) != 1 {
+	if !ok {
 		logging.Log(logging.Error, "[Product Helper | GetProductById] Failed to get product from database")
 		return nil, false
 	}
 
-	decrypted, ok := crypto.Decrypt[productstructs.Product](&p[0], key)
+	decrypted, ok := crypto.Decrypt[productstructs.Product](&p, key)
 
 	if !ok {
 		logging.Log(logging.Error, "[Product Helper | GetProductById] Failed to decrypt product")
@@ -28,9 +30,9 @@ func GetProductById(productId uint, key string) (*productstructs.Product, bool) 
 }
 
 // Gets all products for a tenant
-func GetAllProductsForTenant(tenantId uint, key string) ([]productstructs.Product, bool) {
+func GetAllProductsForTenant(tenantId uint, key string, ctx context.Context, dh *database.DbHandler) ([]productstructs.Product, bool) {
 
-	products, ok := database.QueryDatabase[productstructs.Product]("SelectProductByTenantId", []any{tenantId})
+	products, ok := database.QueryMany[productstructs.Product](ctx, dh, "SelectProductByTenantId", []any{tenantId})
 
 	if !ok {
 		logging.Log(logging.Error, "[Product Helper | GetProductById] Failed to get products for tenant")

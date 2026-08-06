@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 
+	"boobles.cloud/backend/database"
 	"boobles.cloud/backend/internal/auth"
 	"boobles.cloud/backend/logging"
 	"boobles.cloud/backend/startup"
@@ -16,10 +17,17 @@ func main() {
 
 	defer ctx.Done()
 
+	databaseConf, ok := database.CreateDbHandler()
+
+	if !ok {
+		fmt.Println(logging.ErrorColor, "Failed to connect to the database... \nCheck the logs for more information!", logging.ResetColor)
+		os.Exit(1)
+	}
+
 	logging.Log(logging.Information, "Startig application")
 
-	if !startup.SetupTabels() {
-		fmt.Println(logging.ErrorColor, "Failed to connect to the database... \nCheck the logs for more information!", logging.ResetColor)
+	if !startup.SetupTabels(databaseConf) {
+		fmt.Println(logging.ErrorColor, "Failed to setup table \nCheck the logs for more information!", logging.ResetColor)
 		os.Exit(1)
 	}
 
@@ -34,10 +42,10 @@ func main() {
 	}
 
 	// Starts our goroutine for deleting expired JWT
-	go auth.DeleteExpiredJWT(ctx)
+	go auth.DeleteExpiredJWT(ctx, databaseConf)
 
 	// ============ REST-API config stuff ============
-	httpServer := startup.ConfigureHTTPServer()
+	httpServer := startup.ConfigureHTTPServer(databaseConf)
 
 	if err := httpServer.ListenAndServe(); err != nil {
 		logging.Log(logging.Error, err.Error())

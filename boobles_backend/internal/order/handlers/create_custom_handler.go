@@ -4,6 +4,7 @@ import (
 	"strconv"
 
 	"boobles.cloud/backend/caching"
+	"boobles.cloud/backend/database"
 	orderstructs "boobles.cloud/backend/internal/order/order_structs"
 )
 
@@ -13,11 +14,13 @@ const (
 
 type OrderHandler struct {
 	OrderCache *caching.CacheManager[orderstructs.Order]
+	Dh         *database.DbHandler
 }
 
-func CreateNewOrderHandler(o *caching.CacheManager[orderstructs.Order]) *OrderHandler {
+func CreateNewOrderHandler(o *caching.CacheManager[orderstructs.Order], d *database.DbHandler) *OrderHandler {
 	return &OrderHandler{
 		OrderCache: o,
+		Dh:         d,
 	}
 }
 

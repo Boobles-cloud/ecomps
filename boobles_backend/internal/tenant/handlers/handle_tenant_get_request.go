@@ -28,13 +28,13 @@ func (t *TenantHandler) HandleGetTenantByUserId(w http.ResponseWriter, r *http.R
 		fail(http.StatusBadRequest, err)
 	}
 
-	tenant, ok := database.QueryDatabase[tenantstructs.Tenant]("SelectTenantByUserId", []any{userIdInt})
+	tenant, ok := database.QueryOne[tenantstructs.Tenant](r.Context(), t.Dh, "SelectTenantByUserId", []any{userIdInt})
 
-	if !ok || len(tenant) > 1 {
+	if !ok {
 		fail(http.StatusBadRequest, nil)
 	}
 
-	tenantJson, err := json.Marshal(tenant[0])
+	tenantJson, err := json.Marshal(tenant)
 
 	if err != nil {
 		fail(http.StatusInternalServerError, err)
@@ -62,13 +62,13 @@ func (t *TenantHandler) HandleGetTenantByTenantId(w http.ResponseWriter, r *http
 		fail(http.StatusBadRequest, err)
 	}
 
-	tenant, ok := database.QueryDatabase[tenantstructs.Tenant]("SelectTenantById", []any{tenantId})
+	tenant, ok := database.QueryOne[tenantstructs.Tenant](r.Context(), t.Dh, "SelectTenantById", []any{tenantId})
 
-	if !ok || len(tenant) > 1 {
+	if !ok {
 		fail(http.StatusBadRequest, nil)
 	}
 
-	tenantJson, err := json.Marshal(tenant[0])
+	tenantJson, err := json.Marshal(tenant)
 
 	if err != nil {
 		fail(http.StatusInternalServerError, err)

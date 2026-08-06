@@ -36,14 +36,14 @@ func (ho *OrderHandler) HandleCreatingOrder(w http.ResponseWriter, r *http.Reque
 	// Get the tenant id so we can get the tenant and the password
 	tenantId := r.Context().Value(middleware.TenantIdContextKey).(int)
 
-	tenant, ok := database.QueryDatabase[tenantstructs.Tenant]("SelectTenantById", []any{tenantId})
+	tenant, ok := database.QueryOne[tenantstructs.Tenant](r.Context(), ho.Dh, "SelectTenantById", []any{tenantId})
 
-	if !ok || len(tenant) != 1 {
+	if !ok {
 		fail(http.StatusInternalServerError, errors.New("Failed getting tenant"))
 	}
 
 	// Create the order
-	id, ok := order.CreateOrderInDatabase(tenant[0].GetPw())
+	id, ok := order.CreateOrderInDatabase(tenant.GetPw(ho.Dh, r.Context()), ho.Dh)
 
 	if !ok {
 		fail(http.StatusInternalServerError, errors.New("Failed to create order"))
@@ -51,7 +51,7 @@ func (ho *OrderHandler) HandleCreatingOrder(w http.ResponseWriter, r *http.Reque
 
 	// Loop over the tmp product struct and insert it
 	for i := range order.Products {
-		if !order.Products[i].InsertIntoDatabase(id) {
+		if !order.Products[i].InsertIntoDatabase(id, ho.Dh) {
 			fail(http.StatusInternalServerError, errors.New("Failed to create product order"))
 		}
 	}
