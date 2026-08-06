@@ -1,6 +1,7 @@
 package database
 
 import (
+	"context"
 	"reflect"
 
 	"boobles.cloud/backend/logging"
@@ -11,58 +12,82 @@ import (
 // - T -> struct
 // - queryName -> name defined in the json
 // - args -> any data you want to query after :)
-func QueryDatabase[T any](queryName string, queryArgs []any) ([]T, bool) {
+func QueryOne[T any](ctx context.Context, dh *DbHandler, queryName string, args ...any) (T, bool) {
+
+	var tmpVal T
+	results, ok := QueryMany[T](ctx, dh, queryName, args...)
+
+	if !ok {
+		logging.Log(logging.Error, "[Database | QueryOne] Failed getting items!")
+		return tmpVal, false
+	}
+
+	return results[0], len(results) != 0
+}
+
+// Executes a query in the database and returns the result.
+// Wants:
+// - T -> struct
+// - queryName -> name defined in the json
+// - args -> any data you want to query after :)
+func QueryMany[T any](ctx context.Context, dh *DbHandler, queryName string, args ...any) ([]T, bool) {
+
+	queryStr, ok := dh.findQuery(queryName)
+
+	if !ok {
+		logging.Log(logging.Error, "[Database | QueryMany] Failed to load query")
+		return nil, false
+	}
+
+	rows, err := dh.DbConnection.QueryContext(ctx, queryStr.QueryVal, args...)
+
+	if err != nil {
+		logging.Log(logging.Error, "[Database | QueryMany] "+err.Error())
+		return nil, false
+	}
+
+	defer rows.Close()
+
+	// Gets all colum
+	columns, err := rows.Columns()
+
+	if err != nil {
+		logging.Log(logging.Error, "[Database | QueryMany] "+err.Error())
+		return nil, false
+	}
 
 	var results []T
 
-	// Creates our database connection
-	db, ok := CreateDBConn()
+	var sample T
+	v := reflect.ValueOf(&sample).Elem()
+	numFields := v.NumField()
 
-	if !ok {
-		return results, ok
+	if len(columns) > numFields {
+		logging.Log(logging.Error, "[Database | QueryMany] Db columns exceeded struct fields!")
+		return nil, false
 	}
 
-	// Gets the wanted query
-	query, ok := getWantedSqlStatement(Select, queryName)
-
-	if !ok {
-		return results, false
-	}
-
-	defer db.Close()
-
-	// Executes our query
-	rows, err := db.Query(query, queryArgs...)
-
-	if err != nil {
-		logging.Log(logging.Error, err.Error())
-		return results, false
-	}
-
-	// Gets all columns
-	columns, _ := rows.Columns()
-
-	// Loops over all data
 	for rows.Next() {
-
 		var data T
-
 		v := reflect.ValueOf(&data).Elem()
 
 		fieldPointers := make([]any, len(columns))
 
 		for i := range columns {
-			if i < v.NumField() {
-				fieldPointers[i] = v.Field(i).Addr().Interface()
-			}
+			fieldPointers[i] = v.Field(i).Addr().Interface()
 		}
 
 		if err := rows.Scan(fieldPointers...); err != nil {
-			logging.Log(logging.Error, err.Error())
-			break
+			logging.Log(logging.Error, "[Database | QueryMany] "+err.Error())
+			return nil, false
 		}
 
 		results = append(results, data)
+	}
+
+	if err := rows.Err(); err != nil {
+		logging.Log(logging.Error, "[Database | QueryMany] "+err.Error())
+		return nil, false
 	}
 
 	return results, true

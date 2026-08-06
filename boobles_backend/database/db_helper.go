@@ -3,7 +3,6 @@ package database
 import (
 	"encoding/json"
 	"os"
-	"path"
 
 	"boobles.cloud/backend/logging"
 )
@@ -15,80 +14,48 @@ const (
 	Update
 )
 
-type queryJsonStruct struct {
+type QueryJsonStruct struct {
 	QueryName string `json:"QueryName"`
 	QueryVal  string `json:"QueryVal"`
 	QueryType uint   `json:"QueryType"`
 }
 
-// Gets the wanted sql statement
-func getWantedSqlStatement(statementType int, statementName string) (string, bool) {
-	currDir, _ := os.Getwd()
+// Gets a wanted query by name from cache
+func (dh *DbHandler) findQuery(statementName string) (QueryJsonStruct, bool) {
 
-	wantedFolder := path.Join(currDir, "database_sql_statements")
+	for i := range dh.CachedQuerys {
 
-	switch statementType {
-	case Insert:
-
-		jsonStruct, ok := readJsonFile(path.Join(wantedFolder, "insert_querys.json"), statementName)
-
-		if !ok {
-			return "", false
+		if dh.CachedQuerys[i].QueryName == statementName {
+			return dh.CachedQuerys[i], true
 		}
-
-		return jsonStruct.QueryVal, true
-	case Delete:
-
-		jsonStruct, ok := readJsonFile(path.Join(wantedFolder, "delete_querys.json"), statementName)
-
-		if !ok {
-			return "", false
-		}
-
-		return jsonStruct.QueryVal, true
-	case Select:
-		jsonStruct, ok := readJsonFile(path.Join(wantedFolder, "delete_querys.json"), statementName)
-
-		if !ok {
-			return "", false
-		}
-
-		return jsonStruct.QueryVal, true
-	case Update:
-		jsonStruct, ok := readJsonFile(path.Join(wantedFolder, "update_querys.json"), statementName)
-
-		if !ok {
-			return "", false
-		}
-
-		return jsonStruct.QueryVal, true
-	default:
-		return "", false
 	}
+
+	return QueryJsonStruct{}, false
 }
 
-// Gets the query from the json file
-func readJsonFile(filePath, statementName string) (*queryJsonStruct, bool) {
+// Gets all querys from the jsons
+func readJsonFile(filePaths []string) ([]QueryJsonStruct, bool) {
 
-	byteFileData, err := os.ReadFile(filePath)
+	var querys = make([]QueryJsonStruct, 150)
 
-	if err != nil {
-		logging.Log(logging.Error, "[Database | readingJsonFile] "+err.Error())
-		return &queryJsonStruct{}, false
-	}
+	for i := range filePaths {
 
-	var querys = make([]queryJsonStruct, 20)
+		tmpQueryRange := make([]QueryJsonStruct, 20)
 
-	if err := json.Unmarshal(byteFileData, &querys); err != nil {
-		logging.Log(logging.Error, "[Database | readingJsonFile] "+err.Error())
-		return &queryJsonStruct{}, false
-	}
+		fileByteData, err := os.ReadFile(filePaths[i])
 
-	for i := range querys {
-		if querys[i].QueryName == statementName {
-			return &querys[i], true
+		if err != nil {
+			logging.Log(logging.Error, "[Database | readingJsonFile] "+err.Error())
+			return querys, false
 		}
+
+		if err := json.Unmarshal(fileByteData, &tmpQueryRange); err != nil {
+			logging.Log(logging.Error, "[Database | readingJsonFile] "+err.Error())
+			return querys, false
+		}
+
+		querys = append(querys, tmpQueryRange...)
 	}
-	logging.Log(logging.Error, "[Database | readingJsonFile] Cannot find statement, with name: "+statementName)
-	return &queryJsonStruct{}, false
+
+	return querys, len(querys) != 0
 }
