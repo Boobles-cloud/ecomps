@@ -6,6 +6,8 @@ import (
 	"boobles.cloud/backend/caching"
 	"boobles.cloud/backend/database"
 	authHandlers "boobles.cloud/backend/internal/auth/handlers"
+	customerstructs "boobles.cloud/backend/internal/customer/customer_structs"
+	customerhandlers "boobles.cloud/backend/internal/customer/handlers"
 	"boobles.cloud/backend/internal/middleware"
 	orderhandlers "boobles.cloud/backend/internal/order/handlers"
 	orderstructs "boobles.cloud/backend/internal/order/order_structs"
@@ -41,6 +43,10 @@ func ConfigureHTTPServer(dh *database.DbHandler) http.Server {
 	// Order cache config
 	orderCache := caching.CreateNewCacheManager[orderstructs.Order]()
 	orderHandler := orderhandlers.CreateNewOrderHandler(orderCache, dh)
+
+	// Customer cache config
+	customerCache := caching.CreateNewCacheManager[customerstructs.Customer]()
+	customerHandler := customerhandlers.CreateNewCustomerHandler(customerCache, dh)
 
 	// ============ Middleware config stuff ============
 
@@ -84,6 +90,11 @@ func ConfigureHTTPServer(dh *database.DbHandler) http.Server {
 		middleware.PermissionMiddleware(dh),
 	)
 
+	// For customer stuff
+	customerMiddleware := middleware.CreateNewMiddlewareStack(
+		middleware.AuthMiddleware(dh),
+		middleware.AuthMiddleware(dh),
+	)
 	// ============ Router stuff ============
 
 	// ====== Main router ======
@@ -165,7 +176,22 @@ func ConfigureHTTPServer(dh *database.DbHandler) http.Server {
 	orderRouter.HandleFunc("POST /order/change", orderHandler.HandleChangingOrder)
 
 	// DELETE Requests
-	orderRouter.HandleFunc("DELETE /order/delte/by/order-id={order-id}", orderHandler.HandleOrderDeletion)
+	orderRouter.HandleFunc("DELETE /order/delete/by/order-id={order-id}", orderHandler.HandleOrderDeletion)
+
+	// ============ Customer stuff ============
+
+	customerRouter := http.NewServeMux()
+
+	// GET Requests
+	customerRouter.HandleFunc("GET /customer/by/customer-id={customer-id}", customerHandler.HandleGettingCustomerById)
+	customerRouter.HandleFunc("GET /customer/all", customerHandler.HandleGettingAllCustomerByTenantId)
+
+	// POST Requests
+	customerRouter.HandleFunc("POST /customer/create", customerHandler.HandleCustomerCreation)
+	customerRouter.HandleFunc("POST /customer/change", customerHandler.HandleCustomerChange)
+
+	// DELETE Requests
+	customerRouter.HandleFunc("DELETE /customer/delete/by/customer-id={customer-id}", customerHandler.HandleCustomerDeletion)
 
 	// ============ Adding all subrouters ============
 	muxMainRouter.Handle("/", authMux)
@@ -175,6 +201,7 @@ func ConfigureHTTPServer(dh *database.DbHandler) http.Server {
 	muxMainRouter.Handle("/", userFrontendMiddleware(userFrontendRouter))
 	muxMainRouter.Handle("/", productMiddleware(productRouter))
 	muxMainRouter.Handle("/", orderMiddleware(orderRouter))
+	muxMainRouter.Handle("/", customerMiddleware(customerRouter))
 
 	return http.Server{
 		Addr:    "8080",
