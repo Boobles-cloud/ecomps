@@ -1,8 +1,56 @@
 package handlers
 
-import "net/http"
+import (
+	"encoding/json"
+	"errors"
+	"io"
+	"net/http"
+
+	"boobles.cloud/backend/crypto"
+	"boobles.cloud/backend/database"
+	customerstructs "boobles.cloud/backend/internal/customer/customer_structs"
+	"boobles.cloud/backend/internal/middleware"
+	tenantstructs "boobles.cloud/backend/internal/tenant/tenant_structs"
+	"boobles.cloud/backend/logging"
+)
 
 // Handels changing a customer
 func (ch *CustomerHandler) HandleCustomerChange(w http.ResponseWriter, r *http.Request) {
 
+	fail := func(status int, err error) {
+		logging.Log(logging.Error, "[Customer | HandleCustomerChange] "+err.Error())
+		w.WriteHeader(status)
+	}
+
+	body, err := io.ReadAll(r.Body)
+
+	if err != nil {
+		fail(http.StatusBadRequest, err)
+	}
+
+	var tmpCustomer customerstructs.Customer
+
+	if err := json.Unmarshal(body, &tmpCustomer); err != nil {
+		fail(http.StatusBadRequest, err)
+	}
+
+	tenantId := r.Context().Value(middleware.TenantIdContextKey).(int)
+	tenant, ok := database.QueryOne[tenantstructs.Tenant](r.Context(), ch.Dh, "SelectTenantById", []any{tenantId})
+
+	if !ok {
+		fail(http.StatusInternalServerError, errors.New("Failed getting tenant"))
+	}
+
+	encryptedCustomer, ok := crypto.Encrypt(tmpCustomer, tenant.GetPw(ch.Dh, r.Context()))
+
+	if !ok {
+		fail(http.StatusInternalServerError, errors.New("Failed encrypting customer"))
+	}
+
+	if !database.UpdateDatabaseEntry[customerstructs.Customer](ch.Dh, "UpdateCustomer", "CustomerId", encryptedCustomer) {
+		fail(http.StatusInternalServerError, errors.New("Failed updating customer"))
+	}
+
+	go ch.insertItem(tmpCustomer)
+	w.WriteHeader(http.StatusOK)
 }

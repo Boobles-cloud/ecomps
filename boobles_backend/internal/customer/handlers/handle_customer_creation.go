@@ -35,13 +35,13 @@ func (ch *CustomerHandler) HandleCustomerCreation(w http.ResponseWriter, r *http
 
 	tenantId := r.Context().Value(middleware.TenantIdContextKey).(int)
 
-	tenant, ok := database.QueryDatabase[tenantstructs.Tenant]("SelectTenantById", []any{tenantId})
+	tenant, ok := database.QueryOne[tenantstructs.Tenant](r.Context(), ch.Dh, "SelectTenantById", []any{tenantId})
 
-	if !ok || len(tenant) != 1 {
+	if !ok {
 		fail(http.StatusInternalServerError, errors.New("Failed getting tenant"))
 	}
 
-	id, ok := customer.CreateCustomerInDatabase(tenant[0].GetPw())
+	id, ok := customer.CreateCustomerInDatabase(tenant.GetPw(ch.Dh, r.Context()), ch.Dh)
 
 	if !ok {
 		fail(http.StatusInternalServerError, errors.New("Failed creating customer"))

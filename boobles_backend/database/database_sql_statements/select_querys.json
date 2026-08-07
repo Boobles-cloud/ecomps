@@ -103,5 +103,10 @@
     "QueryName": "SelectAllStatusByLanguageId",
     "QueryVal": "SELECT * FROM OrderStatus WHERE LanguageId = ?;",
     "QueryType": 2
+  },
+  {
+    "QueryName": "SelectCustomerById",
+    "QueryVal": "SELECT * FROM Customer WHERE CustomerId = ?;",
+    "QueryType": 2
   }
 ]

@@ -18,7 +18,7 @@ type Customer struct {
 	TenantId                 uint      `json:"TenantId"`
 }
 
-func (c *Customer) CreateCustomerInDatabase(key string) (uint, bool) {
+func (c *Customer) CreateCustomerInDatabase(key string, dh *database.DbHandler) (uint, bool) {
 
 	c.CustomerLastChanged = time.Now()
 
@@ -29,7 +29,7 @@ func (c *Customer) CreateCustomerInDatabase(key string) (uint, bool) {
 		return 0, false
 	}
 
-	result := database.ExecuteSQLStatement("InsertCustomer", database.Insert, []any{encryptedCustomer.CustomerName, encryptedCustomer.CustomerPostalCode,
+	result := dh.ExecuteSQLStatement("InsertCustomer", []any{encryptedCustomer.CustomerName, encryptedCustomer.CustomerPostalCode,
 		encryptedCustomer.CustomerStreetAndHouseNr, encryptedCustomer.CustomerCity, encryptedCustomer.CustomerLastChanged, encryptedCustomer.TenantId})
 
 	return result.LastId, result.Ok

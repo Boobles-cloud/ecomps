@@ -23,5 +23,10 @@
     "QueryName": "UpdateOrderProduct",
     "QueryVal": "UPDATE OrderProduct SET",
     "QueryType": 3
+  },
+  {
+    "QueryName": "UpdateCustomer",
+    "QueryVal": "UPDATE Customer SET",
+    "QueryType": 3
   }
 ]
