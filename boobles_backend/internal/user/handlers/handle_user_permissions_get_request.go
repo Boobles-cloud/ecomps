@@ -33,15 +33,15 @@ func (u *UserHandler) HandleGettingUserPermissions(w http.ResponseWriter, r *htt
 	}
 
 	// Gets the wanted user from the database
-	wantedUser, ok := database.QueryDatabase[userstructs.UserStruct]("SelectUserById", []any{userId})
+	wantedUser, ok := database.QueryOne[userstructs.UserStruct](r.Context(), u.Dh, "SelectUserById", []any{userId})
 
 	// Checks for err and if its only one
-	if !ok && len(wantedUser) != 1 {
+	if !ok {
 		fail(http.StatusInternalServerError, errors.New("Failed to get user from database"))
 	}
 
 	// Gets all permissions
-	allPermissions, ok := wantedUser[0].GetPermissionsByUser()
+	allPermissions, ok := wantedUser.GetPermissionsByUser(r.Context(), u.Dh)
 
 	if !ok {
 		fail(http.StatusInternalServerError, errors.New("Failed to get user permissions"))
@@ -77,9 +77,9 @@ func (u *UserHandler) HandleGettingPermissionById(w http.ResponseWriter, r *http
 	// Not to cause confusion:
 	// We select all tenant actions here, because those are the real permissions.
 	// A User gets access to a specific action he can do
-	wantedPermission, ok := database.QueryDatabase[userstructs.UserPermission]("SelectTenantActionById", []any{permissionId})
+	wantedPermission, ok := database.QueryOne[userstructs.UserPermission](r.Context(), u.Dh, "SelectTenantActionById", []any{permissionId})
 
-	if !ok && len(wantedPermission) != 1 {
+	if !ok {
 		fail(http.StatusInternalServerError, errors.New("Failed to get permission from database"))
 	}
 
@@ -108,7 +108,7 @@ func (u *UserHandler) HandleGettingAllPermissions(w http.ResponseWriter, r *http
 	// Not to cause confusion:
 	// We select all tenant actions here, because those are the real permissions.
 	// A User gets access to a specific action he can do
-	allPermissions, ok := database.QueryDatabase[userstructs.UserPermission]("SelectAllTenantActions", []any{})
+	allPermissions, ok := database.QueryMany[userstructs.UserPermission](r.Context(), u.Dh, "SelectAllTenantActions", []any{})
 
 	if !ok {
 		fail(http.StatusInternalServerError, errors.New("Failed to get all permissions"))

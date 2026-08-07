@@ -16,15 +16,14 @@ const (
 // TODO: Rethink this -> is there a better way to do this?
 
 // Creates the master key for the given tenant
-func createMasterKey(t Tenant) (uint, bool) {
+func createMasterKey(t Tenant, dh *database.DbHandler) (uint, bool) {
 
 	tenantPw := t.TenantName
 	tenantPw += createRandomString(len(t.TenantName) - maxLengthOfKey)
 
 	tenantPwBase64 := base64.StdEncoding.EncodeToString([]byte(tenantPw))
 
-	// TODO: Add the insert command here!!
-	result := database.ExecuteSQLStatement("InsertTenantPw", database.Insert, []any{tenantPwBase64})
+	result := dh.ExecuteSQLStatement("InsertTenantPw", []any{tenantPwBase64})
 
 	return result.LastId, result.Ok
 }

@@ -35,13 +35,13 @@ func (p *ProductHandler) HandleCreatingProduct(w http.ResponseWriter, r *http.Re
 
 	tenantId := r.Context().Value(middleware.TenantIdContextKey).(int)
 
-	tenant, ok := database.QueryDatabase[tenantstructs.Tenant]("SelectTenantById", []any{tenantId})
+	tenant, ok := database.QueryOne[tenantstructs.Tenant](r.Context(), p.Dh, "SelectTenantById", []any{tenantId})
 
-	if !ok || len(tenant) != 1 {
+	if !ok {
 		fail(http.StatusInternalServerError, errors.New("Failed getting Tenant"))
 	}
 
-	id, ok := product.CreateProductInDatabase(tenant[0].GetPw())
+	id, ok := product.CreateProductInDatabase(tenant.GetPw(p.Dh, r.Context()), p.Dh)
 
 	if !ok {
 		fail(http.StatusInternalServerError, errors.New("Failed to create product"))

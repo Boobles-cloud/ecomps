@@ -14,30 +14,20 @@ type Result struct {
 // Only use this for executing DELETE or INSERT commads!!
 // And only use the constants as statement types!
 // It returns an struct with the last Id and an bool to indicate success.
-func ExecuteSQLStatement(statementName string, statementType int, args []any) *Result {
+func (dh *DbHandler) ExecuteSQLStatement(statementName string, args []any) *Result {
 
-	query, ok := getWantedSqlStatement(statementType, statementName)
-
-	if !ok {
-		return &Result{
-			LastId: 0,
-			Ok:     ok,
-		}
-	}
-
-	db, ok := CreateDBConn()
+	wantedQuery, ok := dh.findQuery(statementName)
 
 	if !ok {
+		logging.Log(logging.Error, "[Database | ExecuteSqlStatement] Failed getting query")
 		return &Result{
 			LastId: 0,
-			Ok:     ok,
+			Ok:     false,
 		}
 	}
-
-	defer db.Close()
 
 	// Excecute the given command with all arguments
-	queryResult, err := db.Exec(query, args...)
+	queryResult, err := dh.DbConnection.Exec(wantedQuery.QueryVal, args...)
 
 	if err != nil {
 		logging.Log(logging.Error, err.Error())

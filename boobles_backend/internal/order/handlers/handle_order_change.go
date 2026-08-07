@@ -38,24 +38,24 @@ func (ho *OrderHandler) HandleChangingOrder(w http.ResponseWriter, r *http.Reque
 	order.OrderLastChanged = time.Now()
 
 	tenantId := r.Context().Value(middleware.TenantIdContextKey).(int)
-	tenant, ok := database.QueryDatabase[tenantstructs.Tenant]("SelectTenantById", []any{tenantId})
+	tenant, ok := database.QueryOne[tenantstructs.Tenant](r.Context(), ho.Dh, "SelectTenantById", []any{tenantId})
 
-	if !ok || len(tenant) != 1 {
+	if !ok {
 		fail(http.StatusInternalServerError, errors.New("Failed to get tenant"))
 	}
 
-	encryptedOrder, ok := crypto.Encrypt[orderstructs.Order](order, tenant[0].GetPw())
+	encryptedOrder, ok := crypto.Encrypt[orderstructs.Order](order, tenant.GetPw(ho.Dh, r.Context()))
 
 	if !ok {
 		fail(http.StatusInternalServerError, errors.New("Failed encrypting order"))
 	}
 
-	if !database.UpdateDatabaseEntry[orderstructs.Order]("UpdateOrder", "OrderId", encryptedOrder) {
+	if !database.UpdateDatabaseEntry[orderstructs.Order](ho.Dh, "UpdateOrder", "OrderId", encryptedOrder) {
 		fail(http.StatusInternalServerError, errors.New("Failed updating order"))
 	}
 
 	for i := range order.Products {
-		order.Products[i].UpdateOrderProduct()
+		order.Products[i].UpdateOrderProduct(ho.Dh)
 	}
 
 	go ho.insertItem(order, uint(tenantId))

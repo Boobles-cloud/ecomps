@@ -1,6 +1,8 @@
 package helper
 
 import (
+	"context"
+
 	"boobles.cloud/backend/crypto"
 	"boobles.cloud/backend/database"
 	orderstructs "boobles.cloud/backend/internal/order/order_structs"
@@ -9,16 +11,16 @@ import (
 
 // Gets a order by its id
 // Decrypts the given order
-func GetOrder(orderId uint, key string) (*orderstructs.Order, bool) {
+func GetOrder(orderId uint, key string, dh *database.DbHandler, ctx context.Context) (*orderstructs.Order, bool) {
 
-	order, ok := database.QueryDatabase[orderstructs.Order]("SelectOrderById", []any{orderId})
+	order, ok := database.QueryOne[orderstructs.Order](ctx, dh, "SelectOrderById", []any{orderId})
 
-	if !ok || len(order) != 1 {
+	if !ok {
 		logging.Log(logging.Error, "[Order helper | GetOrder] Failed getting order from db...")
 		return nil, false
 	}
 
-	orderEncrypted, ok := crypto.Decrypt(&order[0], key)
+	orderEncrypted, ok := crypto.Decrypt(&order, key)
 
 	if !ok {
 		logging.Log(logging.Error, "[Order helper | GetOrder] Failed decrypting")
@@ -29,8 +31,8 @@ func GetOrder(orderId uint, key string) (*orderstructs.Order, bool) {
 }
 
 // Gets and decrypts all orders
-func GetAllOrders(tenantId uint, key string) ([]orderstructs.Order, bool) {
-	orders, ok := database.QueryDatabase[orderstructs.Order]("SelectOrdersByTenantId", []any{tenantId})
+func GetAllOrders(tenantId uint, key string, dh *database.DbHandler, ctx context.Context) ([]orderstructs.Order, bool) {
+	orders, ok := database.QueryMany[orderstructs.Order](ctx, dh, "SelectOrdersByTenantId", []any{tenantId})
 
 	if !ok {
 		logging.Log(logging.Error, "[Order helper | GetAllOrders] Failed getting order from db...")

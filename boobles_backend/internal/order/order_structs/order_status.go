@@ -1,6 +1,8 @@
 package orderstructs
 
 import (
+	"context"
+
 	"boobles.cloud/backend/database"
 	"boobles.cloud/backend/logging"
 )
@@ -11,14 +13,14 @@ type OrderStatus struct {
 	LanguageId uint   `json:"LanguageId"`
 }
 
-func (o *OrderStatus) GetStatusNameInCurrentLang() string {
+func (o *OrderStatus) GetStatusNameInCurrentLang(dh *database.DbHandler, ctx context.Context) string {
 
-	status, ok := database.QueryDatabase[OrderStatus]("SelectOrderStatusById", []any{o.StatusId})
+	status, ok := database.QueryOne[OrderStatus](ctx, dh, "SelectOrderStatusById", []any{o.StatusId})
 
-	if !ok || len(status) != 1 {
+	if !ok {
 		logging.Log(logging.Error, "[OrderStatus | GetStatusNameInCurrentLang] Failed to get status")
 		return ""
 	}
 
-	return status[0].StatusName
+	return status.StatusName
 }

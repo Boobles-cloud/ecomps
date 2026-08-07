@@ -38,20 +38,20 @@ func (p *ProductHandler) HandleChangingProduct(w http.ResponseWriter, r *http.Re
 	tenantId := r.Context().Value(middleware.TenantIdContextKey).(int)
 
 	// Get the tenant for encryption stuff
-	tenant, ok := database.QueryDatabase[tenantstructs.Tenant]("SelectTenantById", []any{tenantId})
+	tenant, ok := database.QueryOne[tenantstructs.Tenant](r.Context(), p.Dh, "SelectTenantById", []any{tenantId})
 
-	if !ok || len(tenant) != 1 {
+	if !ok {
 		fail(http.StatusInternalServerError, errors.New("Failed getting Tenant"))
 	}
 
 	// Encrypt the product
-	encryptedProduct, ok := crypto.Encrypt[productstructs.Product](product, tenant[0].GetPw())
+	encryptedProduct, ok := crypto.Encrypt[productstructs.Product](product, tenant.GetPw(p.Dh, r.Context()))
 
 	if !ok {
 		fail(http.StatusInternalServerError, errors.New("Failed to encrypt product"))
 	}
 
-	if !database.UpdateDatabaseEntry[productstructs.Product]("UpdateProduct", "ProductId", encryptedProduct) {
+	if !database.UpdateDatabaseEntry[productstructs.Product](p.Dh, "UpdateProduct", "ProductId", encryptedProduct) {
 		fail(http.StatusInternalServerError, errors.New("Failed to update product"))
 	}
 

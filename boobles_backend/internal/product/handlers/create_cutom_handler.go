@@ -4,6 +4,7 @@ import (
 	"strconv"
 
 	"boobles.cloud/backend/caching"
+	"boobles.cloud/backend/database"
 	productstructs "boobles.cloud/backend/internal/product/product_structs"
 )
 
@@ -13,12 +14,14 @@ const (
 
 type ProductHandler struct {
 	ProductCache *caching.CacheManager[productstructs.Product]
+	Dh           *database.DbHandler
 }
 
 // Creates a new handler for products
-func CreateNewProductHandler(c *caching.CacheManager[productstructs.Product]) *ProductHandler {
+func CreateNewProductHandler(c *caching.CacheManager[productstructs.Product], d *database.DbHandler) *ProductHandler {
 	return &ProductHandler{
 		ProductCache: c,
+		Dh:           d,
 	}
 }
 

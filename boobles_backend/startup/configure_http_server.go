@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"boobles.cloud/backend/caching"
+	"boobles.cloud/backend/database"
 	authHandlers "boobles.cloud/backend/internal/auth/handlers"
 	"boobles.cloud/backend/internal/middleware"
 	orderhandlers "boobles.cloud/backend/internal/order/handlers"
@@ -17,26 +18,29 @@ import (
 )
 
 // Creates and configures the rest api
-func ConfigureHTTPServer() http.Server {
+func ConfigureHTTPServer(dh *database.DbHandler) http.Server {
 
 	// ============ Cache config stuff ============
+
+	// Auth handler stuff
+	authHandler := authHandlers.CreateAuthHandler(dh)
 
 	// User cache config
 	userCache := caching.CreateNewCacheManager[userstructs.UserStruct]()
 	permissionCache := caching.CreateNewCacheManager[userstructs.UserPermission]()
-	userHandler := userHandlers.CreateNewUserHander(userCache, permissionCache)
+	userHandler := userHandlers.CreateNewUserHander(userCache, permissionCache, dh)
 
 	// Tenant cache config
 	tenantCache := caching.CreateNewCacheManager[tenantstructs.Tenant]()
-	tenantHandler := tenanthandlers.CreateNewUserHander(tenantCache)
+	tenantHandler := tenanthandlers.CreateNewUserHander(tenantCache, dh)
 
 	// Product cache config
 	productCache := caching.CreateNewCacheManager[productstructs.Product]()
-	productHandler := producthandlers.CreateNewProductHandler(productCache)
+	productHandler := producthandlers.CreateNewProductHandler(productCache, dh)
 
 	// Order cache config
 	orderCache := caching.CreateNewCacheManager[orderstructs.Order]()
-	orderHandler := orderhandlers.CreateNewOrderHandler(orderCache)
+	orderHandler := orderhandlers.CreateNewOrderHandler(orderCache, dh)
 
 	// ============ Middleware config stuff ============
 
@@ -48,19 +52,19 @@ func ConfigureHTTPServer() http.Server {
 
 	// Tenant middleware config
 	tenantMiddleware := middleware.CreateNewMiddlewareStack(
-		middleware.AuthMiddleware,
-		middleware.PermissionMiddleware,
+		middleware.AuthMiddleware(dh),
+		middleware.PermissionMiddleware(dh),
 	)
 
 	// Tenant permission changes -> this can only be done by the admin
 	tenantPermissionMiddleware := middleware.CreateNewMiddlewareStack(
-		middleware.AuthMiddleware,
-		middleware.CheckAdminMiddleware,
+		middleware.AuthMiddleware(dh),
+		middleware.CheckAdminMiddleware(dh),
 	)
 
 	// For changes on the user config itself
 	userMiddleware := middleware.CreateNewMiddlewareStack(
-		middleware.AuthMiddleware,
+		middleware.AuthMiddleware(dh),
 	)
 
 	// For the frontend to get user information
@@ -70,14 +74,14 @@ func ConfigureHTTPServer() http.Server {
 
 	// For the product stuff
 	productMiddleware := middleware.CreateNewMiddlewareStack(
-		middleware.AuthMiddleware,
-		middleware.PermissionMiddleware,
+		middleware.AuthMiddleware(dh),
+		middleware.PermissionMiddleware(dh),
 	)
 
 	// For the order stuff
 	orderMiddleware := middleware.CreateNewMiddlewareStack(
-		middleware.AuthMiddleware,
-		middleware.PermissionMiddleware,
+		middleware.AuthMiddleware(dh),
+		middleware.PermissionMiddleware(dh),
 	)
 
 	// ============ Router stuff ============
@@ -87,9 +91,9 @@ func ConfigureHTTPServer() http.Server {
 
 	// ============ Auth stuff ============
 	authMux := http.NewServeMux()
-	authMux.HandleFunc("GET /authwall/login", authHandlers.HandleLogin)
-	authMux.HandleFunc("GET /authwall/logout", authHandlers.HandleLogout)
-	authMux.HandleFunc("POST /authwall/register", authHandlers.HandleRegistration)
+	authMux.HandleFunc("GET /authwall/login", authHandler.HandleLogin)
+	authMux.HandleFunc("GET /authwall/logout", authHandler.HandleLogout)
+	authMux.HandleFunc("POST /authwall/register", authHandler.HandleRegistration)
 
 	// ============ Tenant stuff ============
 

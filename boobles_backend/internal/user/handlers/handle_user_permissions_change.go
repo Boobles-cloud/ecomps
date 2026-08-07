@@ -17,11 +17,7 @@ import (
 func (u *UserHandler) HandleAddingNewUserPermission(w http.ResponseWriter, r *http.Request) {
 
 	fail := func(status int, err error) {
-
-		if err != nil {
-			logging.Log(logging.Error, "[Permission | HandleAddingNewUserPermission] "+err.Error())
-		}
-
+		logging.Log(logging.Error, "[Permission | HandleAddingNewUserPermission] "+err.Error())
 		w.WriteHeader(status)
 	}
 
@@ -31,19 +27,35 @@ func (u *UserHandler) HandleAddingNewUserPermission(w http.ResponseWriter, r *ht
 		fail(http.StatusBadRequest, err)
 	}
 
-	givenUser := new(userstructs.UserStruct)
+	userPermission := userstructs.UserPermission{}
 
-	if err := json.Unmarshal(body, &givenUser); err != nil {
-		fail(http.StatusInternalServerError, err)
+	if err := json.Unmarshal(body, &userPermission); err != nil {
+		fail(http.StatusBadRequest, err)
 	}
 
-	// First lets get all permissions and check if the user has them allready
-	user, ok := database.QueryDatabase[userstructs.UserStruct]("SelectUserById", []any{givenUser.UserId})
+	user, ok := database.QueryOne[userstructs.UserStruct](r.Context(), u.Dh, "SelectUserById", []any{userPermission.UserId})
 
-	if !ok && len(user) != 1 {
-		fail(http.StatusInternalServerError, errors.New("Got more then one user from db..."))
+	if !ok {
+		fail(http.StatusInternalServerError, errors.New("Failed getting user"))
 	}
 
+	allPermissions, ok := user.GetPermissionsByUser(r.Context(), u.Dh)
+
+	if !ok {
+		fail(http.StatusInternalServerError, errors.New("Failed getting user permissions"))
+	}
+
+	for i := range allPermissions {
+		if allPermissions[i].PermissionName == user.UserName {
+			w.WriteHeader(http.StatusOK)
+		}
+	}
+
+	if _, ok := userPermission.SetNewPermission(u.Dh); !ok {
+		fail(http.StatusInternalServerError, errors.New("Failed to create user permission"))
+	}
+
+	w.WriteHeader(http.StatusOK)
 }
 
 // Handels the removing of a user permission

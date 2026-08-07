@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"time"
 
-	"boobles.cloud/backend/database"
 	tenantstructs "boobles.cloud/backend/internal/tenant/tenant_structs"
 	"boobles.cloud/backend/logging"
 )
@@ -39,7 +38,7 @@ func (t *TenantHandler) HandleTenantDeletion(w http.ResponseWriter, r *http.Requ
 	tenantDeleteStruct.WhenToComplete = time.Now().AddDate(0, 2, 0)
 	tenantDeleteStruct.Deleted = false
 
-	if result := database.ExecuteSQLStatement("InsertTenantDeletion", database.Insert, []any{tenantDeleteStruct.IssuedFrom, tenantDeleteStruct.IssuedOn, tenantDeleteStruct.WhenToComplete, tenantDeleteStruct.Deleted, tenantDeleteStruct.TenantId}); !result.Ok {
+	if result := t.Dh.ExecuteSQLStatement("InsertTenantDeletion", []any{tenantDeleteStruct.IssuedFrom, tenantDeleteStruct.IssuedOn, tenantDeleteStruct.WhenToComplete, tenantDeleteStruct.Deleted, tenantDeleteStruct.TenantId}); !result.Ok {
 		fail(http.StatusInternalServerError, nil)
 	}
 

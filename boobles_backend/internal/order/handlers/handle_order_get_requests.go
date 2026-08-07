@@ -48,21 +48,21 @@ func (ho *OrderHandler) HandleGettingOrderById(w http.ResponseWriter, r *http.Re
 withOutCache:
 	tenantId := r.Context().Value(middleware.TenantIdContextKey).(int)
 
-	tenant, ok := database.QueryDatabase[tenantstructs.Tenant]("SelectTenantById", []any{tenantId})
+	tenant, ok := database.QueryOne[tenantstructs.Tenant](r.Context(), ho.Dh, "SelectTenantById", []any{tenantId})
 
-	if !ok || len(tenant) != 1 {
+	if !ok {
 		fail(http.StatusInternalServerError, errors.New("Failed getting tenant"))
 	}
 
 	// Gets the encrypted order
-	order, ok := helper.GetOrder(uint(orderId), tenant[0].GetPw())
+	order, ok := helper.GetOrder(uint(orderId), tenant.GetPw(ho.Dh, r.Context()), ho.Dh, r.Context())
 
 	if !ok {
 		fail(http.StatusInternalServerError, errors.New("Failed getting order"))
 	}
 
 	// Get all products for this order
-	order.GetAllProducts()
+	order.GetAllProducts(r.Context(), ho.Dh)
 
 	jsonData, err := json.Marshal(*order)
 
@@ -102,13 +102,13 @@ func (ho *OrderHandler) HandleGettingAllOrdersByTenantId(w http.ResponseWriter, 
 
 withOutCache:
 
-	tenant, ok := database.QueryDatabase[tenantstructs.Tenant]("SelectTenantById", []any{tenantId})
+	tenant, ok := database.QueryOne[tenantstructs.Tenant](r.Context(), ho.Dh, "SelectTenantById", []any{tenantId})
 
-	if !ok || len(tenant) != 1 {
+	if !ok {
 		fail(http.StatusInternalServerError, errors.New("Failed getting tenant"))
 	}
 
-	allOrders, ok := helper.GetAllOrders(uint(tenantId), tenant[0].GetPw())
+	allOrders, ok := helper.GetAllOrders(uint(tenantId), tenant.GetPw(ho.Dh, r.Context()), ho.Dh, r.Context())
 
 	if !ok {
 		fail(http.StatusInternalServerError, errors.New("Failed getting orders"))
@@ -146,9 +146,9 @@ func (ho *OrderHandler) HandleGettingStatusById(w http.ResponseWriter, r *http.R
 		fail(http.StatusBadRequest, err)
 	}
 
-	status, ok := database.QueryDatabase[orderstructs.OrderStatus]("SelectOrderStatusByIdAndLanguageId", []any{statusId, langId})
+	status, ok := database.QueryOne[orderstructs.OrderStatus](r.Context(), ho.Dh, "SelectOrderStatusByIdAndLanguageId", []any{statusId, langId})
 
-	if !ok || len(status) != 1 {
+	if !ok {
 		fail(http.StatusInternalServerError, errors.New("Failed getting status"))
 	}
 
@@ -176,7 +176,7 @@ func (ho *OrderHandler) HandleGettingAllStatusByLangId(w http.ResponseWriter, r 
 		fail(http.StatusBadRequest, err)
 	}
 
-	orderStatus, ok := database.QueryDatabase[orderstructs.OrderStatus]("SelectAllStatusByLanguageId", []any{langId})
+	orderStatus, ok := database.QueryMany[orderstructs.OrderStatus](r.Context(), ho.Dh, "SelectAllStatusByLanguageId", []any{langId})
 
 	if !ok {
 		fail(http.StatusInternalServerError, errors.New("Failed getting all order status"))
