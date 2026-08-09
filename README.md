@@ -10,8 +10,8 @@ Currently just errors
 Feature | Status / Version it is included
 --- | --- |
 Multiple users with different permissions | Done
-Creating orders | Not started yet -> V1
-Creating customers | Not started yet -> V1
+Creating orders | Done
+Creating customers | Done
 Syncronize storrage data from multiple shops | Not started yet -> V1
 Update storrage data to the selected shops | Not started yet -> V1
 Show syncronized order status | Not started yet -> V1
