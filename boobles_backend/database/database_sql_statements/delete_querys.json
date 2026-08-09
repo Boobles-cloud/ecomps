@@ -23,5 +23,20 @@
     "QueryName": "DeleteOrderProductsByOrderId",
     "QueryVal": "DELETE FROM OrderProduct WHERE OrderId = ?;",
     "QueryType": 1
+  },
+  {
+    "QueryName": "DeleteTenantById",
+    "QueryVal": "DELETE FROM Tenant WHERE TenantId = ?;",
+    "QueryType": 1
+  },
+  {
+    "QueryName": "DeleteOrdersByTenantId",
+    "QueryVal": "DELETE FROM Order WHERE TenantId = ?;",
+    "QueryType": 1
+  },
+  {
+    "QueryName": "DeleteCustomerByTenantId",
+    "QueryVal": "DELETE FROM Customer WHERE TenantId = ?;",
+    "QueryType": 1
   }
 ]

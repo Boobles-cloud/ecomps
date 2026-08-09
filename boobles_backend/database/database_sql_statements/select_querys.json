@@ -108,5 +108,10 @@
     "QueryName": "SelectCustomerById",
     "QueryVal": "SELECT * FROM Customer WHERE CustomerId = ?;",
     "QueryType": 2
+  },
+  {
+    "QueryName": "SelectAllTenantDeletion",
+    "QueryVal": "SELECT * FROM TenantDelitions;",
+    "QueryType": 2
   }
 ]
