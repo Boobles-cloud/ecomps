@@ -37,6 +37,10 @@ func DeleteTenants(ctx context.Context, dh *database.DbHandler) {
 					dh.ExecuteSQLStatement("DeleteTenantById", []any{tenantDeletions[i].TenantId})
 					dh.ExecuteSQLStatement("DeleteOrderByTenantId", []any{tenantDeletions[i].TenantId})
 					dh.ExecuteSQLStatement("DeleteCustomerByTenantId", []any{tenantDeletions[i].TenantId})
+					dh.ExecuteSQLStatement("DeleteTenantPwByTenantId", []any{tenantDeletions[i].TenantId})
+					dh.ExecuteSQLStatement("DeleteTenantOAuthTokensByTenantId", []any{tenantDeletions[i].TenantId})
+					dh.ExecuteSQLStatement("DeleteTenantOAuthApplicationsByTenantId", []any{tenantDeletions[i].TenantId})
+					dh.ExecuteSQLStatement("DeleteWarehouseByTenantId", []any{tenantDeletions[i].TenantId})
 				}
 			}
 

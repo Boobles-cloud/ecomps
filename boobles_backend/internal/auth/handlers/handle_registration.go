@@ -2,15 +2,15 @@ package handlers
 
 import (
 	"encoding/json"
+	"errors"
 	"io"
 	"net/http"
 	"time"
 
+	"boobles.cloud/backend/database"
 	userstructs "boobles.cloud/backend/internal/user/user_structs"
 	"boobles.cloud/backend/logging"
 )
-
-// TODO: implement func to check if user is already signed up!!!
 
 // Handels the registration of a user.
 // Sends back an access token.
@@ -36,6 +36,10 @@ func (ha *AuthHandler) HandleRegistration(w http.ResponseWriter, r *http.Request
 	// Get all content from the body
 	if err := json.Unmarshal(body, &tmpUserStruct); err != nil {
 		fail(http.StatusBadRequest, err)
+	}
+
+	if _, ok := database.QueryOne[userstructs.UserStruct](r.Context(), ha.Dh, "SelectUserByEmail", tmpUserStruct.UserMail); ok {
+		fail(http.StatusConflict, errors.New("User already exists"))
 	}
 
 	// Creates the user in the database

@@ -21,7 +21,7 @@
   },
   {
     "QueryName": "InsertTenantDeletion",
-    "QueryVal": "INSERT INTO TenantDelitions() VALUES(DEFAULT, ?, ?, ?, ?, ?);",
+    "QueryVal": "INSERT INTO TenantDeletions() VALUES(DEFAULT, ?, ?, ?, ?, ?);",
     "QueryType": 0
   },
   {
@@ -42,6 +42,11 @@
   {
     "QueryName": "InsertCustomer",
     "QueryVal": "INSERT INTO Customer() VALUES(DEFAULT, ?, ?, ?, ?, ?, ?);",
+    "QueryType": 0
+  },
+  {
+    "QueryName": "InsertUserDeletion",
+    "QueryVal": "INSERT INTO UserDeletion() VALUES(DEFAULT, ?, ?, ?);",
     "QueryType": 0
   }
 ]

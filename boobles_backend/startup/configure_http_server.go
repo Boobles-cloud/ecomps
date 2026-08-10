@@ -128,8 +128,11 @@ func ConfigureHTTPServer(dh *database.DbHandler) http.Server {
 	// ============ User stuff ============
 
 	userRouter := http.NewServeMux()
-	userRouter.HandleFunc("/user/change", userHandler.HandleUserChange)
-	// TODO: add more stuff here
+
+	// POST Requests
+	userRouter.HandleFunc("POST /user/change", userHandler.HandleUserChange)
+
+	userRouter.HandleFunc("DELETE /user/deletion", userHandler.HandleUserChange)
 
 	// ==== User frontend stuff ====
 	userFrontendRouter := http.NewServeMux()
