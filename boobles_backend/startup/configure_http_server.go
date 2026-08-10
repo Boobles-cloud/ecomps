@@ -118,6 +118,7 @@ func ConfigureHTTPServer(dh *database.DbHandler) http.Server {
 	// GET Requests
 	tenantRouter.HandleFunc("GET /tenant/{tenant-id}", tenantHandler.HandleGetTenantByTenantId)
 	tenantRouter.HandleFunc("GET /tenant/by/user={user-id}", tenantHandler.HandleGetTenantByUserId)
+	tenantRouter.HandleFunc("GET /tenant/all/users", tenantHandler.HandleGettingAllUsersByUserTenantId)
 
 	// ==== Changing permission on tenant ====
 	tenantPermissionRouter := http.NewServeMux()
@@ -127,8 +128,11 @@ func ConfigureHTTPServer(dh *database.DbHandler) http.Server {
 	// ============ User stuff ============
 
 	userRouter := http.NewServeMux()
-	userRouter.HandleFunc("/user/change", userHandler.HandleUserChange)
-	// TODO: add more stuff here
+
+	// POST Requests
+	userRouter.HandleFunc("POST /user/change", userHandler.HandleUserChange)
+
+	userRouter.HandleFunc("DELETE /user/deletion", userHandler.HandleUserChange)
 
 	// ==== User frontend stuff ====
 	userFrontendRouter := http.NewServeMux()

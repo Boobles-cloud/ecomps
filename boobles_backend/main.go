@@ -6,7 +6,7 @@ import (
 	"os"
 
 	"boobles.cloud/backend/database"
-	"boobles.cloud/backend/internal/auth"
+	hostedServices "boobles.cloud/backend/hosted_services"
 	"boobles.cloud/backend/logging"
 	"boobles.cloud/backend/startup"
 )
@@ -42,7 +42,8 @@ func main() {
 	}
 
 	// Starts our goroutine for deleting expired JWT
-	go auth.DeleteExpiredJWT(ctx, databaseConf)
+	go hostedServices.DeleteExpiredJWT(ctx, databaseConf)
+	go hostedServices.DeleteTenants(ctx, databaseConf)
 
 	// ============ REST-API config stuff ============
 	httpServer := startup.ConfigureHTTPServer(databaseConf)

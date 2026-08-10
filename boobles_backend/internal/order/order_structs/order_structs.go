@@ -18,6 +18,7 @@ type Order struct {
 	OrderCity             string         `json:"OrderCity"`
 	OrderLastChanged      time.Time      `json:"OrderLastChanged"`
 	Products              []OrderProduct `json:"Products,omitempty"`
+	TenantId              uint           `json:"TenantId"`
 }
 
 // Encrypts the order and creates a order in database
@@ -30,7 +31,7 @@ func (o *Order) CreateOrderInDatabase(key string, dh *database.DbHandler) (uint,
 		return 0, false
 	}
 
-	result := dh.ExecuteSQLStatement("InsertOrder", []any{order.OrderId, order.OrderName, order.OrderDate, order.OrderStatus, order.OrderPostalCode, order.OrderStreetAndHouseNr, order.OrderCity, order.OrderLastChanged})
+	result := dh.ExecuteSQLStatement("InsertOrder", []any{order.OrderId, order.OrderName, order.OrderDate, order.OrderStatus, order.OrderPostalCode, order.OrderStreetAndHouseNr, order.OrderCity, order.OrderLastChanged, order.TenantId})
 
 	return result.LastId, result.Ok
 }

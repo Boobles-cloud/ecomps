@@ -49,6 +49,15 @@ CREATE TABLE Permissions(
     FOREIGN KEY(UserId) REFERENCES Users(UserId)
 );
 
+-- To know if a user needs to be deleted after a specific date
+CREATE TABLE UserDeletion(
+    DeletionId int unsigned NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    IssuedOn DATETIME,
+    WhenToComplete DATETIME,
+    UserId int unsigned NOT NULL,
+
+    FOREIGN KEY(UserId) REFERENCES User(UserId)
+);
 
 -- ############################################################
 --                      Tenant Configuration Stuff
@@ -84,7 +93,7 @@ CREATE TABLE TenantPw(
 );
 
 -- Here are all tenants storred that are free for deletion
-CREATE TABLE TenantDelitions(
+CREATE TABLE TenantDeletions(
     TenantDelitionId int unsigned NOT NULL AUTO_INCREMENT PRIMARY KEY,
     IssuedFrom varchar(250) NOT NULL,
     IssuedOn DATETIME,
@@ -152,8 +161,10 @@ CREATE TABLE Order(
     OrderStreetAndHouseNr varchar(200),
     OrderCity varchar(200),
     OrderLastChanged DATETIME,
+    TenantId int unsigned NOT NULL,
 
-    FOREIGN KEY(OrderStatus) REFERENCES OrderStatus(StatusId)
+    FOREIGN KEY(OrderStatus) REFERENCES OrderStatus(StatusId),
+    FOREIGN KEY(TenantId) REFERENCES Tenant(TenantId)
 );
 
 -- To indicate which state an order has
