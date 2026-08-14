@@ -102,100 +102,100 @@ func ConfigureHTTPServer(dh *database.DbHandler) http.Server {
 
 	// ============ Auth stuff ============
 	authMux := http.NewServeMux()
-	authMux.HandleFunc("GET /login", authHandler.HandleLogin)
-	authMux.HandleFunc("GET /logout", authHandler.HandleLogout)
-	authMux.HandleFunc("POST /register", authHandler.HandleRegistration)
+	authMux.HandleFunc("GET /authwall/login", authHandler.HandleLogin)
+	authMux.HandleFunc("GET /authwall/logout", authHandler.HandleLogout)
+	authMux.HandleFunc("POST /authwall/register", authHandler.HandleRegistration)
 
 	// ============ Tenant stuff ============
 
 	tenantRouter := http.NewServeMux()
 
 	// POST Requests
-	tenantRouter.HandleFunc("POST /create", tenantHandler.HandleTenantCreation)
-	tenantRouter.HandleFunc("POST /change", tenantHandler.HandleTenantChange)
-	tenantRouter.HandleFunc("POST /delete", tenantHandler.HandleTenantDeletion)
+	tenantRouter.HandleFunc("POST /tenant/create", tenantHandler.HandleTenantCreation)
+	tenantRouter.HandleFunc("POST /tenant/change", tenantHandler.HandleTenantChange)
+	tenantRouter.HandleFunc("POST /tenant/delete", tenantHandler.HandleTenantDeletion)
 
 	// GET Requests
-	tenantRouter.HandleFunc("GET /{tenant_id}", tenantHandler.HandleGetTenantByTenantId)
-	tenantRouter.HandleFunc("GET /by/{user_id}", tenantHandler.HandleGetTenantByUserId)
-	tenantRouter.HandleFunc("GET /all/users", tenantHandler.HandleGettingAllUsersByUserTenantId)
+	tenantRouter.HandleFunc("GET /tenant/{tenant_id}", tenantHandler.HandleGetTenantByTenantId)
+	tenantRouter.HandleFunc("GET /tenant/by/{user_id}", tenantHandler.HandleGetTenantByUserId)
+	tenantRouter.HandleFunc("GET /tenant/all/users", tenantHandler.HandleGettingAllUsersByUserTenantId)
 
 	// ==== Changing permission on tenant ====
 	tenantPermissionRouter := http.NewServeMux()
-	tenantPermissionRouter.HandleFunc("POST /permission/add", userHandler.HandleAddingNewUserPermission)
-	tenantPermissionRouter.HandleFunc("POST /permission/remove", userHandler.HandleRemovingUserPermission)
+	tenantPermissionRouter.HandleFunc("POST /user/permissions/add", userHandler.HandleAddingNewUserPermission)
+	tenantPermissionRouter.HandleFunc("POST /user/permissions/remove", userHandler.HandleRemovingUserPermission)
 
 	// ============ User stuff ============
 
 	userRouter := http.NewServeMux()
 
 	// POST Requests
-	userRouter.HandleFunc("POST /change", userHandler.HandleUserChange)
+	userRouter.HandleFunc("POST /user/change", userHandler.HandleUserChange)
 
-	userRouter.HandleFunc("DELETE /deletion", userHandler.HandleUserChange)
+	userRouter.HandleFunc("DELETE /user/deletion", userHandler.HandleUserChange)
 
 	// ==== User frontend stuff ====
 	userFrontendRouter := http.NewServeMux()
 
 	// Normal user querys
-	userFrontendRouter.HandleFunc("GET /by/{authtoken}", userHandler.HandleGettingUserByAuthTokenVal)
-	userFrontendRouter.HandleFunc("GET /by/id", userHandler.HandleGettingUserById)
-	userFrontendRouter.HandleFunc("GET /by/{tenant_id}/{user_name}", userHandler.HandleGettingUserByTenantIdAndUserName)
-	userFrontendRouter.HandleFunc("GET /has-tenant", userHandler.HandleHasUserATenant)
-	userFrontendRouter.HandleFunc("GET /permission/all", userHandler.HandleGettingAllPermissions)
+	userFrontendRouter.HandleFunc("GET /user/frontend/by/{authtoken}", userHandler.HandleGettingUserByAuthTokenVal)
+	userFrontendRouter.HandleFunc("GET /user/frontend/by/id", userHandler.HandleGettingUserById)
+	userFrontendRouter.HandleFunc("GET /user/frontend/by/{tenant_id}/{user_name}", userHandler.HandleGettingUserByTenantIdAndUserName)
+	userFrontendRouter.HandleFunc("GET /user/frontend/has-tenant", userHandler.HandleHasUserATenant)
+	userFrontendRouter.HandleFunc("GET /user/frontend/permission/all", userHandler.HandleGettingAllPermissions)
 
 	// User permission stuff
-	userFrontendRouter.HandleFunc("GET /permission/all/by/{user_id}", userHandler.HandleGettingUserPermissions)
-	userFrontendRouter.HandleFunc("GET /permission/{permission_id}", userHandler.HandleGettingPermissionById)
+	userFrontendRouter.HandleFunc("GET /user/frontend/permission/all/by/{user_id}", userHandler.HandleGettingUserPermissions)
+	userFrontendRouter.HandleFunc("GET /user/frontend/permission/{permission_id}", userHandler.HandleGettingPermissionById)
 
 	// ============ Product stuff ============
 
 	productRouter := http.NewServeMux()
 
 	// GET Requests
-	productRouter.HandleFunc("GET /by/{product_id}", productHandler.HandleGettingProductById)
-	productRouter.HandleFunc("GET /all", productHandler.HandleGettingAllProductsByTenantId)
-	productRouter.HandleFunc("GET /picture/by/{product_id}", productHandler.HandleGettingPictureByProductId)
+	productRouter.HandleFunc("GET /product/by/{product_id}", productHandler.HandleGettingProductById)
+	productRouter.HandleFunc("GET /product/all", productHandler.HandleGettingAllProductsByTenantId)
+	productRouter.HandleFunc("GET /product/picture/by/{product_id}", productHandler.HandleGettingPictureByProductId)
 
 	// POST Requests
-	productRouter.HandleFunc("POST /create", productHandler.HandleCreatingProduct)
-	productRouter.HandleFunc("POST /picture/create", productHandler.HandleCreatingProductPicture)
+	productRouter.HandleFunc("POST /product/create", productHandler.HandleCreatingProduct)
+	productRouter.HandleFunc("POST /product/picture/create", productHandler.HandleCreatingProductPicture)
 	productRouter.HandleFunc("POST /product/change", productHandler.HandleChangingProduct)
 
 	// DELETE Requests
-	productRouter.HandleFunc("DELETE /delete/by/{product_id}", productHandler.HandleDeletingProduct)
+	productRouter.HandleFunc("DELETE /product/delete/by/{product_id}", productHandler.HandleDeletingProduct)
 
 	// ============ Order stuff ============
 
 	orderRouter := http.NewServeMux()
 
 	// GET Requests
-	orderRouter.HandleFunc("GET /by/{order_id}", orderHandler.HandleGettingOrderById)
-	orderRouter.HandleFunc("GET /all", orderHandler.HandleGettingAllOrdersByTenantId)
-	orderRouter.HandleFunc("GET /status/by/{status_id}/{language_id}", orderHandler.HandleGettingStatusById)
-	orderRouter.HandleFunc("GET /status/{language_id}", orderHandler.HandleGettingStatusById)
+	orderRouter.HandleFunc("GET /order/by/{order_id}", orderHandler.HandleGettingOrderById)
+	orderRouter.HandleFunc("GET /order/all", orderHandler.HandleGettingAllOrdersByTenantId)
+	orderRouter.HandleFunc("GET /order/status/by/{status_id}/{language_id}", orderHandler.HandleGettingStatusById)
+	orderRouter.HandleFunc("GET /order/status/{language_id}", orderHandler.HandleGettingStatusById)
 
 	// POST Requests
-	orderRouter.HandleFunc("POST /create", orderHandler.HandleCreatingOrder)
-	orderRouter.HandleFunc("POST /change", orderHandler.HandleChangingOrder)
+	orderRouter.HandleFunc("POST /order/create", orderHandler.HandleCreatingOrder)
+	orderRouter.HandleFunc("POST /order/change", orderHandler.HandleChangingOrder)
 
 	// DELETE Requests
-	orderRouter.HandleFunc("DELETE /delete/by/{order_id}", orderHandler.HandleOrderDeletion)
+	orderRouter.HandleFunc("DELETE /order/delete/by/{order_id}", orderHandler.HandleOrderDeletion)
 
 	// ============ Customer stuff ============
 
 	customerRouter := http.NewServeMux()
 
 	// GET Requests
-	customerRouter.HandleFunc("GET /by/{customer_id}", customerHandler.HandleGettingCustomerById)
-	customerRouter.HandleFunc("GET /all", customerHandler.HandleGettingAllCustomerByTenantId)
+	customerRouter.HandleFunc("GET /customer/by/{customer_id}", customerHandler.HandleGettingCustomerById)
+	customerRouter.HandleFunc("GET /customer/all", customerHandler.HandleGettingAllCustomerByTenantId)
 
 	// POST Requests
-	customerRouter.HandleFunc("POST /create", customerHandler.HandleCustomerCreation)
-	customerRouter.HandleFunc("POST /change", customerHandler.HandleCustomerChange)
+	customerRouter.HandleFunc("POST /customer/create", customerHandler.HandleCustomerCreation)
+	customerRouter.HandleFunc("POST /customer/change", customerHandler.HandleCustomerChange)
 
 	// DELETE Requests
-	customerRouter.HandleFunc("DELETE /delete/by/{customer_id}", customerHandler.HandleCustomerDeletion)
+	customerRouter.HandleFunc("DELETE /customer/delete/by/{customer_id}", customerHandler.HandleCustomerDeletion)
 
 	// ============ Adding all subrouters ============
 	muxMainRouter.Handle("/authwall/", authMux)
