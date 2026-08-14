@@ -1,7 +1,8 @@
 package startup
 
 import (
-	"math/rand"
+	"crypto/rand"
+	"math/big"
 	"os"
 
 	"boobles.cloud/backend/logging"
@@ -19,8 +20,16 @@ func GenerateFrontendApiToken() bool {
 
 	apiKey := make([]rune, 64)
 
+	max := big.NewInt(int64(len(allCharacters)))
+
 	for i := range apiKey {
-		apiKey[i] = allCharacters[rand.Intn(len(apiKey))]
+		tmp, err := rand.Int(rand.Reader, max)
+
+		if err != nil {
+			logging.Log(logging.Error, "[Startup | GenerateFrontendApiToken] "+err.Error())
+		}
+
+		apiKey[i] = allCharacters[tmp.Int64()]
 	}
 
 	// Set it to this enviroment vars, so we dont need to read a file everytime we want to access it

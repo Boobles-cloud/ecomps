@@ -26,7 +26,7 @@ func (u *UserHandler) HandleGettingUserPermissions(w http.ResponseWriter, r *htt
 		w.WriteHeader(status)
 	}
 
-	userId, err := strconv.Atoi(r.PathValue("user-id"))
+	userId, err := strconv.Atoi(r.PathValue("user_id"))
 
 	if err != nil {
 		fail(http.StatusBadRequest, err)
@@ -68,7 +68,7 @@ func (u *UserHandler) HandleGettingPermissionById(w http.ResponseWriter, r *http
 		w.WriteHeader(status)
 	}
 
-	permissionId, err := strconv.Atoi(r.PathValue("permission-id"))
+	permissionId, err := strconv.Atoi(r.PathValue("permission_id"))
 
 	if err != nil {
 		fail(http.StatusBadRequest, err)

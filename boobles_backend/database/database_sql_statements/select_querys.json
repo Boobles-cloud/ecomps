@@ -71,12 +71,12 @@
   },
   {
     "QueryName": "SelectOrderById",
-    "QueryVal": "SELECT * FROM Order WHERE OrderId = ?;",
+    "QueryVal": "SELECT * FROM Orders WHERE OrderId = ?;",
     "QueryType": 2
   },
   {
     "QueryName": "SelectOrdersByTenantId",
-    "QueryVal": "SELECT * FROM Order WHERE TenantId = ?;",
+    "QueryVal": "SELECT * FROM Orders WHERE TenantId = ?;",
     "QueryType": 2
   },
   {

@@ -30,7 +30,14 @@ func SetupTabels(dh *database.DbHandler) bool {
 
 	for i := range splited {
 
-		if _, err := dh.DbConnection.Exec(splited[i]); err != nil {
+		query := strings.TrimSpace(splited[i])
+
+		if query == "" {
+			logging.Log(logging.Error, "[Startup | SetupTabels] Query Empty")
+			continue
+		}
+
+		if _, err := dh.DbConnection.Exec(query); err != nil {
 			logging.Log(logging.Error, "[Startup | SetupTabels] "+err.Error())
 			return false
 		}

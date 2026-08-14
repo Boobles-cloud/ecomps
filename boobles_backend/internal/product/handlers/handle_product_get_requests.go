@@ -21,7 +21,7 @@ func (p *ProductHandler) HandleGettingProductById(w http.ResponseWriter, r *http
 		w.WriteHeader(status)
 	}
 
-	id, err := strconv.Atoi(r.PathValue("product-id"))
+	id, err := strconv.Atoi(r.PathValue("product_id"))
 
 	if err != nil {
 		fail(http.StatusBadRequest, err)

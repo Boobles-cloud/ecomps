@@ -16,7 +16,7 @@ func (ho OrderHandler) HandleOrderDeletion(w http.ResponseWriter, r *http.Reques
 		w.WriteHeader(status)
 	}
 
-	orderId, err := strconv.Atoi(r.PathValue("order-id"))
+	orderId, err := strconv.Atoi(r.PathValue("order_id"))
 
 	if err != nil {
 		fail(http.StatusBadRequest, err)

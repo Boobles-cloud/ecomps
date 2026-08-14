@@ -18,7 +18,7 @@ func (p *ProductHandler) HandleDeletingProduct(w http.ResponseWriter, r *http.Re
 		w.WriteHeader(status)
 	}
 
-	productId, err := strconv.Atoi(r.PathValue("product-id"))
+	productId, err := strconv.Atoi(r.PathValue("product_id"))
 
 	if err != nil {
 		fail(http.StatusBadRequest, err)

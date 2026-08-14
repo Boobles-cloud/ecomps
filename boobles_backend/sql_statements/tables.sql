@@ -23,9 +23,7 @@ CREATE TABLE Users(
     UserTel varchar(50),
     UserHas2Fa bool,
     UserHasTenant bool,
-    TenantId int unsigned NOT NULL,
-
-    FOREIGN KEY(TenantId) REFERENCES Tenant(TenantId)
+    TenantId int unsigned NOT NULL
 );
 
 -- To store all accesstokens for the users
@@ -33,9 +31,7 @@ CREATE TABLE UserAccesstokens(
     UserAccessId int unsigned NOT NULL AUTO_INCREMENT PRIMARY KEY,
     TokenVal varchar(250) NOT NULL,
     TokenExpire DATETIME NOT NULL,
-    UserId int unsigned,
-
-    FOREIGN KEY(UserId) REFERENCES Users(UserId)
+    UserId int unsigned
 );
 
 -- For all permissions a user can have
@@ -43,10 +39,7 @@ CREATE TABLE UserAccesstokens(
 CREATE TABLE Permissions(
     PermissionId int unsigned NOT NULL AUTO_INCREMENT PRIMARY KEY,
     TenantActionId int unsigned NOT NULL,
-    UserId int unsigned NOT NULL,
-
-    FOREIGN KEY(TenantActionId) REFERENCES TenantActions(ActionId),
-    FOREIGN KEY(UserId) REFERENCES Users(UserId)
+    UserId int unsigned NOT NULL
 );
 
 -- To know if a user needs to be deleted after a specific date
@@ -54,14 +47,18 @@ CREATE TABLE UserDeletion(
     DeletionId int unsigned NOT NULL AUTO_INCREMENT PRIMARY KEY,
     IssuedOn DATETIME,
     WhenToComplete DATETIME,
-    UserId int unsigned NOT NULL,
-
-    FOREIGN KEY(UserId) REFERENCES User(UserId)
+    UserId int unsigned NOT NULL
 );
 
 -- ############################################################
---                      Tenant Configuration Stuff
+--                   Tenant Configuration Stuff
 -- ############################################################
+
+-- For storring the tenant pw
+CREATE TABLE TenantPw(
+    TenantPwId int unsigned NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    TenantPwVal varchar(255)
+);
 
 -- The tenant all users are connected to
 CREATE TABLE Tenant(
@@ -69,27 +66,16 @@ CREATE TABLE Tenant(
     TenantName varchar(100) NOT NULL,
     TenantCreation DATETIME NOT NULL,
     TenantAdminUserId int unsigned NOT NULL,
-    TenantPwId int unsigned NOT NULL,
+    TenantPwId int unsigned NOT NULL
     -- TODO: Add more tenant data
-    FOREIGN KEY(TenantPwId) REFERENCES TenantPw(TenantPwId),
-    FOREIGN KEY(TenantAdminUserId) REFERENCES Users(UserId)
 );
-
 
 -- Table to store all actions and permissions a tenant has
 CREATE TABLE TenantActions(
     ActionId int unsigned NOT NULL,
     ActionName varchar(50) NOT NULL,
-    ActionDescription varchar(50) NOT NULL,
-    LanguageId int unsigned NOT NULL,
-
-    FOREIGN KEY(LanguageId) REFERENCES Languages(LangId)
-);
-
--- For storring the tenant pw
-CREATE TABLE TenantPw(
-    TenantPwId int unsigned NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    TenantPwVal varchar(255)
+    ActionDescription varchar(250) NOT NULL,
+    LanguageId int unsigned NOT NULL
 );
 
 -- Here are all tenants storred that are free for deletion
@@ -99,11 +85,8 @@ CREATE TABLE TenantDeletions(
     IssuedOn DATETIME,
     WhenToComplete DATETIME,
     Deleted bool,
-    TenantId int unsigned NOT NULL,
-
-    FOREIGN KEY(TenantId) REFERENCES Tenant(TenantId)
+    TenantId int unsigned NOT NULL
 );
-
 
 -- All tokens for applications like: Ebay, Amazon, etc.
 CREATE TABLE TenantOAuthTokens(
@@ -111,10 +94,7 @@ CREATE TABLE TenantOAuthTokens(
     TokenVal varchar(250) NOT NULL,
     LasChanget DATETIME,
     AppId int unsigned NOT NULL,
-    TenantId int unsigned NOT NULL,
-
-    FOREIGN KEY(AppId) REFERENCES OAuthApplications(AppId),
-    FOREIGN KEY(TenantId) REFERENCES Tenant(TenantId)
+    TenantId int unsigned NOT NULL
 );
 
 -- All capable oauth applications
@@ -126,11 +106,8 @@ CREATE TABLE OAuthApplications(
     AppSyncActivated DATETIME NOT NULL,
     AppSync BOOL,
     AppSyncInterval int unsigned,
-    TenantId int unsigned NOT NULL,
-
-    FOREIGN KEY(TenantId) REFERENCES Tenant(TenantId)
+    TenantId int unsigned NOT NULL
 );
-
 
 
 -- ############################################################
@@ -146,13 +123,18 @@ CREATE TABLE Customer(
     CustomerStreetAndHouseNr varchar(200),
     CustomerCity varchar(100),
     CustomerLastChanged DATETIME,
-    TenantId int unsigned NOT NULL,
+    TenantId int unsigned NOT NULL
+);
 
-    FOREIGN KEY(TenantId) REFERENCES Tenant(TenantId)
+-- To indicate which state an order has
+CREATE TABLE OrderStatus(
+    StatusId int unsigned NOT NULL,
+    StatusName varchar(200) NOT NULL,
+    LanguageId int unsigned NOT NULL
 );
 
 -- All orders for a specific tenant
-CREATE TABLE Order(
+CREATE TABLE Orders(
     OrderId int unsigned NOT NULL AUTO_INCREMENT PRIMARY KEY,
     OrderName varchar(250),
     OrderDate DATETIME NOT NULL,
@@ -161,31 +143,23 @@ CREATE TABLE Order(
     OrderStreetAndHouseNr varchar(200),
     OrderCity varchar(200),
     OrderLastChanged DATETIME,
-    TenantId int unsigned NOT NULL,
-
-    FOREIGN KEY(OrderStatus) REFERENCES OrderStatus(StatusId),
-    FOREIGN KEY(TenantId) REFERENCES Tenant(TenantId)
+    TenantId int unsigned NOT NULL
 );
-
--- To indicate which state an order has
-CREATE TABLE OrderStatus(
-    StatusId int unsigned NOT NULL AUTO_INCREMENT,
-    StatusName varchar(200) NOT NULL,
-    LanguageId int unsigned NOT NULL,
-
-    FOREIGN KEY(LanguageId) REFERENCES Languages(LangId)
-);
-
 
 -- All products an order contains
 CREATE TABLE OrderProducts(
     OPId int unsigned NOT NULL AUTO_INCREMENT PRIMARY KEY,
     ProductId int unsigned NOT NULL,
     Amount int unsigned NOT NULL,
-    OrderId int unsigned NOT NULL,
+    OrderId int unsigned NOT NULL
+);
 
-    FOREIGN KEY(ProductId) REFERENCES Product(ProductId),
-    FOREIGN KEY(OrderId) REFERENCES Order(OrderId)
+-- For storring all product pictures
+CREATE TABLE ProductPictures(
+    PictureId int unsigned NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    PicturePath varchar(250) NOT NULL,
+    PicturePosition int unsigned,
+    ProductId int unsigned NOT NULL
 );
 
 -- All products a tenant has
@@ -195,31 +169,7 @@ CREATE TABLE Product(
     ProductPrice varchar(250) NOT NULL,
     ProductDescription varchar(250) NOT NULL,
     ProductPicturePath varchar(100),
-    TenantId int unsigned NOT NULL,
-
-    FOREIGN KEY(TenantId) REFERENCES Tenant(TenantId)
-);
-
--- For storring all product pictures
-CREATE TABLE ProductPictures(
-    PictureId int unsigned NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    PicturePath varchar(250) NOT NULL,
-    PicturePosition int unsigned,
-    ProductId int unsigned NOT NULL,
-
-    FOREIGN KEY(ProductId) REFERENCES Product(ProductId)
-);
-
-
--- If a Product is storred in multiple warehouses
-CREATE TABLE ProductWarehouses(
-    ProdWareId int unsigned NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    Amount int unsigned NOT NULL,
-    ProductId int unsigned NOT NULL,
-    WarehouseId int unsigned NOT NULL,
-
-    FOREIGN KEY(ProductId) REFERENCES Product(ProductId),
-    FOREIGN KEY(WarehouseId) REFERENCES Warehouse(WarehouseId)
+    TenantId int unsigned NOT NULL
 );
 
 -- All warehouses a tenant has
@@ -229,15 +179,80 @@ CREATE TABLE Warehouse(
     WarehousePostalCode varchar(50),
     WarehouseHouseNumAndStreet varchar(250),
     WarehouseCity varchar(250),
-    TenantId int unsigned NOT NULL,
+    TenantId int unsigned NOT NULL
+);
 
-    FOREIGN KEY(TenantId) REFERENCES Tenant(TenantId)
+-- If a Product is storred in multiple warehouses
+CREATE TABLE ProductWarehouses(
+    ProdWareId int unsigned NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    Amount int unsigned NOT NULL,
+    ProductId int unsigned NOT NULL,
+    WarehouseId int unsigned NOT NULL
 );
 
 
+-- ############################################################
+--                    FOREIGN KEY CONSTRAINTS
+-- ############################################################
+
+ALTER TABLE UserAccesstokens
+    ADD CONSTRAINT FK_UserAccesstokens_Users FOREIGN KEY (UserId) REFERENCES Users(UserId);
+
+ALTER TABLE Permissions
+    ADD CONSTRAINT FK_Permissions_Users FOREIGN KEY (UserId) REFERENCES Users(UserId);
+
+ALTER TABLE UserDeletion
+    ADD CONSTRAINT FK_UserDeletion_Users FOREIGN KEY (UserId) REFERENCES Users(UserId);
+
+ALTER TABLE Tenant
+    ADD CONSTRAINT FK_Tenant_TenantPw FOREIGN KEY (TenantPwId) REFERENCES TenantPw(TenantPwId),
+    ADD CONSTRAINT FK_Tenant_Users FOREIGN KEY (TenantAdminUserId) REFERENCES Users(UserId);
+
+ALTER TABLE Users
+    ADD CONSTRAINT FK_Users_Tenant FOREIGN KEY (TenantId) REFERENCES Tenant(TenantId);
+
+ALTER TABLE TenantActions
+    ADD CONSTRAINT FK_TenantActions_Languages FOREIGN KEY (LanguageId) REFERENCES Languages(LangId);
+
+ALTER TABLE TenantDeletions
+    ADD CONSTRAINT FK_TenantDeletions_Tenant FOREIGN KEY (TenantId) REFERENCES Tenant(TenantId);
+
+ALTER TABLE TenantOAuthTokens
+    ADD CONSTRAINT FK_TenantOAuthTokens_OAuthApplications FOREIGN KEY (AppId) REFERENCES OAuthApplications(AppId),
+    ADD CONSTRAINT FK_TenantOAuthTokens_Tenant FOREIGN KEY (TenantId) REFERENCES Tenant(TenantId);
+
+ALTER TABLE OAuthApplications
+    ADD CONSTRAINT FK_OAuthApplications_Tenant FOREIGN KEY (TenantId) REFERENCES Tenant(TenantId);
+
+ALTER TABLE Customer
+    ADD CONSTRAINT FK_Customer_Tenant FOREIGN KEY (TenantId) REFERENCES Tenant(TenantId);
+
+ALTER TABLE OrderStatus
+    ADD CONSTRAINT FK_OrderStatus_Languages FOREIGN KEY (LanguageId) REFERENCES Languages(LangId);
+
+ALTER TABLE Orders
+    ADD CONSTRAINT FK_Orders_Tenant FOREIGN KEY (TenantId) REFERENCES Tenant(TenantId);
+
+ALTER TABLE OrderProducts
+    ADD CONSTRAINT FK_OrderProducts_Product FOREIGN KEY (ProductId) REFERENCES Product(ProductId),
+    ADD CONSTRAINT FK_OrderProducts_Orders FOREIGN KEY (OrderId) REFERENCES Orders(OrderId);
+
+ALTER TABLE ProductPictures
+    ADD CONSTRAINT FK_ProductPictures_Product FOREIGN KEY (ProductId) REFERENCES Product(ProductId);
+
+ALTER TABLE Product
+    ADD CONSTRAINT FK_Product_Tenant FOREIGN KEY (TenantId) REFERENCES Tenant(TenantId);
+
+ALTER TABLE Warehouse
+    ADD CONSTRAINT FK_Warehouse_Tenant FOREIGN KEY (TenantId) REFERENCES Tenant(TenantId);
+
+ALTER TABLE ProductWarehouses
+    ADD CONSTRAINT FK_ProductWarehouses_Product FOREIGN KEY (ProductId) REFERENCES Product(ProductId),
+    ADD CONSTRAINT FK_ProductWarehouses_Warehouse FOREIGN KEY (WarehouseId) REFERENCES Warehouse(WarehousId);
+
 
 -- ############################################################
---                      Development Stuff
+--                     Development Stuff
 -- ############################################################
 
 
@@ -251,12 +266,18 @@ INSERT INTO Languages VALUES
 -- TODO: Change version here, before releasing a new version!
 INSERT INTO Versions VALUES(DEFAULT, 'Alpha', '0.1', 'Alpha', '0.1');
 
+SET FOREIGN_KEY_CHECKS = 0;
+
 -- We set the tenant default
 -- We do this, so we can filter if the user has a tenant or not :)
-INSERT INTO Tenant(TenantId, TenantName) VALUES(0, "USER_HAS_NO_TENANT");
+INSERT INTO TenantPw(TenantPwId, TenantPwVal) VALUES(0, "123");
+INSERT INTO Users (UserId, UserName, UserPW, UserMail, UserTel, UserHas2Fa, UserHasTenant, TenantId) VALUES (0, "Test", "Test", "Test@test.test", NULL, FALSE, TRUE, 0);
+INSERT INTO Tenant(TenantId, TenantName, TenantCreation, TenantAdminUserId, TenantPwId) VALUES(0, "USER_HAS_NO_TENANT", NOW(), 0, 0);
+
+SET FOREIGN_KEY_CHECKS = 1;
 
 -- Status stuff
-INSERT INTO OrderStatus() VALUES
+INSERT INTO OrderStatus(StatusId, StatusName, LanguageId) VALUES
 -- -------------------------------------------------------------
 -- Deutsch (LanguageId: 1)
 -- -------------------------------------------------------------

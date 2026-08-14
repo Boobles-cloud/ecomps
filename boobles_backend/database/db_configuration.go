@@ -35,11 +35,11 @@ func CreateDbHandler() (*DbHandler, bool) {
 	dbHandler.DbConnection = db
 
 	currentDir, _ := os.Getwd()
-	wantedFolder := path.Join(currentDir, "database_sql_statements")
+	wantedFolder := path.Join(currentDir, "database", "database_sql_statements")
 
 	// Get all querys from the json files
-	querys, ok := readJsonFile([]string{wantedFolder + "delete_querys.json", wantedFolder + "insert_querys.json",
-		wantedFolder + "select_querys.json", wantedFolder + "update_querys.json"})
+	querys, ok := readJsonFile([]string{path.Join(wantedFolder, "delete_querys.json"), path.Join(wantedFolder, "insert_querys.json"),
+		path.Join(wantedFolder, "select_querys.json"), path.Join(wantedFolder, "update_querys.json")})
 
 	if !ok {
 		return nil, false

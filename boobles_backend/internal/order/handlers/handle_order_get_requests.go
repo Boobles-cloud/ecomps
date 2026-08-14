@@ -22,7 +22,7 @@ func (ho *OrderHandler) HandleGettingOrderById(w http.ResponseWriter, r *http.Re
 		w.WriteHeader(status)
 	}
 
-	orderId, err := strconv.Atoi(r.PathValue("order-id"))
+	orderId, err := strconv.Atoi(r.PathValue("order_id"))
 
 	if err != nil {
 		fail(http.StatusBadRequest, err)
@@ -126,7 +126,7 @@ withOutCache:
 	w.WriteHeader(http.StatusOK)
 }
 
-// Handles getting the order status by status-id and language-id
+// Handles getting the order status by status_id and language_id
 func (ho *OrderHandler) HandleGettingStatusById(w http.ResponseWriter, r *http.Request) {
 
 	fail := func(status int, err error) {
@@ -134,13 +134,13 @@ func (ho *OrderHandler) HandleGettingStatusById(w http.ResponseWriter, r *http.R
 		w.WriteHeader(status)
 	}
 
-	statusId, err := strconv.Atoi(r.PathValue("status-id"))
+	statusId, err := strconv.Atoi(r.PathValue("status_id"))
 
 	if err != nil {
 		fail(http.StatusBadRequest, err)
 	}
 
-	langId, err := strconv.Atoi(r.PathValue("language-id"))
+	langId, err := strconv.Atoi(r.PathValue("language_id"))
 
 	if err != nil {
 		fail(http.StatusBadRequest, err)
@@ -170,7 +170,7 @@ func (ho *OrderHandler) HandleGettingAllStatusByLangId(w http.ResponseWriter, r 
 		w.WriteHeader(status)
 	}
 
-	langId, err := strconv.Atoi(r.PathValue("language-id"))
+	langId, err := strconv.Atoi(r.PathValue("language_id"))
 
 	if err != nil {
 		fail(http.StatusBadRequest, err)

@@ -16,7 +16,7 @@
   },
   {
     "QueryName": "UpdateOrder",
-    "QueryVal": "UPDATE Order SET",
+    "QueryVal": "UPDATE Orders SET",
     "QueryType": 3
   },
   {

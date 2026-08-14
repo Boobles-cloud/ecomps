@@ -1,3 +1,5 @@
+# TODO: redo this here!!
+# If you want to run this in prodcution, please create a custom mariadb server!!
 services:
   # boobles-frontend:
   #   env_file:
@@ -18,18 +20,16 @@ services:
   #     echo 'API Key found! Copying .env file';
   #     cp /app/shared/.env /.env;
   #     npm run start
-  #
 
   boobles-backend:
-    build: "/boobles_backend/."
-    command: "[/boobles_backend]"
+    build: "./boobles_backend/."
     restart: always
     depends_on:
       boobles-db:
         condition: service_healthy
     environment:
       first-init: "true"
-      tables_path: "/boobles_backend/sql_statements/tables.sql"
+      tables_path: "sql_statements/tables.sql"
       JWT-Secret: ""
       Database-Conn: "boobles_backend:YOUR-PW-HERE@tcp(boobles-db:3306)/Boobles?parseTime=true"
     ports:
@@ -44,7 +44,7 @@ services:
     image: mariadb:latest
     restart: always
     environment:
-      MYSQT_ROOT_PASSWORD: "YOUR-SUPER-SECRET-PW-HERE" # CHANGE THIS IF PRODUCTION!!!
+      MARIADB_ROOT_PASSWORD: "YOUR-SUPER-SECRET-PW-HERE" # CHANGE THIS IF PRODUCTION!!!
       MYSQL_DATABASE: "Boobles" # DO NOT change this!
       MYSQL_USER: "boobles_backend"
       MYSQL_PASSWORD: "YOUR-PW-HERE" # Change this if production! Note that you have to change the connection string

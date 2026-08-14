@@ -81,7 +81,7 @@ func (u *UserHandler) HandleGettingUserByTenantIdAndUserName(w http.ResponseWrit
 	}
 
 	tenantIdString := r.PathValue("tenant-id")
-	userName := r.PathValue("user-name")
+	userName := r.PathValue("user_name")
 
 	if tenantIdString == "" || userName == "" {
 		fail(http.StatusBadRequest, errors.New("Failed to get user name or tenant id"))

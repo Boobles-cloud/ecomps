@@ -25,7 +25,7 @@ func (t *TenantHandler) HandleGetTenantByUserId(w http.ResponseWriter, r *http.R
 		w.WriteHeader(status)
 	}
 
-	userIdInt, err := strconv.Atoi(r.PathValue("user-id"))
+	userIdInt, err := strconv.Atoi(r.PathValue("user_id"))
 
 	if err != nil {
 		fail(http.StatusBadRequest, err)
