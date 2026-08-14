@@ -207,6 +207,13 @@ func ConfigureHTTPServer(dh *database.DbHandler) http.Server {
 	muxMainRouter.Handle("/order", orderMiddleware(orderRouter))
 	muxMainRouter.Handle("/customer", customerMiddleware(customerRouter))
 
+	muxMainRouter.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte("Naaaaa duuuu??????\n"))
+		w.Write([]byte("Du willst also eine Waschmaschine kaufen\n"))
+		w.Write([]byte("Soso"))
+		w.WriteHeader(http.StatusOK)
+	})
+
 	return http.Server{
 		Addr:    ":8080",
 		Handler: globalMiddlewareConfig(muxMainRouter),
