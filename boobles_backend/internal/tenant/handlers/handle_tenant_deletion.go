@@ -26,11 +26,13 @@ func (t *TenantHandler) HandleTenantDeletion(w http.ResponseWriter, r *http.Requ
 
 	if err != nil {
 		fail(http.StatusBadRequest, err)
+		return
 	}
 
 	var tenantDeleteStruct tenantstructs.TenantDeletionStruct
 	if err := json.Unmarshal(body, &tenantDeleteStruct); err != nil {
 		fail(http.StatusBadRequest, err)
+		return
 	}
 
 	// We set some vars here
@@ -40,6 +42,7 @@ func (t *TenantHandler) HandleTenantDeletion(w http.ResponseWriter, r *http.Requ
 
 	if result := t.Dh.ExecuteSQLStatement("InsertTenantDeletion", []any{tenantDeleteStruct.IssuedFrom, tenantDeleteStruct.IssuedOn, tenantDeleteStruct.WhenToComplete, tenantDeleteStruct.Deleted, tenantDeleteStruct.TenantId}); !result.Ok {
 		fail(http.StatusInternalServerError, nil)
+		return
 	}
 
 	w.WriteHeader(http.StatusOK)

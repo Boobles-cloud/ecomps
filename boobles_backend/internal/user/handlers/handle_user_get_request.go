@@ -28,18 +28,21 @@ func (u *UserHandler) HandleGettingUserByAuthTokenVal(w http.ResponseWriter, r *
 
 	if authToken == "" {
 		fail(http.StatusBadRequest, errors.New("Failed getting authtoken or token is null"))
+		return
 	}
 
-	user, ok := database.QueryOne[userstructs.UserStruct](r.Context(), u.Dh, "SelectUserByAuthToken", []any{authToken})
+	user, ok := database.QueryOne[userstructs.UserStruct](r.Context(), u.Dh, "SelectUserByAuthToken", authToken)
 
 	if !ok {
 		fail(http.StatusInternalServerError, errors.New("Failed getting user or user is more then one"))
+		return
 	}
 
 	jsonData, err := json.Marshal(user)
 
 	if err != nil {
 		fail(http.StatusInternalServerError, err)
+		return
 	}
 
 	w.Write(jsonData)
@@ -56,16 +59,18 @@ func (u *UserHandler) HandleGettingUserById(w http.ResponseWriter, r *http.Reque
 
 	userId := r.Context().Value(middleware.UserIdContextKey).(int)
 
-	user, ok := database.QueryOne[userstructs.UserStruct](r.Context(), u.Dh, "SelectUserById", []any{userId})
+	user, ok := database.QueryOne[userstructs.UserStruct](r.Context(), u.Dh, "SelectUserById", userId)
 
 	if !ok {
 		fail(http.StatusInternalServerError, errors.New("Failed to get user or more then one user"))
+		return
 	}
 
 	jsonData, err := json.Marshal(user)
 
 	if err != nil {
 		fail(http.StatusInternalServerError, err)
+		return
 	}
 
 	w.Write(jsonData)
@@ -85,24 +90,28 @@ func (u *UserHandler) HandleGettingUserByTenantIdAndUserName(w http.ResponseWrit
 
 	if tenantIdString == "" || userName == "" {
 		fail(http.StatusBadRequest, errors.New("Failed to get user name or tenant id"))
+		return
 	}
 
 	tenantId, err := strconv.Atoi(tenantIdString)
 
 	if err != nil {
 		fail(http.StatusBadRequest, err)
+		return
 	}
 
-	user, ok := database.QueryOne[userstructs.UserStruct](r.Context(), u.Dh, "SelectUserByTenantIdAndUserName", []any{tenantId, userName})
+	user, ok := database.QueryOne[userstructs.UserStruct](r.Context(), u.Dh, "SelectUserByTenantIdAndUserName", tenantId, userName)
 
 	if !ok {
 		fail(http.StatusInternalServerError, errors.New("Failed getting user or user is more then one"))
+		return
 	}
 
 	jsonData, err := json.Marshal(user)
 
 	if err != nil {
 		fail(http.StatusInternalServerError, err)
+		return
 	}
 
 	w.Write(jsonData)
@@ -120,10 +129,11 @@ func (u *UserHandler) HandleHasUserATenant(w http.ResponseWriter, r *http.Reques
 
 	userId := r.Context().Value(middleware.UserIdContextKey).(int)
 
-	user, ok := database.QueryOne[userstructs.UserStruct](r.Context(), u.Dh, "SelectUserById", []any{userId})
+	user, ok := database.QueryOne[userstructs.UserStruct](r.Context(), u.Dh, "SelectUserById", userId)
 
 	if !ok {
 		fail(http.StatusInternalServerError, errors.New("Failed to get user or user is more then one"))
+		return
 	}
 
 	if user.UserHasTenant && user.TenantId != 0 {
@@ -131,6 +141,7 @@ func (u *UserHandler) HandleHasUserATenant(w http.ResponseWriter, r *http.Reques
 
 		if err != nil {
 			fail(http.StatusInternalServerError, err)
+			return
 		}
 
 		w.Write(jsonData)
@@ -141,6 +152,7 @@ func (u *UserHandler) HandleHasUserATenant(w http.ResponseWriter, r *http.Reques
 
 	if err != nil {
 		fail(http.StatusInternalServerError, err)
+		return
 	}
 
 	w.Write(jsonData)

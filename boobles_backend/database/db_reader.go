@@ -17,8 +17,8 @@ func QueryOne[T any](ctx context.Context, dh *DbHandler, queryName string, args 
 	var tmpVal T
 	results, ok := QueryMany[T](ctx, dh, queryName, args...)
 
-	if !ok {
-		logging.Log(logging.Error, "[Database | QueryOne] Failed getting items!")
+	if !ok || len(results) == 0 {
+		logging.Log(logging.Error, "[Database | QueryOne] Failed getting items! "+queryName)
 		return tmpVal, false
 	}
 

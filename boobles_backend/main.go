@@ -48,6 +48,8 @@ func main() {
 	// ============ REST-API config stuff ============
 	httpServer := startup.ConfigureHTTPServer(databaseConf)
 
+	logging.Log(logging.Information, "Boobles starting and listening on :8080")
+
 	if err := httpServer.ListenAndServe(); err != nil {
 		logging.Log(logging.Error, err.Error())
 		fmt.Println(logging.ErrorColor, "Failed to start: ", err, logging.ResetColor)

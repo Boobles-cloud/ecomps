@@ -25,21 +25,25 @@ func (t *TenantHandler) HandleTenantChange(w http.ResponseWriter, r *http.Reques
 
 	if wantedUpdateType == "" {
 		fail(http.StatusBadRequest, nil)
+		return
 	}
 
 	body, err := io.ReadAll(r.Body)
 
 	if err != nil {
 		fail(http.StatusBadRequest, err)
+		return
 	}
 
 	var tenant tenantstructs.Tenant
 	if err := json.Unmarshal(body, &tenant); err != nil {
 		fail(http.StatusBadRequest, err)
+		return
 	}
 
 	if !database.UpdateDatabaseEntry[tenantstructs.Tenant](t.Dh, "UpdateTenant", "TenantId", tenant) {
 		fail(http.StatusInternalServerError, nil)
+		return
 	}
 
 	w.WriteHeader(http.StatusOK)

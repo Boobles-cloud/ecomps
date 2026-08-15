@@ -22,10 +22,12 @@ func (p *ProductHandler) HandleDeletingProduct(w http.ResponseWriter, r *http.Re
 
 	if err != nil {
 		fail(http.StatusBadRequest, err)
+		return
 	}
 
 	if result := p.Dh.ExecuteSQLStatement("DeleteProductById", []any{productId}); !result.Ok {
 		fail(http.StatusInternalServerError, errors.New("Failed deleting product"))
+		return
 	}
 
 	key := ProductCacheKey + strconv.Itoa(productId)

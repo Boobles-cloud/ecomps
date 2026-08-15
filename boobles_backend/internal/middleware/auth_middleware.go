@@ -82,7 +82,7 @@ func tokenValid(token string) (bool, authstructs.JWTClaimsStruct) {
 // Checks if the token is in the database
 func tokenInDB(token string, dh *database.DbHandler, ctx context.Context) bool {
 
-	if _, ok := database.QueryOne[authstructs.JWTDatabaseStruct](ctx, dh, "SelectUserAccessTokenByValue", []any{token}); !ok {
+	if _, ok := database.QueryOne[authstructs.JWTDatabaseStruct](ctx, dh, "SelectUserAccessTokenByValue", token); !ok {
 		return false
 	}
 

@@ -30,14 +30,16 @@ func (u *UserHandler) HandleGettingUserPermissions(w http.ResponseWriter, r *htt
 
 	if err != nil {
 		fail(http.StatusBadRequest, err)
+		return
 	}
 
 	// Gets the wanted user from the database
-	wantedUser, ok := database.QueryOne[userstructs.UserStruct](r.Context(), u.Dh, "SelectUserById", []any{userId})
+	wantedUser, ok := database.QueryOne[userstructs.UserStruct](r.Context(), u.Dh, "SelectUserById", userId)
 
 	// Checks for err and if its only one
 	if !ok {
 		fail(http.StatusInternalServerError, errors.New("Failed to get user from database"))
+		return
 	}
 
 	// Gets all permissions
@@ -45,12 +47,14 @@ func (u *UserHandler) HandleGettingUserPermissions(w http.ResponseWriter, r *htt
 
 	if !ok {
 		fail(http.StatusInternalServerError, errors.New("Failed to get user permissions"))
+		return
 	}
 
 	jsonData, err := json.Marshal(allPermissions)
 
 	if err != nil {
 		fail(http.StatusInternalServerError, err)
+		return
 	}
 
 	w.Write(jsonData)
@@ -72,21 +76,24 @@ func (u *UserHandler) HandleGettingPermissionById(w http.ResponseWriter, r *http
 
 	if err != nil {
 		fail(http.StatusBadRequest, err)
+		return
 	}
 
 	// Not to cause confusion:
 	// We select all tenant actions here, because those are the real permissions.
 	// A User gets access to a specific action he can do
-	wantedPermission, ok := database.QueryOne[userstructs.UserPermission](r.Context(), u.Dh, "SelectTenantActionById", []any{permissionId})
+	wantedPermission, ok := database.QueryOne[userstructs.UserPermission](r.Context(), u.Dh, "SelectTenantActionById", permissionId)
 
 	if !ok {
 		fail(http.StatusInternalServerError, errors.New("Failed to get permission from database"))
+		return
 	}
 
 	jsonData, err := json.Marshal(wantedPermission)
 
 	if err != nil {
 		fail(http.StatusInternalServerError, err)
+		return
 	}
 
 	w.Write(jsonData)
@@ -112,12 +119,14 @@ func (u *UserHandler) HandleGettingAllPermissions(w http.ResponseWriter, r *http
 
 	if !ok {
 		fail(http.StatusInternalServerError, errors.New("Failed to get all permissions"))
+		return
 	}
 
 	jsonData, err := json.Marshal(allPermissions)
 
 	if err != nil {
 		fail(http.StatusInternalServerError, err)
+		return
 	}
 
 	w.Write(jsonData)

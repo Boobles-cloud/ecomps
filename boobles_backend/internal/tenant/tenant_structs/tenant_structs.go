@@ -61,7 +61,7 @@ func (t *Tenant) CreateTenantInDatabase(userId int, dh *database.DbHandler) bool
 	}
 
 	// Get the wanted User
-	user, ok := database.QueryOne[userstructs.UserStruct](ctx, dh, "SelectUserById", []any{userId})
+	user, ok := database.QueryOne[userstructs.UserStruct](ctx, dh, "SelectUserById", userId)
 
 	// Check that its only one user and its ok
 	if !ok {
@@ -98,7 +98,7 @@ func (t *Tenant) IsUserAdmin(userId uint) bool {
 
 // Gets the tenant pw
 func (t *Tenant) GetPw(dh *database.DbHandler, ctx context.Context) string {
-	tp, ok := database.QueryOne[TenantPwStruct](ctx, dh, "SelectTenantPwByTenantId", []any{t.TenantPwId})
+	tp, ok := database.QueryOne[TenantPwStruct](ctx, dh, "SelectTenantPwByTenantId", t.TenantPwId)
 
 	if !ok {
 		logging.Log(logging.Error, "Got more then one tenant pw...")

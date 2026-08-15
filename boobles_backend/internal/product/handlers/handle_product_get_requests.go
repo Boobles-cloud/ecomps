@@ -25,6 +25,7 @@ func (p *ProductHandler) HandleGettingProductById(w http.ResponseWriter, r *http
 
 	if err != nil {
 		fail(http.StatusBadRequest, err)
+		return
 	}
 
 	tenantId := r.Context().Value(middleware.TenantIdContextKey)
@@ -47,10 +48,11 @@ func (p *ProductHandler) HandleGettingProductById(w http.ResponseWriter, r *http
 
 withOutCache:
 
-	tenant, ok := database.QueryOne[tenantstructs.Tenant](r.Context(), p.Dh, "SelectTenantById", []any{tenantId.(int)})
+	tenant, ok := database.QueryOne[tenantstructs.Tenant](r.Context(), p.Dh, "SelectTenantById", tenantId.(int))
 
 	if !ok {
 		fail(http.StatusBadRequest, errors.New("Failed getting tenant"))
+		return
 	}
 
 	product, ok := helper.GetProductById(uint(id), tenant.GetPw(p.Dh, r.Context()), r.Context(), p.Dh)
@@ -59,12 +61,14 @@ withOutCache:
 
 	if !ok {
 		fail(http.StatusInternalServerError, errors.New("Failed getting Product"))
+		return
 	}
 
 	jsonData, err := json.Marshal(product)
 
 	if err != nil {
 		fail(http.StatusInternalServerError, err)
+		return
 	}
 
 	w.Write(jsonData)
@@ -85,6 +89,7 @@ func (p *ProductHandler) HandleGettingAllProductsByTenantId(w http.ResponseWrite
 
 	if err != nil {
 		fail(http.StatusBadRequest, err)
+		return
 	}
 
 	cacheItems, ok := p.ProductCache.GetItems(uint(tenantId))
@@ -105,10 +110,11 @@ func (p *ProductHandler) HandleGettingAllProductsByTenantId(w http.ResponseWrite
 withOutCache:
 
 	// We always need to get the tenant, because all items are encrypted in the database
-	tenant, ok := database.QueryOne[tenantstructs.Tenant](r.Context(), p.Dh, "SelectTenantById", []any{tenantId})
+	tenant, ok := database.QueryOne[tenantstructs.Tenant](r.Context(), p.Dh, "SelectTenantById", tenantId)
 
 	if !ok {
 		fail(http.StatusBadRequest, errors.New("Failed getting tenant"))
+		return
 	}
 
 	// Gets all decrypted products
@@ -119,12 +125,14 @@ withOutCache:
 
 	if !ok {
 		fail(http.StatusInternalServerError, errors.New("Failed to get all products"))
+		return
 	}
 
 	jsonData, err := json.Marshal(allProducts)
 
 	if err != nil {
 		fail(http.StatusInternalServerError, err)
+		return
 	}
 
 	w.Write(jsonData)

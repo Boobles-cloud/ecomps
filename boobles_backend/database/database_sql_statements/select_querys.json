@@ -25,6 +25,11 @@
     "QueryType": 2
   },
   {
+    "QueryName": "SelectUserByEmail",
+    "QueryVal": "SELECT * FROM Users WHERE UserMail = ?;",
+    "QueryType": 2
+  },
+  {
     "QueryName": "SelectUserByTenantIdAndUserName",
     "QueryVal": "SELECT * FROM Users WHERE TenantId = ? AND UserName = ?;",
     "QueryType": 2

@@ -35,6 +35,7 @@ services:
     ports:
       - "8080:8080"
     volumes:
+      - logs:/app/logs
       - shared-env:/app/shared
       - product-pictures:/app/product-pictures
     links:
@@ -60,3 +61,4 @@ services:
 volumes:
   shared-env:
   product-pictures:
+  logs:

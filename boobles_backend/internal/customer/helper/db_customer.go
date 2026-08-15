@@ -12,7 +12,7 @@ import (
 // Gets and decrypts a customer
 func GetCustomer(customerId uint, key string, ctx context.Context, dh *database.DbHandler) (customerstructs.Customer, bool) {
 
-	customer, ok := database.QueryOne[customerstructs.Customer](ctx, dh, "SelectCustomerById", []any{customerId})
+	customer, ok := database.QueryOne[customerstructs.Customer](ctx, dh, "SelectCustomerById", customerId)
 
 	if !ok {
 		logging.Log(logging.Error, "[Customer | GetCustomer] Failed getting customer from db")
@@ -32,7 +32,7 @@ func GetCustomer(customerId uint, key string, ctx context.Context, dh *database.
 // Gets and decrypts all customer for a tenant
 func GetAllCustomerForTenant(tenantId uint, key string, ctx context.Context, dh *database.DbHandler) ([]customerstructs.Customer, bool) {
 
-	allCustomer, ok := database.QueryMany[customerstructs.Customer](ctx, dh, "SelectAllCustomerByTenantId", []any{tenantId})
+	allCustomer, ok := database.QueryMany[customerstructs.Customer](ctx, dh, "SelectAllCustomerByTenantId", tenantId)
 
 	if !ok {
 		logging.Log(logging.Error, "[Customer | GetAllCustomerForTenant] Failed getting customer from db")

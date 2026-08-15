@@ -25,13 +25,14 @@ func (u *UserHandler) HandleUserDeletion(w http.ResponseWriter, r *http.Request)
 	tenantId := r.Context().Value(middleware.TenantIdContextKey).(int)
 	userId := r.Context().Value(middleware.UserIdContextKey).(int)
 
-	tenant, ok := database.QueryOne[tenantstructs.Tenant](r.Context(), u.Dh, "SelectTenantById", []any{tenantId})
+	tenant, ok := database.QueryOne[tenantstructs.Tenant](r.Context(), u.Dh, "SelectTenantById", tenantId)
 
 	if !ok {
 		fail(http.StatusInternalServerError, errors.New("Failed getting tenant"))
+		return
 	}
 
-	tenantDeletion, isThere := database.QueryOne[tenantstructs.TenantDeletionStruct](r.Context(), u.Dh, "SelectTenantDeletionFromTenantId", []any{tenantId})
+	tenantDeletion, isThere := database.QueryOne[tenantstructs.TenantDeletionStruct](r.Context(), u.Dh, "SelectTenantDeletionFromTenantId", tenantId)
 
 	if tenant.IsUserAdmin(uint(userId)) && !isThere {
 		w.Write([]byte("User is still admin in tenant and tenant isn´t deleted"))
@@ -51,6 +52,7 @@ func (u *UserHandler) HandleUserDeletion(w http.ResponseWriter, r *http.Request)
 
 	if result := u.Dh.ExecuteSQLStatement("InsertUserDeletion", []any{userDeletion.IssuedOn, userDeletion.WhenToComplete, userDeletion.UserId}); !result.Ok {
 		fail(http.StatusInternalServerError, errors.New("Failed creating in database"))
+		return
 	}
 
 	w.WriteHeader(http.StatusOK)
