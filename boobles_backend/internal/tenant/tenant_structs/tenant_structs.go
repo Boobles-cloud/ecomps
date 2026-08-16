@@ -51,7 +51,7 @@ func (t *Tenant) CreateTenantInDatabase(ctx context.Context, userId int, dh *dat
 	t.TenantId = uint(lastId)
 
 	var userExists bool
-	err = tx.QueryRowContext(ctx, "SELECT EXISTS(oSELECT * FROM Users WHERE UserId = ?)", userId).Scan(&userExists)
+	err = tx.QueryRowContext(ctx, "SELECT EXISTS(SELECT * FROM Users WHERE UserId = ?)", userId).Scan(&userExists)
 	if err != nil || !userExists {
 		logging.Log(logging.Error, fmt.Sprintf("[Tenant | CreateTenantInDatabase] User with ID %d not found or query failed", userId))
 		return false

@@ -2,12 +2,14 @@
 # If you want to run this in prodcution, please create a custom mariadb server!!
 services:
   boobles-frontend-dev:
+    container_name: boobles_dev_frontend
     image: nginx:alpine
     restart: always
     ports:
       - "8081:80"
     volumes:
-      - ./boobles_dev_frontend:/usr/share/nginx/html:ro
+      - ./boobles_dev_frontend:/usr/share/nginx/html/:ro
+      - ./boobles_dev_frontend/default.conf:/etc/nginx/conf.d/default.conf:ro
     depends_on:
       - boobles-backend
 
@@ -32,6 +34,7 @@ services:
   #     npm run start
 
   boobles-backend:
+    container_name: boobles_backend
     build: "./boobles_backend/."
     restart: always
     depends_on:
@@ -52,6 +55,7 @@ services:
       - "boobles-db"
 
   boobles-db:
+    container_name: boobles_db
     image: mariadb:latest
     restart: always
     environment:
