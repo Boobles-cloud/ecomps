@@ -2,10 +2,10 @@ package tenantstructs
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"boobles.cloud/backend/database"
-	userstructs "boobles.cloud/backend/internal/user/user_structs"
 	"boobles.cloud/backend/logging"
 )
 
@@ -17,73 +17,57 @@ type Tenant struct {
 	TenantPwId        uint      `json:"-"`
 }
 
-// TODO: Refactor this!!
-// Creates a tenant in the database
-func (t *Tenant) CreateTenantInDatabase(userId int, dh *database.DbHandler) bool {
+// Creates a tenant and updates the user
+func (t *Tenant) CreateTenantInDatabase(ctx context.Context, userId int, dh *database.DbHandler) bool {
 
-	ctx, cancel := context.WithCancel(context.Background())
-
-	defer cancel()
-
-	t.TenantCreation = time.Now()
-
-	// Creates our transaction stuff
 	tx, err := dh.DbConnection.BeginTx(ctx, nil)
-
 	if err != nil {
 		logging.Log(logging.Error, "[Tenant | CreateTenantInDatabase] "+err.Error())
 		return false
 	}
-
-	// Rollback on error
 	defer tx.Rollback()
 
-	// Create our master key and insert it
-	id, ok := createMasterKey(*t, dh)
+	t.TenantCreation = time.Now()
 
+	masterKeyID, ok := createMasterKey(*t, dh)
 	if !ok {
 		logging.Log(logging.Error, "[Tenant | CreateTenantInDatabase] Failed to create master key!")
 		return false
 	}
+	t.TenantPwId = masterKeyID
 
-	// Sets the id from the given master key column
-	t.TenantPwId = id
-
-	result, err := tx.ExecContext(ctx, "INSERT INTO Tenant() VALUES(DEFAULT, ?, ?, ?, ?)", []any{t.TenantName, t.TenantAdminUserId, t.TenantCreation, t.TenantPwId})
-
-	lastId, _ := result.LastInsertId()
-	// Set the last Id here
-	t.TenantId = uint(lastId)
-
+	insertQuery := "INSERT INTO Tenant (TenantName, TenantAdminUserId, TenantCreation, TenantPwId) VALUES (?, ?, ?, ?)"
+	result, err := tx.ExecContext(ctx, insertQuery, t.TenantName, t.TenantAdminUserId, t.TenantCreation, t.TenantPwId)
 	if err != nil {
 		logging.Log(logging.Error, "[Tenant | CreateTenantInDatabase] "+err.Error())
 		return false
 	}
 
-	// Get the wanted User
-	user, ok := database.QueryOne[userstructs.UserStruct](ctx, dh, "SelectUserById", userId)
+	lastId, err := result.LastInsertId()
+	if err != nil {
+		logging.Log(logging.Error, "[Tenant | CreateTenantInDatabase] Failed to get LastInsertId: "+err.Error())
+		return false
+	}
+	t.TenantId = uint(lastId)
 
-	// Check that its only one user and its ok
-	if !ok {
-		return ok
+	var userExists bool
+	err = tx.QueryRowContext(ctx, "SELECT EXISTS(oSELECT * FROM Users WHERE UserId = ?)", userId).Scan(&userExists)
+	if err != nil || !userExists {
+		logging.Log(logging.Error, fmt.Sprintf("[Tenant | CreateTenantInDatabase] User with ID %d not found or query failed", userId))
+		return false
 	}
 
-	// Set the tenant id
-	user.TenantId = uint(lastId)
-
-	// Update our User
-	if _, err := tx.ExecContext(ctx, "UPDATE Users VALUES TenantId = ? WHERE UserId = ?", []any{user.TenantId, user.UserId}); err != nil {
+	updateQuery := "UPDATE Users SET TenantId = ? WHERE UserId = ?"
+	if _, err := tx.ExecContext(ctx, updateQuery, lastId, userId); err != nil {
 		logging.Log(logging.Error, "[Tenant | CreateTenantInDatabase] "+err.Error())
 		return false
 	}
 
-	// Commits our transaction
 	if err := tx.Commit(); err != nil {
 		logging.Log(logging.Error, "[Tenant | CreateTenantInDatabase] "+err.Error())
 		return false
 	}
 
-	// Everything is awesomeeeee!!!!
 	return true
 }
 

@@ -30,7 +30,7 @@ func (dh *DbHandler) ExecuteSQLStatement(statementName string, args []any) *Resu
 	queryResult, err := dh.DbConnection.Exec(wantedQuery.QueryVal, args...)
 
 	if err != nil {
-		logging.Log(logging.Error, err.Error())
+		logging.Log(logging.Error, "[Database | ExecuteSQLStatement]"+err.Error())
 		return &Result{
 			LastId: 0,
 			Ok:     false,

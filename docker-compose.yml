@@ -1,6 +1,16 @@
 # TODO: redo this here!!
 # If you want to run this in prodcution, please create a custom mariadb server!!
 services:
+  boobles-frontend-dev:
+    image: nginx:alpine
+    restart: always
+    ports:
+      - "8081:80"
+    volumes:
+      - ./boobles_dev_frontend:/usr/share/nginx/html:ro
+    depends_on:
+      - boobles-backend
+
   # boobles-frontend:
   #   env_file:
   #     - .env

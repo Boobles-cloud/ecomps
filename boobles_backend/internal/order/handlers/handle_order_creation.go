@@ -17,7 +17,7 @@ import (
 func (ho *OrderHandler) HandleCreatingOrder(w http.ResponseWriter, r *http.Request) {
 
 	fail := func(status int, err error) {
-		logging.Log(logging.Error, err.Error())
+		logging.Log(logging.Error, "[Order | HandleOrderCreation]"+err.Error())
 		w.WriteHeader(status)
 	}
 

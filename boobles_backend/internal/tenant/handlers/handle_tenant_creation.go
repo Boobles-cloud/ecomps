@@ -38,7 +38,7 @@ func (t *TenantHandler) HandleTenantCreation(w http.ResponseWriter, r *http.Requ
 	}
 
 	// Create the tenant
-	if !tenantStruct.CreateTenantInDatabase(r.Context().Value(middleware.UserIdContextKey).(int), t.Dh) {
+	if !tenantStruct.CreateTenantInDatabase(r.Context(), r.Context().Value(middleware.UserIdContextKey).(int), t.Dh) {
 		fail(http.StatusInternalServerError, nil)
 		return
 	}
@@ -50,6 +50,7 @@ func (t *TenantHandler) HandleTenantCreation(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	w.Write(finalTenant)
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
+	w.Write(finalTenant)
 }

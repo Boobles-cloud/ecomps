@@ -1,0 +1,382 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="UTF-8" />
+<title>Boobles API Tester</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+<style>
+  :root{
+    --bg:#0f1216; --panel:#161b21; --panel2:#1c222a; --border:#2a323d;
+    --text:#e6e9ee; --muted:#8b96a5; --accent:#5fd0a8; --accent2:#f2a154;
+    --danger:#f2665e; --mono:'SFMono-Regular',Consolas,'Liberation Mono',Menlo,monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,Segoe UI,Roboto,sans-serif;font-size:14px}
+  #root{display:flex;flex-direction:column;height:100vh}
+  header{padding:10px 16px;border-bottom:1px solid var(--border);display:flex;flex-wrap:wrap;align-items:center;gap:14px;background:var(--panel)}
+  header h1{font-size:15px;margin:0;font-weight:700;letter-spacing:.2px}
+  header h1 span{color:var(--accent)}
+  .top-field{display:flex;flex-direction:column;gap:2px}
+  .top-field label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+  input,select,textarea{background:var(--panel2);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:6px 8px;font-family:inherit;font-size:13px}
+  input:focus,select:focus,textarea:focus{outline:1px solid var(--accent)}
+  .top-field input{width:220px}
+  .token-field{display:flex;flex-direction:column;gap:2px;flex:1;min-width:260px}
+  .token-field input{width:100%;font-family:var(--mono);font-size:11.5px}
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--danger);display:inline-block;margin-right:6px}
+  .dot.ok{background:var(--accent)}
+  .layout{display:flex;flex:1;min-height:0}
+  aside{width:270px;border-right:1px solid var(--border);background:var(--panel);overflow-y:auto;padding:10px}
+  aside h2{font-size:11px;text-transform:uppercase;color:var(--muted);letter-spacing:.06em;margin:14px 4px 6px;display:flex;justify-content:space-between}
+  aside h2:first-child{margin-top:4px}
+  aside h2 .badge{font-size:9px;background:var(--panel2);padding:1px 6px;border-radius:8px;color:var(--muted)}
+  .preset{width:100%;text-align:left;background:transparent;border:1px solid transparent;color:var(--text);padding:6px 8px;border-radius:6px;cursor:pointer;font-size:12px;display:flex;align-items:center;gap:6px}
+  .preset:hover{background:var(--panel2);border-color:var(--border)}
+  .preset .m{font-family:var(--mono);font-size:9.5px;padding:1px 5px;border-radius:4px;flex-shrink:0;width:44px;text-align:center}
+  .m-GET{background:#1c3a3a;color:#5fd0a8}
+  .m-POST{background:#3a2f1c;color:#f2a154}
+  .m-PUT{background:#26314a;color:#7fa6ff}
+  .m-PATCH{background:#3a2650;color:#c48bf2}
+  .m-DELETE{background:#3a1c1f;color:#f2665e}
+  main{flex:1;display:flex;flex-direction:column;min-width:0}
+  .builder{padding:14px 16px;border-bottom:1px solid var(--border);background:var(--panel)}
+  .req-row{display:flex;gap:8px;margin-bottom:10px}
+  .req-row select{width:100px}
+  .req-row input{flex:1;font-family:var(--mono)}
+  .req-row button{background:var(--accent);color:#08110d;border:none;border-radius:6px;padding:8px 18px;font-weight:700;cursor:pointer}
+  .req-row button:hover{filter:brightness(1.08)}
+  .req-row button:disabled{opacity:.5;cursor:default}
+  .cols{display:flex;gap:14px}
+  .col{flex:1;display:flex;flex-direction:column;gap:6px;min-width:0}
+  .col-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;display:flex;justify-content:space-between}
+  .col-label a{color:var(--accent);cursor:pointer;font-size:11px;text-transform:none}
+  textarea{width:100%;font-family:var(--mono);font-size:12.5px;resize:vertical}
+  .headers-list{display:flex;flex-direction:column;gap:6px}
+  .header-row{display:flex;gap:6px}
+  .header-row input{flex:1;font-family:var(--mono);font-size:12px}
+  .header-row button{background:var(--panel2);border:1px solid var(--border);color:var(--muted);border-radius:6px;cursor:pointer;padding:0 8px}
+  .small-btn{background:var(--panel2);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:5px 10px;font-size:12px;cursor:pointer;white-space:nowrap}
+  .small-btn:hover{border-color:var(--accent)}
+  .response{flex:1;display:flex;flex-direction:column;min-height:0;padding:14px 16px;gap:8px;overflow:hidden}
+  .resp-status{display:flex;align-items:center;gap:12px;font-family:var(--mono)}
+  .status-pill{padding:3px 9px;border-radius:5px;font-weight:700;font-size:12px}
+  .status-2xx{background:#1c3a2a;color:var(--accent)}
+  .status-4xx,.status-err{background:#3a1c1f;color:var(--danger)}
+  .status-3xx{background:#3a3420;color:var(--accent2)}
+  .status-0{background:var(--panel2);color:var(--muted)}
+  .resp-body{flex:1;overflow:auto;background:var(--panel2);border:1px solid var(--border);border-radius:8px;padding:12px;font-family:var(--mono);font-size:12.5px;white-space:pre-wrap;word-break:break-word}
+  .note{font-size:11.5px;color:var(--muted);line-height:1.55;padding:9px 11px;background:var(--panel2);border:1px dashed var(--border);border-radius:6px;margin-top:8px}
+  .note code{color:var(--accent)}
+  .history-item{font-size:11px;color:var(--muted);padding:5px 6px;border-radius:5px;cursor:pointer;display:flex;gap:6px;font-family:var(--mono)}
+  .history-item:hover{background:var(--panel2)}
+  .banner{background:#2a1c14;border:1px solid #4a2f1c;color:#f2c199;font-size:12px;padding:10px 16px;line-height:1.5}
+  .banner b{color:var(--accent2)}
+  .banner code{color:#fff}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel" data-presets="react">
+
+const { useState, useEffect } = React;
+
+// ---- real routes, taken directly from startup/configure_http_server.go + the individual handlers ----
+const PRESETS = [
+  { group: "Auth", name: "Login (Basic Auth)", method: "GET", path: "/authwall/login",
+    body: null, note: "Kein JSON-Body. Nutzername/Passwort gehen als Basic-Auth-Header rein &mdash; siehe Login-Panel oben." },
+  { group: "Auth", name: "Logout", method: "GET", path: "/authwall/logout", body: null,
+    note: "Braucht Authorization-Header mit dem Bearer-Token." },
+  { group: "Auth", name: "Register", method: "POST", path: "/authwall/register",
+    body: { UserId: 0, UserName: "maxmuster", UserPw: "changeme", UserMail: "max@example.com", UserTel: "+49 170 0000000", UserHas2Fa: false, UserHasTenant: false, TenantId: 0 } },
+
+  { group: "Tenant", name: "Create tenant", method: "POST", path: "/tenant/create",
+    body: { TenantId: 0, TenantName: "Meine Firma", TenantAdminUser: 0 } },
+  { group: "Tenant", name: "Get tenant by id \u26A0", method: "GET", path: "/tenant/1", body: null,
+    note: "Backend-Bug: Handler liest PathValue \"tenant-id\" statt \"tenant_id\" &rarr; antwortet immer mit 400." },
+  { group: "Tenant", name: "Get tenant by user id", method: "GET", path: "/tenant/by/1", body: null },
+  { group: "Tenant", name: "Get all users of my tenant", method: "GET", path: "/tenant/all/users", body: null },
+  { group: "Tenant", name: "Change tenant (admin)", method: "POST", path: "/tenant/change?type=name",
+    body: { TenantId: 1, TenantName: "Neuer Name", TenantAdminUser: 1 },
+    note: "Braucht ?type=... Query-Param und Admin-Rechte (Tenant-Admin-User)." },
+  { group: "Tenant", name: "Delete tenant (admin)", method: "POST", path: "/tenant/delete",
+    body: { IssuedFrom: "admin-panel", TenantId: 1 } },
+  { group: "Tenant", name: "Add user permission (admin)", method: "POST", path: "/user/permissions/add",
+    body: { PermissionId: 0, PermissionName: "product.create", PermissionDescription: "Darf Produkte anlegen", UserId: 1 } },
+  { group: "Tenant", name: "Remove user permission \u26A0", method: "POST", path: "/user/permissions/remove",
+    body: { PermissionId: 1, UserId: 1 }, note: "Backend: NOT IMPLEMENTED, gibt immer 400 zur&uuml;ck." },
+
+  { group: "User", name: "Update user", method: "POST", path: "/user/change",
+    body: { UserId: 1, UserName: "maxmuster", UserPw: "changeme", UserMail: "max@example.com", UserTel: "+49 170 0000000", UserHas2Fa: false, UserHasTenant: true, TenantId: 1 } },
+  { group: "User", name: "Delete user \u26A0", method: "DELETE", path: "/user/deletion", body: {},
+    note: "Backend-Bug: Route ist auf HandleUserChange verdrahtet statt HandleUserDeletion &mdash; verh&auml;lt sich wie 'Update user'." },
+
+  { group: "User (frontend-key)", name: "Get user by authtoken", method: "GET", path: "/user/frontend/by/REPLACE_WITH_TOKEN", body: null,
+    note: "Braucht Authorization: Bearer &lt;API_Key&gt; (NICHT das User-JWT!). API_Key steht in /app/shared/.env im Container nach dem ersten Start." },
+  { group: "User (frontend-key)", name: "Get user by id \u26A0", method: "GET", path: "/user/frontend/by/id", body: null,
+    note: "Backend-Bug: FrontendAuthMiddleware setzt keinen UserId-Context &rarr; Handler crasht vermutlich." },
+  { group: "User (frontend-key)", name: "Get user by tenant+name", method: "GET", path: "/user/frontend/by/1/maxmuster", body: null },
+  { group: "User (frontend-key)", name: "Has tenant? \u26A0", method: "GET", path: "/user/frontend/has-tenant", body: null,
+    note: "Vermutlich derselbe Context-Bug wie oben." },
+  { group: "User (frontend-key)", name: "All permissions", method: "GET", path: "/user/frontend/permission/all", body: null },
+  { group: "User (frontend-key)", name: "Permissions of user", method: "GET", path: "/user/frontend/permission/all/by/1", body: null },
+  { group: "User (frontend-key)", name: "Permission by id", method: "GET", path: "/user/frontend/permission/1", body: null },
+
+  { group: "Product", name: "Get product by id", method: "GET", path: "/product/by/1", body: null },
+  { group: "Product", name: "Get all products \u26A0", method: "GET", path: "/product/all", body: null,
+    note: "Backend-Bug: Handler erwartet eine tenant-id im Pfad, die Route hat aber keine &rarr; antwortet immer mit 400." },
+  { group: "Product", name: "Get product picture \u26A0", method: "GET", path: "/product/picture/by/1", body: null,
+    note: "Backend: noch nicht implementiert (TODO), antwortet immer mit 400." },
+  { group: "Product", name: "Create product", method: "POST", path: "/product/create",
+    body: { ProductId: 0, ProductName: "T-Shirt Schwarz", ProductPrice: "19.99", ProductDescription: "100% Baumwolle", TenantId: 1 },
+    note: "Braucht zus&auml;tzlich Header ActionName: &lt;permission-name&gt;.", action: "product.create" },
+  { group: "Product", name: "Create product picture \u26A0", method: "POST", path: "/product/picture/create", body: {},
+    note: "Backend: noch nicht implementiert (TODO), antwortet immer mit 400.", action: "product.create" },
+  { group: "Product", name: "Change product", method: "POST", path: "/product/change",
+    body: { ProductId: 1, ProductName: "T-Shirt Schwarz XL", ProductPrice: "21.99", ProductDescription: "100% Baumwolle", TenantId: 1 },
+    note: "Braucht zus&auml;tzlich Header ActionName: &lt;permission-name&gt;.", action: "product.change" },
+  { group: "Product", name: "Delete product", method: "DELETE", path: "/product/delete/by/1", body: null },
+
+  { group: "Order", name: "Get order by id", method: "GET", path: "/order/by/1", body: null },
+  { group: "Order", name: "Get all orders", method: "GET", path: "/order/all", body: null },
+  { group: "Order", name: "Get status by id+lang", method: "GET", path: "/order/status/by/1/1", body: null },
+  { group: "Order", name: "Get status by lang \u26A0", method: "GET", path: "/order/status/1", body: null,
+    note: "Backend-Bug: derselbe Handler braucht auch status_id, den dieser Pfad nicht liefert &rarr; immer 400." },
+  { group: "Order", name: "Create order", method: "POST", path: "/order/create",
+    body: { OrderName: "Bestellung #1", OderDate: new Date().toISOString(), OrderStatus: 1, OrderPostalCode: "12345", OrderStreetAndHouseNr: "Musterstr. 1", OrderCity: "Musterstadt", TenantId: 1, Products: [{ ProductId: 1, Amount: 2 }] },
+    note: "Braucht zus&auml;tzlich Header ActionName. Beachte den Tippfehler im JSON-Feld \"OderDate\" (so im Backend, nicht \"OrderDate\").", action: "order.create" },
+  { group: "Order", name: "Change order", method: "POST", path: "/order/change",
+    body: { OrderId: 1, OrderName: "Bestellung #1", OderDate: new Date().toISOString(), OrderStatus: 2, OrderPostalCode: "12345", OrderStreetAndHouseNr: "Musterstr. 1", OrderCity: "Musterstadt", TenantId: 1, Products: [{ ProductId: 1, Amount: 3 }] },
+    note: "Braucht zus&auml;tzlich Header ActionName.", action: "order.change" },
+  { group: "Order", name: "Delete order", method: "DELETE", path: "/order/delete/by/1", body: null },
+
+  { group: "Customer", name: "Get customer by id \u26A0", method: "GET", path: "/customer/by/1", body: null,
+    note: "Backend-Bug: Handler liest PathValue \"customer-id\" statt \"customer_id\" &rarr; antwortet immer mit 400." },
+  { group: "Customer", name: "Get all customers", method: "GET", path: "/customer/all", body: null },
+  { group: "Customer", name: "Create customer", method: "POST", path: "/customer/create",
+    body: { CustomerName: "Max Mustermann", CustomerPostalCode: "12345", CustomerStreetAndHouseNr: "Musterstr. 1", CustomerCity: "Musterstadt", TenantId: 1 },
+    note: "Braucht zus&auml;tzlich Header ActionName.", action: "customer.create" },
+  { group: "Customer", name: "Change customer", method: "POST", path: "/customer/change",
+    body: { CustomerId: 1, CustomerName: "Max Mustermann", CustomerPostalCode: "12345", CustomerStreetAndHouseNr: "Musterstr. 1", CustomerCity: "Musterstadt", TenantId: 1 },
+    note: "Braucht zus&auml;tzlich Header ActionName.", action: "customer.change" },
+  { group: "Customer", name: "Delete customer", method: "DELETE", path: "/customer/delete/by/1", body: null },
+];
+
+const GROUP_ORDER = ["Auth", "Tenant", "User", "User (frontend-key)", "Product", "Order", "Customer"];
+
+function methodClass(m){ return "m-" + m; }
+
+function App(){
+  const [baseUrl, setBaseUrl] = useState(localStorage.getItem("bt_baseUrl") || "http://localhost:8080");
+  const [token, setToken] = useState(localStorage.getItem("bt_token") || "");
+
+  const [loginUser, setLoginUser] = useState("");
+  const [loginPw, setLoginPw] = useState("");
+
+  const [method, setMethod] = useState("GET");
+  const [path, setPath] = useState("/authwall/login");
+  const [headers, setHeaders] = useState([]);
+  const [body, setBody] = useState("");
+  const [activeNote, setActiveNote] = useState(null);
+  const [autoAuth, setAutoAuth] = useState(true);
+
+  const [loading, setLoading] = useState(false);
+  const [resp, setResp] = useState(null);
+  const [history, setHistory] = useState([]);
+
+  useEffect(() => { localStorage.setItem("bt_baseUrl", baseUrl); }, [baseUrl]);
+  useEffect(() => { localStorage.setItem("bt_token", token); }, [token]);
+
+  function applyPreset(p){
+    setMethod(p.method);
+    setPath(p.path);
+    setBody(p.body ? JSON.stringify(p.body, null, 2) : "");
+    setActiveNote(p.note || null);
+    const hdrs = [];
+    if (p.body) hdrs.push({ key: "Content-Type", value: "application/json" });
+    if (p.action) hdrs.push({ key: "ActionName", value: p.action });
+    setHeaders(hdrs);
+  }
+
+  function doLogin(){
+    const basic = btoa(loginUser + ":" + loginPw);
+    setMethod("GET");
+    setPath("/authwall/login");
+    setBody("");
+    setHeaders([{ key: "Authorization", value: "Basic " + basic }]);
+    setActiveNote("Login sendet Basic-Auth. Antwort hat keinen Body &mdash; schau im Network-Tab in den Set-Cookie-Header der Antwort, kopiere den Wert von AuthTokenBoobles und trag ihn oben bei 'Bearer Token' ein.");
+  }
+
+  function updateHeader(i, field, val){
+    setHeaders(h => h.map((row, idx) => idx === i ? { ...row, [field]: val } : row));
+  }
+  function addHeader(){ setHeaders(h => [...h, { key: "", value: "" }]); }
+  function removeHeader(i){ setHeaders(h => h.filter((_, idx) => idx !== i)); }
+
+  async function send(){
+    setLoading(true);
+    setResp(null);
+    const start = performance.now();
+
+    const finalHeaders = {};
+    headers.forEach(h => { if (h.key.trim()) finalHeaders[h.key.trim()] = h.value; });
+    if (autoAuth && token && !Object.keys(finalHeaders).some(k => k.toLowerCase() === "authorization")) {
+      finalHeaders["Authorization"] = "Bearer " + token;
+    }
+
+    const url = baseUrl.replace(/\/+$/,"") + (path.startsWith("/") ? path : "/" + path);
+    const opts = { method, headers: finalHeaders, credentials: "include" };
+    if (method !== "GET" && method !== "HEAD" && body.trim()) opts.body = body;
+
+    try {
+      const r = await fetch(url, opts);
+      const ms = Math.round(performance.now() - start);
+      const text = await r.text();
+      let pretty = text;
+      try { pretty = JSON.stringify(JSON.parse(text), null, 2); } catch(e) {}
+      const hdrs = {};
+      r.headers.forEach((v,k) => hdrs[k] = v);
+
+      setResp({ status: r.status, statusText: r.statusText, headers: hdrs, bodyText: pretty || "(leerer Body)", ms });
+      setHistory(h => [{ method, path, status: r.status, ms }, ...h].slice(0, 25));
+    } catch (err) {
+      const ms = Math.round(performance.now() - start);
+      setResp({ status: 0, statusText: "Network/CORS error", headers: {}, bodyText: String(err), ms });
+      setHistory(h => [{ method, path, status: 0, ms }, ...h].slice(0, 25));
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  function statusClass(s){
+    if (s === 0) return "status-0";
+    if (s >= 200 && s < 300) return "status-2xx";
+    if (s >= 300 && s < 400) return "status-3xx";
+    return "status-4xx";
+  }
+
+  const grouped = {};
+  PRESETS.forEach(p => { (grouped[p.group] = grouped[p.group] || []).push(p); });
+
+  return (
+    <React.Fragment>
+      <div className="banner">
+        <b>Wichtig:</b> Der Auth-Cookie <code>AuthTokenBoobles</code> ist <code>HttpOnly</code> &mdash; JavaScript kann ihn nicht auslesen,
+        und das Backend prüft für Auth ohnehin nur den <code>Authorization</code>-Header, nie den Cookie. Nach dem Login siehst du den
+        Token-Wert im Browser-Devtools-Network-Tab beim <code>Set-Cookie</code>-Response-Header &mdash; kopier ihn ins Feld "Bearer Token" oben rechts.
+      </div>
+      <header>
+        <h1>Boobles <span>API Tester</span></h1>
+        <div className="top-field">
+          <label>Base URL</label>
+          <input value={baseUrl} onChange={e => setBaseUrl(e.target.value)} />
+        </div>
+        <div className="top-field">
+          <label>Login-Username</label>
+          <input style={{width:130}} value={loginUser} onChange={e => setLoginUser(e.target.value)} />
+        </div>
+        <div className="top-field">
+          <label>Login-Passwort</label>
+          <input style={{width:130}} type="password" value={loginPw} onChange={e => setLoginPw(e.target.value)} />
+        </div>
+        <button className="small-btn" onClick={doLogin}>Login-Request vorbereiten</button>
+        <div className="token-field">
+          <label style={{fontSize:10,color:"var(--muted)",textTransform:"uppercase"}}>Bearer Token (manuell eingefügt)</label>
+          <div style={{display:"flex",gap:6,alignItems:"center"}}>
+            <span className={"dot " + (token ? "ok" : "")}></span>
+            <input placeholder="JWT aus Set-Cookie / Response hier einfügen" value={token} onChange={e => setToken(e.target.value)} />
+          </div>
+        </div>
+        <label style={{display:"flex",alignItems:"center",gap:6,fontSize:12,color:"var(--muted)"}}>
+          <input type="checkbox" checked={autoAuth} onChange={e => setAutoAuth(e.target.checked)} />
+          auto-attach als Bearer
+        </label>
+      </header>
+
+      <div className="layout">
+        <aside>
+          {GROUP_ORDER.map(group => (
+            <div key={group}>
+              <h2>{group} <span className="badge">{grouped[group].length}</span></h2>
+              {grouped[group].map((p,i) => (
+                <button key={i} className="preset" onClick={() => applyPreset(p)}>
+                  <span className={"m " + methodClass(p.method)}>{p.method}</span>
+                  <span style={{overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{p.name}</span>
+                </button>
+              ))}
+            </div>
+          ))}
+          <h2>History</h2>
+          {history.length === 0 && <div style={{fontSize:11,color:"var(--muted)",padding:"4px 6px"}}>Noch keine Requests</div>}
+          {history.map((h,i) => (
+            <div key={i} className="history-item" onClick={() => { setMethod(h.method); setPath(h.path); }}>
+              <span className={"m " + methodClass(h.method)} style={{fontSize:9,width:38,textAlign:"center"}}>{h.method}</span>
+              <span style={{flex:1,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{h.path}</span>
+              <span>{h.status}</span>
+            </div>
+          ))}
+        </aside>
+
+        <main>
+          <div className="builder">
+            <div className="req-row">
+              <select value={method} onChange={e => setMethod(e.target.value)}>
+                {["GET","POST","PUT","PATCH","DELETE"].map(m => <option key={m}>{m}</option>)}
+              </select>
+              <input value={path} onChange={e => setPath(e.target.value)} placeholder="/order/all" />
+              <button onClick={send} disabled={loading}>{loading ? "Sende…" : "Send"}</button>
+            </div>
+
+            <div className="cols">
+              <div className="col">
+                <div className="col-label">
+                  <span>Headers</span>
+                  <a onClick={addHeader}>+ hinzufügen</a>
+                </div>
+                <div className="headers-list">
+                  {headers.map((h,i) => (
+                    <div className="header-row" key={i}>
+                      <input placeholder="Key" value={h.key} onChange={e => updateHeader(i,"key",e.target.value)} />
+                      <input placeholder="Value" value={h.value} onChange={e => updateHeader(i,"value",e.target.value)} />
+                      <button onClick={() => removeHeader(i)}>×</button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="col">
+                <div className="col-label"><span>Body (JSON)</span></div>
+                <textarea rows={7} value={body} onChange={e => setBody(e.target.value)}
+                  disabled={method === "GET" || method === "HEAD"} />
+              </div>
+            </div>
+
+            {activeNote && <div className="note" dangerouslySetInnerHTML={{__html: "ℹ️ " + activeNote}} />}
+          </div>
+
+          <div className="response">
+            <div className="resp-status">
+              {resp ? (
+                <React.Fragment>
+                  <span className={"status-pill " + statusClass(resp.status)}>{resp.status || "ERR"} {resp.statusText}</span>
+                  <span style={{color:"var(--muted)"}}>{resp.ms} ms</span>
+                </React.Fragment>
+              ) : <span style={{color:"var(--muted)"}}>Noch keine Antwort — sende einen Request.</span>}
+            </div>
+            <div className="resp-body">
+              {resp ? (Object.keys(resp.headers).length
+                ? "-- Response Headers --\n" + Object.entries(resp.headers).map(([k,v]) => k+": "+v).join("\n") + "\n\n-- Body --\n" + resp.bodyText
+                : resp.bodyText) : ""}
+            </div>
+          </div>
+        </main>
+      </div>
+    </React.Fragment>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+</body>
+</html>

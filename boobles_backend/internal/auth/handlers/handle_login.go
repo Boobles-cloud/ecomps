@@ -107,7 +107,7 @@ func createJWT(user userstructs.UserStruct, dh *database.DbHandler) (string, boo
 	}
 
 	if err != nil {
-		logging.Log(logging.Error, err.Error())
+		logging.Log(logging.Error, "[AuthHandler | HandleLogin]"+err.Error())
 		return "", false
 	}
 

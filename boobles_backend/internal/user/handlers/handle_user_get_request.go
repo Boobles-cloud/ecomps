@@ -20,7 +20,7 @@ import (
 func (u *UserHandler) HandleGettingUserByAuthTokenVal(w http.ResponseWriter, r *http.Request) {
 
 	fail := func(status int, err error) {
-		logging.Log(logging.Error, err.Error())
+		logging.Log(logging.Error, "[User | HanldeGettingUserByAuthTokenVal]"+err.Error())
 		w.WriteHeader(status)
 	}
 
@@ -53,7 +53,7 @@ func (u *UserHandler) HandleGettingUserByAuthTokenVal(w http.ResponseWriter, r *
 func (u *UserHandler) HandleGettingUserById(w http.ResponseWriter, r *http.Request) {
 
 	fail := func(status int, err error) {
-		logging.Log(logging.Error, err.Error())
+		logging.Log(logging.Error, "[User | HandleGettingUserById] "+err.Error())
 		w.WriteHeader(status)
 	}
 
@@ -81,7 +81,7 @@ func (u *UserHandler) HandleGettingUserById(w http.ResponseWriter, r *http.Reque
 func (u *UserHandler) HandleGettingUserByTenantIdAndUserName(w http.ResponseWriter, r *http.Request) {
 
 	fail := func(status int, err error) {
-		logging.Log(logging.Error, err.Error())
+		logging.Log(logging.Error, "[User | HandleGettingUserByTenantIdAndUserName] "+err.Error())
 		w.WriteHeader(status)
 	}
 
@@ -123,7 +123,7 @@ func (u *UserHandler) HandleGettingUserByTenantIdAndUserName(w http.ResponseWrit
 func (u *UserHandler) HandleHasUserATenant(w http.ResponseWriter, r *http.Request) {
 
 	fail := func(status int, err error) {
-		logging.Log(logging.Error, err.Error())
+		logging.Log(logging.Error, "[User | HandleHasUserATenant] "+err.Error())
 		w.WriteHeader(status)
 	}
 

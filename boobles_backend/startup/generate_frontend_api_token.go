@@ -39,7 +39,7 @@ func GenerateFrontendApiToken() bool {
 	file, err := os.OpenFile("/app/shared/.env", os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0600)
 
 	if err != nil {
-		logging.Log(logging.Error, err.Error())
+		logging.Log(logging.Error, "[Startup | GenerateFrontendApiToken]"+err.Error())
 		return false
 	}
 
@@ -48,7 +48,7 @@ func GenerateFrontendApiToken() bool {
 	apiKeyEntry := "\nAPI_KEY=" + string(apiKey)
 
 	if _, err := file.WriteString(apiKeyEntry); err != nil {
-		logging.Log(logging.Error, err.Error())
+		logging.Log(logging.Error, "[Startup | GenerateFrontendApiToken]"+err.Error())
 		return false
 	}
 

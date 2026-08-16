@@ -14,7 +14,7 @@ func (p *ProductHandler) HandleDeletingProduct(w http.ResponseWriter, r *http.Re
 	// TODO: also delete all product pictures
 
 	fail := func(status int, err error) {
-		logging.Log(logging.Error, err.Error())
+		logging.Log(logging.Error, "[Product | HandleProductDeletion]"+err.Error())
 		w.WriteHeader(status)
 	}
 
