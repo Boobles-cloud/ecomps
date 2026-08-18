@@ -1,4 +1,4 @@
-# Boobles
+# Ecomps
 
 This tool helps you organize your small retail business.
 
