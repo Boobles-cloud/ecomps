@@ -1,26 +1,26 @@
 # TODO: redo this here!!
 # If you want to run this in prodcution, please create a custom mariadb server!!
 services:
-  boobles-frontend-dev:
-    container_name: boobles_dev_frontend
+  ecomps-frontend-dev:
+    container_name: ecomps_dev_frontend
     image: nginx:alpine
     restart: always
     ports:
       - "8081:80"
     volumes:
-      - ./boobles_dev_frontend:/usr/share/nginx/html/:ro
-      - ./boobles_dev_frontend/default.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./ecomps_dev_frontend:/usr/share/nginx/html/:ro
+      - ./ecomps_dev_frontend/default.conf:/etc/nginx/conf.d/default.conf:ro
     depends_on:
-      - boobles-backend
+      - ecomps-backend
 
-  # boobles-frontend:
+  # ecomps-frontend:
   #   env_file:
   #     - .env
-  #   build: "/boobles_frontend/."
+  #   build: "/ecomps_frontend/."
   #   ports:
   #     - "8081:8080"
   #   depends_on:
-  #     - boobles-backend
+  #     - ecomps-backend
   #   volumes:
   #     - shared-env:/app/shared:ro
   #   entrypoint: >
@@ -33,18 +33,18 @@ services:
   #     cp /app/shared/.env /.env;
   #     npm run start
 
-  boobles-backend:
-    container_name: boobles_backend
-    build: "./boobles_backend/."
+  ecomps-backend:
+    container_name: ecomps_backend
+    build: "./ecomps_backend/."
     restart: always
     depends_on:
-      boobles-db:
+      ecomps-db:
         condition: service_healthy
     environment:
       first-init: "true"
       tables_path: "sql_statements/tables.sql"
       JWT-Secret: ""
-      Database-Conn: "boobles_backend:YOUR-PW-HERE@tcp(boobles-db:3306)/Boobles?parseTime=true"
+      Database-Conn: "ecomps_backend:YOUR-PW-HERE@tcp(ecomps-db:3306)/Ecomps?parseTime=true"
       env_path: "/app/shared/.env"
     ports:
       - "8080:8080"
@@ -53,16 +53,16 @@ services:
       - shared-env:/app/shared
       - product-pictures:/app/product-pictures
     links:
-      - "boobles-db"
+      - "ecomps-db"
 
-  boobles-db:
-    container_name: boobles_db
+  ecomps-db:
+    container_name: ecomps_db
     image: mariadb:latest
     restart: always
     environment:
       MARIADB_ROOT_PASSWORD: "YOUR-SUPER-SECRET-PW-HERE" # CHANGE THIS IF PRODUCTION!!!
-      MYSQL_DATABASE: "Boobles" # DO NOT change this!
-      MYSQL_USER: "boobles_backend"
+      MYSQL_DATABASE: "Ecomps" # DO NOT change this!
+      MYSQL_USER: "ecomps_backend"
       MYSQL_PASSWORD: "YOUR-PW-HERE" # Change this if production! Note that you have to change the connection string
     healthcheck:
       test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
