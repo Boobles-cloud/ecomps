@@ -21,7 +21,7 @@ func (ch *CustomerHandler) HandleGettingCustomerById(w http.ResponseWriter, r *h
 		w.WriteHeader(status)
 	}
 
-	customerId, err := strconv.Atoi(r.PathValue("customer-id"))
+	customerId, err := strconv.Atoi(r.PathValue("customer_id"))
 
 	if err != nil {
 		fail(http.StatusBadRequest, err)
@@ -42,8 +42,9 @@ func (ch *CustomerHandler) HandleGettingCustomerById(w http.ResponseWriter, r *h
 			goto withOutCache
 		}
 
-		w.Write(jsonData)
+		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
+		w.Write(jsonData)
 	}
 
 withOutCache:
@@ -71,8 +72,9 @@ withOutCache:
 		return
 	}
 
-	w.Write(jsonData)
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
+	w.Write(jsonData)
 }
 
 func (ch *CustomerHandler) HandleGettingAllCustomerByTenantId(w http.ResponseWriter, r *http.Request) {
@@ -95,8 +97,9 @@ func (ch *CustomerHandler) HandleGettingAllCustomerByTenantId(w http.ResponseWri
 			goto withOutCache
 		}
 
-		w.Write(jsonData)
+		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
+		w.Write(jsonData)
 	}
 
 withOutCache:
@@ -124,6 +127,7 @@ withOutCache:
 		return
 	}
 
-	w.Write(jsonData)
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
+	w.Write(jsonData)
 }

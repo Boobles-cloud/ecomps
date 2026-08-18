@@ -2,6 +2,7 @@ package tenantstructs
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"time"
 
@@ -17,7 +18,8 @@ type Tenant struct {
 	TenantPwId        uint      `json:"-"`
 }
 
-// Creates a tenant and updates the user
+// Creates a tenant and assigns the given user to it.
+// Fails if the user doesn't exist or already belongs to a tenant.
 func (t *Tenant) CreateTenantInDatabase(ctx context.Context, userId int, dh *database.DbHandler) bool {
 
 	tx, err := dh.DbConnection.BeginTx(ctx, nil)
@@ -27,9 +29,27 @@ func (t *Tenant) CreateTenantInDatabase(ctx context.Context, userId int, dh *dat
 	}
 	defer tx.Rollback()
 
+	var userHasTenant bool
+	err = tx.QueryRowContext(ctx,
+		"SELECT UserHasTenant FROM Users WHERE UserId = ? FOR UPDATE", userId,
+	).Scan(&userHasTenant)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			logging.Log(logging.Error, fmt.Sprintf("[Tenant | CreateTenantInDatabase] User with ID %d not found", userId))
+		} else {
+			logging.Log(logging.Error, "[Tenant | CreateTenantInDatabase] "+err.Error())
+		}
+		return false
+	}
+	if userHasTenant {
+		logging.Log(logging.Error, fmt.Sprintf("[Tenant | CreateTenantInDatabase] User with ID %d already has a tenant", userId))
+		return false
+	}
+
 	t.TenantCreation = time.Now()
 
-	masterKeyID, ok := createMasterKey(*t, dh)
+	masterKeyID, ok := createMasterKey(ctx, tx, dh, *t)
 	if !ok {
 		logging.Log(logging.Error, "[Tenant | CreateTenantInDatabase] Failed to create master key!")
 		return false
@@ -50,14 +70,7 @@ func (t *Tenant) CreateTenantInDatabase(ctx context.Context, userId int, dh *dat
 	}
 	t.TenantId = uint(lastId)
 
-	var userExists bool
-	err = tx.QueryRowContext(ctx, "SELECT EXISTS(SELECT * FROM Users WHERE UserId = ?)", userId).Scan(&userExists)
-	if err != nil || !userExists {
-		logging.Log(logging.Error, fmt.Sprintf("[Tenant | CreateTenantInDatabase] User with ID %d not found or query failed", userId))
-		return false
-	}
-
-	updateQuery := "UPDATE Users SET TenantId = ? WHERE UserId = ?"
+	updateQuery := "UPDATE Users SET TenantId = ?, UserHasTenant = TRUE WHERE UserId = ?"
 	if _, err := tx.ExecContext(ctx, updateQuery, lastId, userId); err != nil {
 		logging.Log(logging.Error, "[Tenant | CreateTenantInDatabase] "+err.Error())
 		return false

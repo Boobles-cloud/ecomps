@@ -42,8 +42,9 @@ func (p *ProductHandler) HandleGettingProductById(w http.ResponseWriter, r *http
 			goto withOutCache
 		}
 
-		w.Write(jsonData)
+		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
+		w.Write(jsonData)
 	}
 
 withOutCache:
@@ -71,8 +72,9 @@ withOutCache:
 		return
 	}
 
-	w.Write(jsonData)
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
+	w.Write(jsonData)
 }
 
 // Gets all products by the given tenant id
@@ -85,12 +87,7 @@ func (p *ProductHandler) HandleGettingAllProductsByTenantId(w http.ResponseWrite
 		w.WriteHeader(status)
 	}
 
-	tenantId, err := strconv.Atoi(r.PathValue("tenant-id"))
-
-	if err != nil {
-		fail(http.StatusBadRequest, err)
-		return
-	}
+	tenantId := r.Context().Value(middleware.TenantIdContextKey).(int)
 
 	cacheItems, ok := p.ProductCache.GetItems(uint(tenantId))
 
@@ -103,8 +100,9 @@ func (p *ProductHandler) HandleGettingAllProductsByTenantId(w http.ResponseWrite
 			goto withOutCache
 		}
 
-		w.Write(jsonData)
+		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
+		w.Write(jsonData)
 	}
 
 withOutCache:
@@ -135,8 +133,9 @@ withOutCache:
 		return
 	}
 
-	w.Write(jsonData)
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
+	w.Write(jsonData)
 }
 
 // TODO: Change this, so we can get more pictures from one item

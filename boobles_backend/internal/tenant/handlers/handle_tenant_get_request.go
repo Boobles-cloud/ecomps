@@ -46,8 +46,9 @@ func (t *TenantHandler) HandleGetTenantByUserId(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	w.Write(tenantJson)
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
+	w.Write(tenantJson)
 }
 
 // Handels getting the tenant by the given id
@@ -59,7 +60,7 @@ func (t *TenantHandler) HandleGetTenantByTenantId(w http.ResponseWriter, r *http
 		w.WriteHeader(status)
 	}
 
-	tenantId, err := strconv.Atoi(r.PathValue("tenant-id"))
+	tenantId, err := strconv.Atoi(r.PathValue("tenant_id"))
 
 	if err != nil {
 		fail(http.StatusBadRequest, err)
@@ -80,8 +81,9 @@ func (t *TenantHandler) HandleGetTenantByTenantId(w http.ResponseWriter, r *http
 		return
 	}
 
-	w.Write(tenantJson)
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
+	w.Write(tenantJson)
 }
 
 // Handels getting all users for a tenant
@@ -109,6 +111,7 @@ func (t *TenantHandler) HandleGettingAllUsersByUserTenantId(w http.ResponseWrite
 		return
 	}
 
-	w.Write(jsonData)
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
+	w.Write(jsonData)
 }

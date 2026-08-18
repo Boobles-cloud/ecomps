@@ -1,6 +1,8 @@
 package tenantstructs
 
 import (
+	"context"
+	"database/sql"
 	"encoding/base64"
 	"math/rand"
 	"time"
@@ -13,33 +15,23 @@ const (
 	maxLengthOfKey = 32
 )
 
-// TODO: Rethink this -> is there a better way to do this?
-
-// Creates the master key for the given tenant
-func createMasterKey(t Tenant, dh *database.DbHandler) (uint, bool) {
-
-	tenantPw := t.TenantName
-	tenantPw += createRandomString(len(t.TenantName) - maxLengthOfKey)
-
+// Creates the master key for the given tenant, inside the given transaction.
+func createMasterKey(ctx context.Context, tx *sql.Tx, dh *database.DbHandler, t Tenant) (uint, bool) {
+	tenantPw := t.TenantName + createRandomString(maxLengthOfKey)
 	tenantPwBase64 := base64.StdEncoding.EncodeToString([]byte(tenantPw))
 
-	result := dh.ExecuteSQLStatement("InsertTenantPw", []any{tenantPwBase64})
-
+	result := dh.ExecuteSQLStatementTx(ctx, tx, "InsertTenantPw", []any{tenantPwBase64})
 	return result.LastId, result.Ok
 }
 
-// Create a random string
+// Create a random string of the given length.
 func createRandomString(length int) string {
-
-	// Creates our random source
-	randSource := rand.NewSource(time.Now().Unix())
+	randSource := rand.NewSource(time.Now().UnixNano())
 	random := rand.New(randSource)
 
-	result := make([]byte, maxLengthOfKey/2)
-
+	result := make([]byte, length)
 	for i := range length {
 		result[i] = allCharacters[random.Intn(len(allCharacters))]
 	}
-
 	return string(result)
 }

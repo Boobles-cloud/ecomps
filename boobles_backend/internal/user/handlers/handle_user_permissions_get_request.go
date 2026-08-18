@@ -57,8 +57,9 @@ func (u *UserHandler) HandleGettingUserPermissions(w http.ResponseWriter, r *htt
 		return
 	}
 
-	w.Write(jsonData)
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
+	w.Write(jsonData)
 }
 
 // Handels getting permission by the given permission id
@@ -96,8 +97,9 @@ func (u *UserHandler) HandleGettingPermissionById(w http.ResponseWriter, r *http
 		return
 	}
 
-	w.Write(jsonData)
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
+	w.Write(jsonData)
 }
 
 // Handels getting all permissions
@@ -129,6 +131,7 @@ func (u *UserHandler) HandleGettingAllPermissions(w http.ResponseWriter, r *http
 		return
 	}
 
-	w.Write(jsonData)
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
+	w.Write(jsonData)
 }

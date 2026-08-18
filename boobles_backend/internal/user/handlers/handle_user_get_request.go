@@ -7,7 +7,6 @@ import (
 	"strconv"
 
 	"boobles.cloud/backend/database"
-	"boobles.cloud/backend/internal/middleware"
 	userstructs "boobles.cloud/backend/internal/user/user_structs"
 	"boobles.cloud/backend/logging"
 )
@@ -45,8 +44,9 @@ func (u *UserHandler) HandleGettingUserByAuthTokenVal(w http.ResponseWriter, r *
 		return
 	}
 
-	w.Write(jsonData)
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
+	w.Write(jsonData)
 }
 
 // Handles getting the user by the user id
@@ -57,7 +57,12 @@ func (u *UserHandler) HandleGettingUserById(w http.ResponseWriter, r *http.Reque
 		w.WriteHeader(status)
 	}
 
-	userId := r.Context().Value(middleware.UserIdContextKey).(int)
+	userId, err := strconv.Atoi(r.PathValue("user_id"))
+
+	if err != nil {
+		fail(http.StatusBadRequest, err)
+		return
+	}
 
 	user, ok := database.QueryOne[userstructs.UserStruct](r.Context(), u.Dh, "SelectUserById", userId)
 
@@ -73,8 +78,9 @@ func (u *UserHandler) HandleGettingUserById(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	w.Write(jsonData)
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
+	w.Write(jsonData)
 }
 
 // Handles getting the user by tenant and user name
@@ -114,9 +120,9 @@ func (u *UserHandler) HandleGettingUserByTenantIdAndUserName(w http.ResponseWrit
 		return
 	}
 
-	w.Write(jsonData)
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-
+	w.Write(jsonData)
 }
 
 // Handles the request for checking if a user has a tenant
@@ -127,7 +133,12 @@ func (u *UserHandler) HandleHasUserATenant(w http.ResponseWriter, r *http.Reques
 		w.WriteHeader(status)
 	}
 
-	userId := r.Context().Value(middleware.UserIdContextKey).(int)
+	userId, err := strconv.Atoi(r.PathValue("user_id"))
+
+	if err != nil {
+		fail(http.StatusBadRequest, err)
+		return
+	}
 
 	user, ok := database.QueryOne[userstructs.UserStruct](r.Context(), u.Dh, "SelectUserById", userId)
 
@@ -155,7 +166,7 @@ func (u *UserHandler) HandleHasUserATenant(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	w.Write(jsonData)
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-
+	w.Write(jsonData)
 }

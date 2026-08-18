@@ -45,6 +45,7 @@ services:
       tables_path: "sql_statements/tables.sql"
       JWT-Secret: ""
       Database-Conn: "boobles_backend:YOUR-PW-HERE@tcp(boobles-db:3306)/Boobles?parseTime=true"
+      env_path: "/app/shared/.env"
     ports:
       - "8080:8080"
     volumes:

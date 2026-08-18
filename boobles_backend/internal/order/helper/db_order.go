@@ -42,14 +42,14 @@ func GetAllOrders(tenantId uint, key string, dh *database.DbHandler, ctx context
 	allDecryptedOrders := make([]orderstructs.Order, len(orders))
 
 	for i := range orders {
-		o, ok := crypto.Encrypt[orderstructs.Order](orders[i], key)
+		o, ok := crypto.Decrypt[orderstructs.Order](&orders[i], key)
 
 		if !ok {
 			logging.Log(logging.Error, "[Order helper | GetAllOrders] Failed decrypting order...")
 			continue
 		}
 
-		allDecryptedOrders = append(allDecryptedOrders, o)
+		allDecryptedOrders = append(allDecryptedOrders, *o)
 	}
 
 	return allDecryptedOrders, len(allDecryptedOrders) != 0

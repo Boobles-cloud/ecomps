@@ -42,8 +42,9 @@ func (ho *OrderHandler) HandleGettingOrderById(w http.ResponseWriter, r *http.Re
 			goto withOutCache
 		}
 
-		w.Write(jsonData)
+		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
+		w.Write(jsonData)
 	}
 
 withOutCache:
@@ -77,8 +78,9 @@ withOutCache:
 	// Write it into cache
 	go ho.insertItem(*order, uint(tenantId))
 
-	w.Write(jsonData)
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
+	w.Write(jsonData)
 }
 
 // Handels getting all orders for a tenant
@@ -100,8 +102,9 @@ func (ho *OrderHandler) HandleGettingAllOrdersByTenantId(w http.ResponseWriter, 
 			goto withOutCache
 		}
 
-		w.Write(jsonData)
+		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
+		w.Write(jsonData)
 	}
 
 withOutCache:
@@ -129,8 +132,9 @@ withOutCache:
 
 	go ho.insertItems(allOrders, uint(tenantId))
 
-	w.Write(jsonData)
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
+	w.Write(jsonData)
 }
 
 // Handles getting the order status by status_id and language_id
@@ -169,8 +173,9 @@ func (ho *OrderHandler) HandleGettingStatusById(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	w.Write(jsonData)
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
+	w.Write(jsonData)
 }
 
 // Handles getting all order status by language id
@@ -202,6 +207,7 @@ func (ho *OrderHandler) HandleGettingAllStatusByLangId(w http.ResponseWriter, r 
 		return
 	}
 
-	w.Write(jsonData)
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
+	w.Write(jsonData)
 }

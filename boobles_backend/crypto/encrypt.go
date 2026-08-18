@@ -29,7 +29,7 @@ func Encrypt[T any](toEncrypt T, key string) (T, bool) {
 		// Check if the field is a string
 		// We only decrypt strings
 		if field.IsValid() && field.CanSet() && field.Kind() == reflect.String {
-			decryptedMsg, ok := decryptHelper(field.String(), key)
+			decryptedMsg, ok := encryptionHelper(field.String(), key)
 
 			if !ok {
 				logging.Log(logging.Error, "[Crypto | Encrypt] Failed to decrypt: "+field.Type().Name())
