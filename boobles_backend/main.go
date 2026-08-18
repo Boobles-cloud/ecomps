@@ -38,7 +38,7 @@ func main() {
 	}
 
 	// If its first init -> set to false
-	if !firstInit() {
+	if firstInit() {
 
 		file, err := os.OpenFile(os.Getenv("env_path"), os.O_APPEND, 0600)
 

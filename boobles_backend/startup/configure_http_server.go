@@ -130,8 +130,8 @@ func ConfigureHTTPServer(dh *database.DbHandler) http.Server {
 	// ==== User frontend stuff ====
 
 	// Normal user querys
-	muxMainRouter.Handle("GET /user/frontend/by/{authtoken}", userFrontendMiddleware(http.HandlerFunc(userHandler.HandleGettingUserByAuthTokenVal)))
-	muxMainRouter.Handle("GET /user/frontend/by/{user_id}", userFrontendMiddleware(http.HandlerFunc(userHandler.HandleGettingUserById)))
+	muxMainRouter.Handle("GET /user/frontend/by/token/{authtoken}", userFrontendMiddleware(http.HandlerFunc(userHandler.HandleGettingUserByAuthTokenVal)))
+	muxMainRouter.Handle("GET /user/frontend/by/id/{user_id}", userFrontendMiddleware(http.HandlerFunc(userHandler.HandleGettingUserById)))
 	muxMainRouter.Handle("GET /user/frontend/by/{tenant_id}/{user_name}", userFrontendMiddleware(http.HandlerFunc(userHandler.HandleGettingUserByTenantIdAndUserName)))
 	muxMainRouter.Handle("GET /user/frontend/has-tenant/{user_id}", userFrontendMiddleware(http.HandlerFunc(userHandler.HandleHasUserATenant)))
 	muxMainRouter.Handle("GET /user/frontend/permission/all", userFrontendMiddleware(http.HandlerFunc(userHandler.HandleGettingAllPermissions)))
