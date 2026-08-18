@@ -10,7 +10,7 @@ import (
 	"ecomps.boobles.cloud/backend/internal/customer/helper"
 	"ecomps.boobles.cloud/backend/internal/middleware"
 	tenantstructs "ecomps.boobles.cloud/backend/internal/tenant/tenant_structs"
-	"ecomps.boobles.cloud/backend/logging"
+	"ecomps.boobles.cloud/backend/utils/logging"
 )
 
 // Handels getting a customer by id

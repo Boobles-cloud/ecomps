@@ -6,12 +6,12 @@ import (
 	"io"
 	"net/http"
 
-	"ecomps.boobles.cloud/backend/crypto"
 	"ecomps.boobles.cloud/backend/database"
 	"ecomps.boobles.cloud/backend/internal/middleware"
 	productstructs "ecomps.boobles.cloud/backend/internal/product/product_structs"
 	tenantstructs "ecomps.boobles.cloud/backend/internal/tenant/tenant_structs"
-	"ecomps.boobles.cloud/backend/logging"
+	"ecomps.boobles.cloud/backend/utils/crypto"
+	"ecomps.boobles.cloud/backend/utils/logging"
 )
 
 // Handels updating a product

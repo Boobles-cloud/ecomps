@@ -5,7 +5,7 @@ import (
 	"strings"
 	"time"
 
-	"ecomps.boobles.cloud/backend/logging"
+	"ecomps.boobles.cloud/backend/utils/logging"
 )
 
 // Handels the user logout

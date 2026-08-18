@@ -11,7 +11,7 @@ import (
 	"ecomps.boobles.cloud/backend/internal/order/helper"
 	orderstructs "ecomps.boobles.cloud/backend/internal/order/order_structs"
 	tenantstructs "ecomps.boobles.cloud/backend/internal/tenant/tenant_structs"
-	"ecomps.boobles.cloud/backend/logging"
+	"ecomps.boobles.cloud/backend/utils/logging"
 )
 
 // Handles getting a order by Id and all its products

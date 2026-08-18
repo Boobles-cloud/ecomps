@@ -1,9 +1,9 @@
 package handlers
 
 import (
-	"ecomps.boobles.cloud/backend/caching"
 	"ecomps.boobles.cloud/backend/database"
 	tenantstructs "ecomps.boobles.cloud/backend/internal/tenant/tenant_structs"
+	"ecomps.boobles.cloud/backend/utils/caching"
 )
 
 type TenantHandler struct {

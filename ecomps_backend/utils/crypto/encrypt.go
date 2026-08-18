@@ -9,7 +9,7 @@ import (
 	"io"
 	"reflect"
 
-	"ecomps.boobles.cloud/backend/logging"
+	"ecomps.boobles.cloud/backend/utils/logging"
 )
 
 func Encrypt[T any](toEncrypt T, key string) (T, bool) {

@@ -4,7 +4,7 @@ import (
 	"context"
 	"reflect"
 
-	"ecomps.boobles.cloud/backend/logging"
+	"ecomps.boobles.cloud/backend/utils/logging"
 )
 
 // Executes a query in the database and returns the result.

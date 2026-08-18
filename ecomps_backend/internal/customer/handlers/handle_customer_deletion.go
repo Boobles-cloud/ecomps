@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"ecomps.boobles.cloud/backend/logging"
+	"ecomps.boobles.cloud/backend/utils/logging"
 )
 
 // Handles the deletion of a customer

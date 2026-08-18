@@ -3,9 +3,9 @@ package customerstructs
 import (
 	"time"
 
-	"ecomps.boobles.cloud/backend/crypto"
 	"ecomps.boobles.cloud/backend/database"
-	"ecomps.boobles.cloud/backend/logging"
+	"ecomps.boobles.cloud/backend/utils/crypto"
+	"ecomps.boobles.cloud/backend/utils/logging"
 )
 
 type Customer struct {

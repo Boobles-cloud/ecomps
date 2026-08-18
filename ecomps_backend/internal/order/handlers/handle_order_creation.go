@@ -10,7 +10,7 @@ import (
 	"ecomps.boobles.cloud/backend/internal/middleware"
 	orderstructs "ecomps.boobles.cloud/backend/internal/order/order_structs"
 	tenantstructs "ecomps.boobles.cloud/backend/internal/tenant/tenant_structs"
-	"ecomps.boobles.cloud/backend/logging"
+	"ecomps.boobles.cloud/backend/utils/logging"
 )
 
 // Handels creating a order and all its order products in database

@@ -10,7 +10,7 @@ import (
 	"ecomps.boobles.cloud/backend/internal/middleware"
 	"ecomps.boobles.cloud/backend/internal/product/helper"
 	tenantstructs "ecomps.boobles.cloud/backend/internal/tenant/tenant_structs"
-	"ecomps.boobles.cloud/backend/logging"
+	"ecomps.boobles.cloud/backend/utils/logging"
 )
 
 // Gets a Product by the id

@@ -10,7 +10,7 @@ import (
 	"ecomps.boobles.cloud/backend/internal/middleware"
 	tenantstructs "ecomps.boobles.cloud/backend/internal/tenant/tenant_structs"
 	userstructs "ecomps.boobles.cloud/backend/internal/user/user_structs"
-	"ecomps.boobles.cloud/backend/logging"
+	"ecomps.boobles.cloud/backend/utils/logging"
 )
 
 // Handels the request for getting a tenant by the user Id

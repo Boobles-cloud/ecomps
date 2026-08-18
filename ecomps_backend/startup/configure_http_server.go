@@ -3,7 +3,6 @@ package startup
 import (
 	"net/http"
 
-	"ecomps.boobles.cloud/backend/caching"
 	"ecomps.boobles.cloud/backend/database"
 	authHandlers "ecomps.boobles.cloud/backend/internal/auth/handlers"
 	customerstructs "ecomps.boobles.cloud/backend/internal/customer/customer_structs"
@@ -17,6 +16,7 @@ import (
 	tenantstructs "ecomps.boobles.cloud/backend/internal/tenant/tenant_structs"
 	userHandlers "ecomps.boobles.cloud/backend/internal/user/handlers"
 	userstructs "ecomps.boobles.cloud/backend/internal/user/user_structs"
+	"ecomps.boobles.cloud/backend/utils/caching"
 )
 
 // Creates and configures the rest api

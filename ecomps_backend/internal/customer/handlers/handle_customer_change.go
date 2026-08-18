@@ -6,12 +6,12 @@ import (
 	"io"
 	"net/http"
 
-	"ecomps.boobles.cloud/backend/crypto"
 	"ecomps.boobles.cloud/backend/database"
 	customerstructs "ecomps.boobles.cloud/backend/internal/customer/customer_structs"
 	"ecomps.boobles.cloud/backend/internal/middleware"
 	tenantstructs "ecomps.boobles.cloud/backend/internal/tenant/tenant_structs"
-	"ecomps.boobles.cloud/backend/logging"
+	"ecomps.boobles.cloud/backend/utils/crypto"
+	"ecomps.boobles.cloud/backend/utils/logging"
 )
 
 // Handels changing a customer

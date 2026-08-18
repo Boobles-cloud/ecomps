@@ -4,8 +4,8 @@ import (
 	"context"
 	"time"
 
-	"ecomps.boobles.cloud/backend/crypto"
 	"ecomps.boobles.cloud/backend/database"
+	"ecomps.boobles.cloud/backend/utils/crypto"
 )
 
 type Order struct {

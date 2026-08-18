@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"os"
 
-	"ecomps.boobles.cloud/backend/logging"
+	"ecomps.boobles.cloud/backend/utils/logging"
 )
 
 const (

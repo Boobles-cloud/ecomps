@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"ecomps.boobles.cloud/backend/database"
-	"ecomps.boobles.cloud/backend/logging"
+	"ecomps.boobles.cloud/backend/utils/logging"
 )
 
 // TODO: implement database updating -> future update

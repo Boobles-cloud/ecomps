@@ -3,7 +3,7 @@ package middleware
 import (
 	"net/http"
 
-	"ecomps.boobles.cloud/backend/logging"
+	"ecomps.boobles.cloud/backend/utils/logging"
 )
 
 // Just for logging everything

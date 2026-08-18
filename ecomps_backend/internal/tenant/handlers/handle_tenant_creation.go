@@ -7,7 +7,7 @@ import (
 
 	"ecomps.boobles.cloud/backend/internal/middleware"
 	tenantstructs "ecomps.boobles.cloud/backend/internal/tenant/tenant_structs"
-	"ecomps.boobles.cloud/backend/logging"
+	"ecomps.boobles.cloud/backend/utils/logging"
 )
 
 // Handles the tenant creation
