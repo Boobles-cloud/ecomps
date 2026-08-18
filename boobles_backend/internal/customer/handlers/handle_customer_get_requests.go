@@ -21,10 +21,11 @@ func (ch *CustomerHandler) HandleGettingCustomerById(w http.ResponseWriter, r *h
 		w.WriteHeader(status)
 	}
 
-	customerId, err := strconv.Atoi(r.PathValue("customer-id"))
+	customerId, err := strconv.Atoi(r.PathValue("customer_id"))
 
 	if err != nil {
 		fail(http.StatusBadRequest, err)
+		return
 	}
 
 	tenantId := r.Context().Value(middleware.TenantIdContextKey).(int)
@@ -41,22 +42,25 @@ func (ch *CustomerHandler) HandleGettingCustomerById(w http.ResponseWriter, r *h
 			goto withOutCache
 		}
 
-		w.Write(jsonData)
+		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
+		w.Write(jsonData)
 	}
 
 withOutCache:
 
-	tenant, ok := database.QueryOne[tenantstructs.Tenant](r.Context(), ch.Dh, "SelectTenantById", []any{tenantId})
+	tenant, ok := database.QueryOne[tenantstructs.Tenant](r.Context(), ch.Dh, "SelectTenantById", tenantId)
 
 	if !ok {
 		fail(http.StatusBadRequest, errors.New("Failed getting tenant"))
+		return
 	}
 
 	customer, ok := helper.GetCustomer(uint(customerId), tenant.GetPw(ch.Dh, r.Context()), r.Context(), ch.Dh)
 
 	if !ok {
 		fail(http.StatusInternalServerError, errors.New("Failed getting customer"))
+		return
 	}
 
 	go ch.insertItem(customer)
@@ -65,10 +69,12 @@ withOutCache:
 
 	if err != nil {
 		fail(http.StatusInternalServerError, err)
+		return
 	}
 
-	w.Write(jsonData)
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
+	w.Write(jsonData)
 }
 
 func (ch *CustomerHandler) HandleGettingAllCustomerByTenantId(w http.ResponseWriter, r *http.Request) {
@@ -91,22 +97,25 @@ func (ch *CustomerHandler) HandleGettingAllCustomerByTenantId(w http.ResponseWri
 			goto withOutCache
 		}
 
-		w.Write(jsonData)
+		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
+		w.Write(jsonData)
 	}
 
 withOutCache:
 
-	tenant, ok := database.QueryOne[tenantstructs.Tenant](r.Context(), ch.Dh, "SelectTenantById", []any{tenantId})
+	tenant, ok := database.QueryOne[tenantstructs.Tenant](r.Context(), ch.Dh, "SelectTenantById", tenantId)
 
 	if !ok {
 		fail(http.StatusBadRequest, errors.New("Failed getting tenant"))
+		return
 	}
 
 	allCustomer, ok := helper.GetAllCustomerForTenant(uint(tenantId), tenant.GetPw(ch.Dh, r.Context()), r.Context(), ch.Dh)
 
 	if !ok {
 		fail(http.StatusInternalServerError, errors.New("Failed getting customer"))
+		return
 	}
 
 	go ch.insertItems(allCustomer)
@@ -115,8 +124,10 @@ withOutCache:
 
 	if err != nil {
 		fail(http.StatusInternalServerError, err)
+		return
 	}
 
-	w.Write(jsonData)
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
+	w.Write(jsonData)
 }

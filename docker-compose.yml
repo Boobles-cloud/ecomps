@@ -1,6 +1,18 @@
 # TODO: redo this here!!
 # If you want to run this in prodcution, please create a custom mariadb server!!
 services:
+  boobles-frontend-dev:
+    container_name: boobles_dev_frontend
+    image: nginx:alpine
+    restart: always
+    ports:
+      - "8081:80"
+    volumes:
+      - ./boobles_dev_frontend:/usr/share/nginx/html/:ro
+      - ./boobles_dev_frontend/default.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - boobles-backend
+
   # boobles-frontend:
   #   env_file:
   #     - .env
@@ -22,6 +34,7 @@ services:
   #     npm run start
 
   boobles-backend:
+    container_name: boobles_backend
     build: "./boobles_backend/."
     restart: always
     depends_on:
@@ -32,15 +45,18 @@ services:
       tables_path: "sql_statements/tables.sql"
       JWT-Secret: ""
       Database-Conn: "boobles_backend:YOUR-PW-HERE@tcp(boobles-db:3306)/Boobles?parseTime=true"
+      env_path: "/app/shared/.env"
     ports:
       - "8080:8080"
     volumes:
+      - logs:/app/logs
       - shared-env:/app/shared
       - product-pictures:/app/product-pictures
     links:
       - "boobles-db"
 
   boobles-db:
+    container_name: boobles_db
     image: mariadb:latest
     restart: always
     environment:
@@ -60,3 +76,4 @@ services:
 volumes:
   shared-env:
   product-pictures:
+  logs:

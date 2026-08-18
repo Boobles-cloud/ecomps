@@ -52,7 +52,7 @@ func Log(logType, logMsg string) {
 
 func getCurrLogFile() string {
 	currDir, _ := os.Getwd()
-	currDir += "\\logs"
+	currDir = path.Join(currDir, "logs")
 
 	if _, err := os.Stat(currDir); errors.Is(err, os.ErrNotExist) {
 		os.Mkdir(currDir, 0700)

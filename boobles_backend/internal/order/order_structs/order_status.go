@@ -15,7 +15,7 @@ type OrderStatus struct {
 
 func (o *OrderStatus) GetStatusNameInCurrentLang(dh *database.DbHandler, ctx context.Context) string {
 
-	status, ok := database.QueryOne[OrderStatus](ctx, dh, "SelectOrderStatusById", []any{o.StatusId})
+	status, ok := database.QueryOne[OrderStatus](ctx, dh, "SelectOrderStatusById", o.StatusId)
 
 	if !ok {
 		logging.Log(logging.Error, "[OrderStatus | GetStatusNameInCurrentLang] Failed to get status")

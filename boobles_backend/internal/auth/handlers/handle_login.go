@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/base64"
+	"errors"
 	"net/http"
 	"os"
 	"strings"
@@ -31,6 +32,7 @@ func (ha *AuthHandler) HandleLogin(w http.ResponseWriter, r *http.Request) {
 
 	if basicAuth == "" {
 		fail(http.StatusBadRequest, nil)
+		return
 	}
 
 	authPWUser := strings.ReplaceAll(basicAuth, "Basic ", "")
@@ -39,11 +41,17 @@ func (ha *AuthHandler) HandleLogin(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		fail(http.StatusBadRequest, err)
+		return
 	}
 
 	authSplitet := strings.Split(string(encodedAuthPWUser), ":")
 
-	userFromDB, ok := database.QueryOne[userstructs.UserStruct](r.Context(), ha.Dh, "SelectUserByUserNameAndPW", []any{authSplitet[0], authSplitet[1]})
+	if len(authSplitet) != 2 {
+		fail(http.StatusBadRequest, errors.New("Failed spliting basic pw"))
+		return
+	}
+
+	userFromDB, ok := database.QueryOne[userstructs.UserStruct](r.Context(), ha.Dh, "SelectUserByUserNameAndPW", authSplitet[0], authSplitet[1])
 
 	if !ok {
 		w.WriteHeader(http.StatusUnauthorized)
@@ -54,6 +62,7 @@ func (ha *AuthHandler) HandleLogin(w http.ResponseWriter, r *http.Request) {
 
 	if !ok {
 		fail(http.StatusInternalServerError, nil)
+		return
 	}
 
 	cookie := http.Cookie{
@@ -98,7 +107,7 @@ func createJWT(user userstructs.UserStruct, dh *database.DbHandler) (string, boo
 	}
 
 	if err != nil {
-		logging.Log(logging.Error, err.Error())
+		logging.Log(logging.Error, "[AuthHandler | HandleLogin]"+err.Error())
 		return "", false
 	}
 

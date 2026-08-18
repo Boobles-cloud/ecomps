@@ -36,10 +36,10 @@ func GenerateFrontendApiToken() bool {
 	os.Setenv("API_Key", string(apiKey))
 
 	// Store the api key to our .env file so the frontend can access it
-	file, err := os.OpenFile("/app/shared/.env", os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0600)
+	file, err := os.OpenFile(os.Getenv("env_path"), os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0600)
 
 	if err != nil {
-		logging.Log(logging.Error, err.Error())
+		logging.Log(logging.Error, "[Startup | GenerateFrontendApiToken]"+err.Error())
 		return false
 	}
 
@@ -48,7 +48,7 @@ func GenerateFrontendApiToken() bool {
 	apiKeyEntry := "\nAPI_KEY=" + string(apiKey)
 
 	if _, err := file.WriteString(apiKeyEntry); err != nil {
-		logging.Log(logging.Error, err.Error())
+		logging.Log(logging.Error, "[Startup | GenerateFrontendApiToken]"+err.Error())
 		return false
 	}
 

@@ -27,25 +27,30 @@ func (t *TenantHandler) HandleTenantCreation(w http.ResponseWriter, r *http.Requ
 
 	if err != nil {
 		fail(http.StatusBadRequest, err)
+		return
 	}
 
 	// Unmarshal everything
 	var tenantStruct tenantstructs.Tenant
 	if err := json.Unmarshal(body, &tenantStruct); err != nil {
 		fail(http.StatusBadRequest, err)
+		return
 	}
 
 	// Create the tenant
-	if !tenantStruct.CreateTenantInDatabase(r.Context().Value(middleware.UserIdContextKey).(int), t.Dh) {
+	if !tenantStruct.CreateTenantInDatabase(r.Context(), r.Context().Value(middleware.UserIdContextKey).(int), t.Dh) {
 		fail(http.StatusInternalServerError, nil)
+		return
 	}
 
 	// Marshal our Tenant so the frontend gets the tenant Id
 	finalTenant, err := json.Marshal(tenantStruct)
 	if err != nil {
 		fail(http.StatusInternalServerError, err)
+		return
 	}
 
-	w.Write(finalTenant)
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
+	w.Write(finalTenant)
 }

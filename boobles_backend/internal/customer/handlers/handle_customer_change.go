@@ -26,29 +26,34 @@ func (ch *CustomerHandler) HandleCustomerChange(w http.ResponseWriter, r *http.R
 
 	if err != nil {
 		fail(http.StatusBadRequest, err)
+		return
 	}
 
 	var tmpCustomer customerstructs.Customer
 
 	if err := json.Unmarshal(body, &tmpCustomer); err != nil {
 		fail(http.StatusBadRequest, err)
+		return
 	}
 
 	tenantId := r.Context().Value(middleware.TenantIdContextKey).(int)
-	tenant, ok := database.QueryOne[tenantstructs.Tenant](r.Context(), ch.Dh, "SelectTenantById", []any{tenantId})
+	tenant, ok := database.QueryOne[tenantstructs.Tenant](r.Context(), ch.Dh, "SelectTenantById", tenantId)
 
 	if !ok {
 		fail(http.StatusInternalServerError, errors.New("Failed getting tenant"))
+		return
 	}
 
 	encryptedCustomer, ok := crypto.Encrypt(tmpCustomer, tenant.GetPw(ch.Dh, r.Context()))
 
 	if !ok {
 		fail(http.StatusInternalServerError, errors.New("Failed encrypting customer"))
+		return
 	}
 
 	if !database.UpdateDatabaseEntry[customerstructs.Customer](ch.Dh, "UpdateCustomer", "CustomerId", encryptedCustomer) {
 		fail(http.StatusInternalServerError, errors.New("Failed updating customer"))
+		return
 	}
 
 	go ch.insertItem(tmpCustomer)

@@ -25,26 +25,30 @@ func (p *ProductHandler) HandleCreatingProduct(w http.ResponseWriter, r *http.Re
 
 	if err != nil {
 		fail(http.StatusBadRequest, err)
+		return
 	}
 
 	var product productstructs.Product
 
 	if err := json.Unmarshal(body, &product); err != nil {
 		fail(http.StatusBadRequest, err)
+		return
 	}
 
 	tenantId := r.Context().Value(middleware.TenantIdContextKey).(int)
 
-	tenant, ok := database.QueryOne[tenantstructs.Tenant](r.Context(), p.Dh, "SelectTenantById", []any{tenantId})
+	tenant, ok := database.QueryOne[tenantstructs.Tenant](r.Context(), p.Dh, "SelectTenantById", tenantId)
 
 	if !ok {
 		fail(http.StatusInternalServerError, errors.New("Failed getting Tenant"))
+		return
 	}
 
 	id, ok := product.CreateProductInDatabase(tenant.GetPw(p.Dh, r.Context()), p.Dh)
 
 	if !ok {
 		fail(http.StatusInternalServerError, errors.New("Failed to create product"))
+		return
 	}
 
 	product.ProductId = id

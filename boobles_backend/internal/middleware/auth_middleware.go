@@ -4,7 +4,6 @@ import (
 	"context"
 	"net/http"
 	"os"
-	"strconv"
 	"strings"
 
 	"boobles.cloud/backend/database"
@@ -14,8 +13,8 @@ import (
 )
 
 const (
-	UserIdContextKey   = "User.Id.Context"
-	TenantIdContextKey = "Tenant.Id.Context"
+	UserIdContextKey   = "UserIdContext"
+	TenantIdContextKey = "TenantIdContext"
 )
 
 // Our middleware to handle authentication
@@ -23,6 +22,11 @@ func AuthMiddleware(dh *database.DbHandler) Middleware {
 	return func(h http.Handler) http.Handler {
 
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+
+			if r.Method == http.MethodOptions {
+				h.ServeHTTP(w, r)
+				return
+			}
 
 			token := r.Header.Get("Authorization")
 
@@ -41,23 +45,21 @@ func AuthMiddleware(dh *database.DbHandler) Middleware {
 				tokenWithoutBaerer = strings.ReplaceAll(token, "Bearer ", "")
 			}
 
-			c := context.Background()
+			reqCtx := r.Context()
 
 			// Checks if the token is valid and gets all claims
 			tokenValid, claims := tokenValid(tokenWithoutBaerer)
 
-			if !tokenValid && !tokenInDB(tokenWithoutBaerer, dh, c) {
+			if !tokenValid && !tokenInDB(tokenWithoutBaerer, dh, reqCtx) {
 				w.WriteHeader(http.StatusUnauthorized)
 				return
 			}
 
 			// Adds the user and tenant Id to the context
-			ct := context.WithValue(c, UserIdContextKey, strconv.Itoa(int(claims.UserId)))
-			ctx := context.WithValue(ct, TenantIdContextKey, strconv.Itoa(int(claims.TenantId)))
+			ctx := context.WithValue(reqCtx, UserIdContextKey, int(claims.UserId))
+			ctx = context.WithValue(ctx, TenantIdContextKey, int(claims.TenantId))
 
-			rCtx := r.WithContext(ctx)
-
-			h.ServeHTTP(w, rCtx)
+			h.ServeHTTP(w, r.WithContext(ctx))
 		})
 	}
 }
@@ -67,12 +69,12 @@ func tokenValid(token string) (bool, authstructs.JWTClaimsStruct) {
 
 	claims := authstructs.JWTClaimsStruct{}
 
-	parsedToken, err := jwt.ParseWithClaims(token, claims, func(token *jwt.Token) (interface{}, error) {
+	parsedToken, err := jwt.ParseWithClaims(token, &claims, func(token *jwt.Token) (interface{}, error) {
 		return []byte(os.Getenv("JWT-Secret")), nil
 	})
 
 	if err != nil {
-		logging.Log(logging.Error, err.Error())
+		logging.Log(logging.Error, "[AuthMiddleware | tokenValid] "+err.Error())
 		return false, claims
 	}
 
@@ -82,7 +84,7 @@ func tokenValid(token string) (bool, authstructs.JWTClaimsStruct) {
 // Checks if the token is in the database
 func tokenInDB(token string, dh *database.DbHandler, ctx context.Context) bool {
 
-	if _, ok := database.QueryOne[authstructs.JWTDatabaseStruct](ctx, dh, "SelectUserAccessTokenByValue", []any{token}); !ok {
+	if _, ok := database.QueryOne[authstructs.JWTDatabaseStruct](ctx, dh, "SelectUserAccessTokenByValue", token); !ok {
 		return false
 	}
 

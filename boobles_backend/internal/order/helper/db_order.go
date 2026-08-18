@@ -13,7 +13,7 @@ import (
 // Decrypts the given order
 func GetOrder(orderId uint, key string, dh *database.DbHandler, ctx context.Context) (*orderstructs.Order, bool) {
 
-	order, ok := database.QueryOne[orderstructs.Order](ctx, dh, "SelectOrderById", []any{orderId})
+	order, ok := database.QueryOne[orderstructs.Order](ctx, dh, "SelectOrderById", orderId)
 
 	if !ok {
 		logging.Log(logging.Error, "[Order helper | GetOrder] Failed getting order from db...")
@@ -32,7 +32,7 @@ func GetOrder(orderId uint, key string, dh *database.DbHandler, ctx context.Cont
 
 // Gets and decrypts all orders
 func GetAllOrders(tenantId uint, key string, dh *database.DbHandler, ctx context.Context) ([]orderstructs.Order, bool) {
-	orders, ok := database.QueryMany[orderstructs.Order](ctx, dh, "SelectOrdersByTenantId", []any{tenantId})
+	orders, ok := database.QueryMany[orderstructs.Order](ctx, dh, "SelectOrdersByTenantId", tenantId)
 
 	if !ok {
 		logging.Log(logging.Error, "[Order helper | GetAllOrders] Failed getting order from db...")
@@ -42,14 +42,14 @@ func GetAllOrders(tenantId uint, key string, dh *database.DbHandler, ctx context
 	allDecryptedOrders := make([]orderstructs.Order, len(orders))
 
 	for i := range orders {
-		o, ok := crypto.Encrypt[orderstructs.Order](orders[i], key)
+		o, ok := crypto.Decrypt[orderstructs.Order](&orders[i], key)
 
 		if !ok {
 			logging.Log(logging.Error, "[Order helper | GetAllOrders] Failed decrypting order...")
 			continue
 		}
 
-		allDecryptedOrders = append(allDecryptedOrders, o)
+		allDecryptedOrders = append(allDecryptedOrders, *o)
 	}
 
 	return allDecryptedOrders, len(allDecryptedOrders) != 0

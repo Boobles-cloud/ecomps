@@ -60,7 +60,7 @@ func UpdateDatabaseEntry[T any](dh *DbHandler, queryName, filterValueName string
 	}
 
 	if _, err := dh.DbConnection.Exec(query, args...); err != nil {
-		logging.Log(logging.Error, err.Error())
+		logging.Log(logging.Error, "[Database | UpdateDatabase]"+err.Error())
 		return false
 	}
 

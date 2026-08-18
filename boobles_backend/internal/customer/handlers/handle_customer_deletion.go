@@ -20,10 +20,12 @@ func (ch *CustomerHandler) HandleCustomerDeletion(w http.ResponseWriter, r *http
 
 	if err != nil {
 		fail(http.StatusBadRequest, err)
+		return
 	}
 
 	if result := ch.Dh.ExecuteSQLStatement("DeleteCustomerById", []any{customerId}); !result.Ok {
 		fail(http.StatusInternalServerError, errors.New("Failed to delete database"))
+		return
 	}
 
 	key := CustomerCacheKey + strconv.Itoa(customerId)

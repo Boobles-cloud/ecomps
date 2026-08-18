@@ -25,24 +25,28 @@ func (u *UserHandler) HandleAddingNewUserPermission(w http.ResponseWriter, r *ht
 
 	if err != nil {
 		fail(http.StatusBadRequest, err)
+		return
 	}
 
 	userPermission := userstructs.UserPermission{}
 
 	if err := json.Unmarshal(body, &userPermission); err != nil {
 		fail(http.StatusBadRequest, err)
+		return
 	}
 
-	user, ok := database.QueryOne[userstructs.UserStruct](r.Context(), u.Dh, "SelectUserById", []any{userPermission.UserId})
+	user, ok := database.QueryOne[userstructs.UserStruct](r.Context(), u.Dh, "SelectUserById", userPermission.UserId)
 
 	if !ok {
 		fail(http.StatusInternalServerError, errors.New("Failed getting user"))
+		return
 	}
 
 	allPermissions, ok := user.GetPermissionsByUser(r.Context(), u.Dh)
 
 	if !ok {
 		fail(http.StatusInternalServerError, errors.New("Failed getting user permissions"))
+		return
 	}
 
 	for i := range allPermissions {
@@ -53,6 +57,7 @@ func (u *UserHandler) HandleAddingNewUserPermission(w http.ResponseWriter, r *ht
 
 	if _, ok := userPermission.SetNewPermission(u.Dh); !ok {
 		fail(http.StatusInternalServerError, errors.New("Failed to create user permission"))
+		return
 	}
 
 	w.WriteHeader(http.StatusOK)
@@ -73,4 +78,5 @@ func (u *UserHandler) HandleRemovingUserPermission(w http.ResponseWriter, r *htt
 	}
 
 	fail(http.StatusBadRequest, errors.New("NOT IMPLEMENTED"))
+	return
 }

@@ -24,6 +24,7 @@ func (ha *AuthHandler) HandleLogout(w http.ResponseWriter, r *http.Request) {
 
 	if token == "" {
 		fail(http.StatusBadRequest, nil)
+		return
 	}
 
 	var tokenWithoutBaerer string
@@ -35,6 +36,7 @@ func (ha *AuthHandler) HandleLogout(w http.ResponseWriter, r *http.Request) {
 
 	if result := ha.Dh.ExecuteSQLStatement("DeleteUserAccestokenByValue", []any{tokenWithoutBaerer}); !result.Ok {
 		fail(http.StatusInternalServerError, nil)
+		return
 	}
 
 	// Send a new cookie so the old one gets deleted

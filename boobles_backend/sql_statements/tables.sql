@@ -270,9 +270,9 @@ SET FOREIGN_KEY_CHECKS = 0;
 
 -- We set the tenant default
 -- We do this, so we can filter if the user has a tenant or not :)
-INSERT INTO TenantPw(TenantPwId, TenantPwVal) VALUES(0, "123");
-INSERT INTO Users (UserId, UserName, UserPW, UserMail, UserTel, UserHas2Fa, UserHasTenant, TenantId) VALUES (0, "Test", "Test", "Test@test.test", NULL, FALSE, TRUE, 0);
-INSERT INTO Tenant(TenantId, TenantName, TenantCreation, TenantAdminUserId, TenantPwId) VALUES(0, "USER_HAS_NO_TENANT", NOW(), 0, 0);
+INSERT INTO TenantPw(TenantPwId, TenantPwVal) VALUES(1, "123");
+INSERT INTO Users (UserId, UserName, UserPW, UserMail, UserTel, UserHas2Fa, UserHasTenant, TenantId) VALUES (1, "Test", "Test", "Test@test.test", NULL, FALSE, TRUE, 1);
+INSERT INTO Tenant(TenantId, TenantName, TenantCreation, TenantAdminUserId, TenantPwId) VALUES(1, "USER_HAS_NO_TENANT", NOW(), 1, 1);
 
 SET FOREIGN_KEY_CHECKS = 1;
 

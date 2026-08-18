@@ -33,5 +33,5 @@ func (u *UserStruct) UpdateUserInDB(dh *database.DbHandler) bool {
 
 // Returns all permissions a user has
 func (u *UserStruct) GetPermissionsByUser(ctx context.Context, dh *database.DbHandler) ([]UserPermission, bool) {
-	return database.QueryMany[UserPermission](ctx, dh, "SelectPermissionsByUserId", []any{u.UserId})
+	return database.QueryMany[UserPermission](ctx, dh, "SelectPermissionsByUserId", u.UserId)
 }

@@ -12,7 +12,7 @@ import (
 // Gets a product by its id
 func GetProductById(productId uint, key string, ctx context.Context, dh *database.DbHandler) (*productstructs.Product, bool) {
 
-	p, ok := database.QueryOne[productstructs.Product](ctx, dh, "SelectProductById", []any{productId})
+	p, ok := database.QueryOne[productstructs.Product](ctx, dh, "SelectProductById", productId)
 
 	if !ok {
 		logging.Log(logging.Error, "[Product Helper | GetProductById] Failed to get product from database")
@@ -32,7 +32,7 @@ func GetProductById(productId uint, key string, ctx context.Context, dh *databas
 // Gets all products for a tenant
 func GetAllProductsForTenant(tenantId uint, key string, ctx context.Context, dh *database.DbHandler) ([]productstructs.Product, bool) {
 
-	products, ok := database.QueryMany[productstructs.Product](ctx, dh, "SelectProductByTenantId", []any{tenantId})
+	products, ok := database.QueryMany[productstructs.Product](ctx, dh, "SelectProductByTenantId", tenantId)
 
 	if !ok {
 		logging.Log(logging.Error, "[Product Helper | GetProductById] Failed to get products for tenant")

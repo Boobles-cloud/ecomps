@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"fmt"
 	"net/http"
 
 	"boobles.cloud/backend/logging"
@@ -13,7 +14,7 @@ func PanicRecoverMiddleware(h http.Handler) http.Handler {
 		defer func() {
 			err := recover()
 			if err != nil {
-				logging.Log(logging.Error, err.(string))
+				logging.Log(logging.Error, fmt.Sprintf("%v", err))
 			}
 		}()
 

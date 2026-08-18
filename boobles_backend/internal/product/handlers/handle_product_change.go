@@ -26,22 +26,25 @@ func (p *ProductHandler) HandleChangingProduct(w http.ResponseWriter, r *http.Re
 
 	if err != nil {
 		fail(http.StatusBadRequest, err)
+		return
 	}
 
 	var product productstructs.Product
 
 	if err := json.Unmarshal(body, &product); err != nil {
 		fail(http.StatusBadRequest, err)
+		return
 	}
 
 	// Get the tenant id
 	tenantId := r.Context().Value(middleware.TenantIdContextKey).(int)
 
 	// Get the tenant for encryption stuff
-	tenant, ok := database.QueryOne[tenantstructs.Tenant](r.Context(), p.Dh, "SelectTenantById", []any{tenantId})
+	tenant, ok := database.QueryOne[tenantstructs.Tenant](r.Context(), p.Dh, "SelectTenantById", tenantId)
 
 	if !ok {
 		fail(http.StatusInternalServerError, errors.New("Failed getting Tenant"))
+		return
 	}
 
 	// Encrypt the product
@@ -49,10 +52,12 @@ func (p *ProductHandler) HandleChangingProduct(w http.ResponseWriter, r *http.Re
 
 	if !ok {
 		fail(http.StatusInternalServerError, errors.New("Failed to encrypt product"))
+		return
 	}
 
 	if !database.UpdateDatabaseEntry[productstructs.Product](p.Dh, "UpdateProduct", "ProductId", encryptedProduct) {
 		fail(http.StatusInternalServerError, errors.New("Failed to update product"))
+		return
 	}
 
 	go p.insertItem(product)

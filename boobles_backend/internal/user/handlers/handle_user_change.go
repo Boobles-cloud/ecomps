@@ -24,15 +24,18 @@ func (u *UserHandler) HandleUserChange(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		fail(http.StatusBadRequest, err)
+		return
 	}
 
 	var user userstructs.UserStruct
 	if err := json.Unmarshal(body, &user); err != nil {
 		fail(http.StatusBadRequest, err)
+		return
 	}
 
 	if !user.UpdateUserInDB(u.Dh) {
 		fail(http.StatusInternalServerError, nil)
+		return
 	}
 
 	w.WriteHeader(http.StatusOK)

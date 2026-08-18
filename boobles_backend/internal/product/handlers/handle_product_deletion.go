@@ -14,7 +14,7 @@ func (p *ProductHandler) HandleDeletingProduct(w http.ResponseWriter, r *http.Re
 	// TODO: also delete all product pictures
 
 	fail := func(status int, err error) {
-		logging.Log(logging.Error, err.Error())
+		logging.Log(logging.Error, "[Product | HandleProductDeletion]"+err.Error())
 		w.WriteHeader(status)
 	}
 
@@ -22,10 +22,12 @@ func (p *ProductHandler) HandleDeletingProduct(w http.ResponseWriter, r *http.Re
 
 	if err != nil {
 		fail(http.StatusBadRequest, err)
+		return
 	}
 
 	if result := p.Dh.ExecuteSQLStatement("DeleteProductById", []any{productId}); !result.Ok {
 		fail(http.StatusInternalServerError, errors.New("Failed deleting product"))
+		return
 	}
 
 	key := ProductCacheKey + strconv.Itoa(productId)

@@ -38,6 +38,6 @@ func (o *Order) CreateOrderInDatabase(key string, dh *database.DbHandler) (uint,
 
 // Gets all product ids and amount for a order
 func (o *Order) GetAllProducts(ctx context.Context, dh *database.DbHandler) {
-	allProducts, _ := database.QueryMany[OrderProduct](ctx, dh, "SelectOrderProductsByOrderId", []any{o.OrderId})
+	allProducts, _ := database.QueryMany[OrderProduct](ctx, dh, "SelectOrderProductsByOrderId", o.OrderId)
 	o.Products = allProducts
 }

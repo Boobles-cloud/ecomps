@@ -17,7 +17,7 @@ import (
 func (ho *OrderHandler) HandleCreatingOrder(w http.ResponseWriter, r *http.Request) {
 
 	fail := func(status int, err error) {
-		logging.Log(logging.Error, err.Error())
+		logging.Log(logging.Error, "[Order | HandleOrderCreation]"+err.Error())
 		w.WriteHeader(status)
 	}
 
@@ -25,21 +25,24 @@ func (ho *OrderHandler) HandleCreatingOrder(w http.ResponseWriter, r *http.Reque
 
 	if err != nil {
 		fail(http.StatusBadRequest, err)
+		return
 	}
 
 	var order orderstructs.Order
 
 	if err := json.Unmarshal(body, &order); err != nil {
 		fail(http.StatusBadRequest, err)
+		return
 	}
 
 	// Get the tenant id so we can get the tenant and the password
 	tenantId := r.Context().Value(middleware.TenantIdContextKey).(int)
 
-	tenant, ok := database.QueryOne[tenantstructs.Tenant](r.Context(), ho.Dh, "SelectTenantById", []any{tenantId})
+	tenant, ok := database.QueryOne[tenantstructs.Tenant](r.Context(), ho.Dh, "SelectTenantById", tenantId)
 
 	if !ok {
 		fail(http.StatusInternalServerError, errors.New("Failed getting tenant"))
+		return
 	}
 
 	// Create the order
@@ -47,12 +50,14 @@ func (ho *OrderHandler) HandleCreatingOrder(w http.ResponseWriter, r *http.Reque
 
 	if !ok {
 		fail(http.StatusInternalServerError, errors.New("Failed to create order"))
+		return
 	}
 
 	// Loop over the tmp product struct and insert it
 	for i := range order.Products {
 		if !order.Products[i].InsertIntoDatabase(id, ho.Dh) {
 			fail(http.StatusInternalServerError, errors.New("Failed to create product order"))
+			return
 		}
 	}
 

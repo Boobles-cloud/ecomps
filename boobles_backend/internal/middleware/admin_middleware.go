@@ -15,7 +15,7 @@ func CheckAdminMiddleware(dh *database.DbHandler) Middleware {
 
 			tenantId := ctx.Value(TenantIdContextKey).(uint)
 
-			tenant, ok := database.QueryOne[tenantstructs.Tenant](ctx, dh, "SelectTenantById", []any{tenantId})
+			tenant, ok := database.QueryOne[tenantstructs.Tenant](ctx, dh, "SelectTenantById", tenantId)
 
 			if !ok {
 				w.WriteHeader(http.StatusUnauthorized)

@@ -40,7 +40,7 @@ func readJsonFile(filePaths []string) ([]QueryJsonStruct, bool) {
 
 	for i := range filePaths {
 
-		tmpQueryRange := make([]QueryJsonStruct, 20)
+		tmpQueryRange := make([]QueryJsonStruct, 10)
 
 		fileByteData, err := os.ReadFile(filePaths[i])
 

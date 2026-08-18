@@ -20,10 +20,12 @@ func (ho OrderHandler) HandleOrderDeletion(w http.ResponseWriter, r *http.Reques
 
 	if err != nil {
 		fail(http.StatusBadRequest, err)
+		return
 	}
 
 	if result := ho.Dh.ExecuteSQLStatement("DeleteOrderById", []any{orderId}); !result.Ok {
 		fail(http.StatusInternalServerError, errors.New("Failed to delete order"))
+		return
 	}
 
 	ho.Dh.ExecuteSQLStatement("DeleteOrderProductsByOrderId", []any{orderId})

@@ -2,10 +2,11 @@ package tenantstructs
 
 import (
 	"context"
+	"database/sql"
+	"fmt"
 	"time"
 
 	"boobles.cloud/backend/database"
-	userstructs "boobles.cloud/backend/internal/user/user_structs"
 	"boobles.cloud/backend/logging"
 )
 
@@ -17,73 +18,69 @@ type Tenant struct {
 	TenantPwId        uint      `json:"-"`
 }
 
-// TODO: Refactor this!!
-// Creates a tenant in the database
-func (t *Tenant) CreateTenantInDatabase(userId int, dh *database.DbHandler) bool {
+// Creates a tenant and assigns the given user to it.
+// Fails if the user doesn't exist or already belongs to a tenant.
+func (t *Tenant) CreateTenantInDatabase(ctx context.Context, userId int, dh *database.DbHandler) bool {
 
-	ctx, cancel := context.WithCancel(context.Background())
-
-	defer cancel()
-
-	t.TenantCreation = time.Now()
-
-	// Creates our transaction stuff
 	tx, err := dh.DbConnection.BeginTx(ctx, nil)
-
 	if err != nil {
 		logging.Log(logging.Error, "[Tenant | CreateTenantInDatabase] "+err.Error())
 		return false
 	}
-
-	// Rollback on error
 	defer tx.Rollback()
 
-	// Create our master key and insert it
-	id, ok := createMasterKey(*t, dh)
+	var userHasTenant bool
+	err = tx.QueryRowContext(ctx,
+		"SELECT UserHasTenant FROM Users WHERE UserId = ? FOR UPDATE", userId,
+	).Scan(&userHasTenant)
 
+	if err != nil {
+		if err == sql.ErrNoRows {
+			logging.Log(logging.Error, fmt.Sprintf("[Tenant | CreateTenantInDatabase] User with ID %d not found", userId))
+		} else {
+			logging.Log(logging.Error, "[Tenant | CreateTenantInDatabase] "+err.Error())
+		}
+		return false
+	}
+	if userHasTenant {
+		logging.Log(logging.Error, fmt.Sprintf("[Tenant | CreateTenantInDatabase] User with ID %d already has a tenant", userId))
+		return false
+	}
+
+	t.TenantCreation = time.Now()
+
+	masterKeyID, ok := createMasterKey(ctx, tx, dh, *t)
 	if !ok {
 		logging.Log(logging.Error, "[Tenant | CreateTenantInDatabase] Failed to create master key!")
 		return false
 	}
+	t.TenantPwId = masterKeyID
 
-	// Sets the id from the given master key column
-	t.TenantPwId = id
-
-	result, err := tx.ExecContext(ctx, "INSERT INTO Tenant() VALUES(DEFAULT, ?, ?, ?, ?)", []any{t.TenantName, t.TenantAdminUserId, t.TenantCreation, t.TenantPwId})
-
-	lastId, _ := result.LastInsertId()
-	// Set the last Id here
-	t.TenantId = uint(lastId)
-
+	insertQuery := "INSERT INTO Tenant (TenantName, TenantAdminUserId, TenantCreation, TenantPwId) VALUES (?, ?, ?, ?)"
+	result, err := tx.ExecContext(ctx, insertQuery, t.TenantName, t.TenantAdminUserId, t.TenantCreation, t.TenantPwId)
 	if err != nil {
 		logging.Log(logging.Error, "[Tenant | CreateTenantInDatabase] "+err.Error())
 		return false
 	}
 
-	// Get the wanted User
-	user, ok := database.QueryOne[userstructs.UserStruct](ctx, dh, "SelectUserById", []any{userId})
-
-	// Check that its only one user and its ok
-	if !ok {
-		return ok
+	lastId, err := result.LastInsertId()
+	if err != nil {
+		logging.Log(logging.Error, "[Tenant | CreateTenantInDatabase] Failed to get LastInsertId: "+err.Error())
+		return false
 	}
+	t.TenantId = uint(lastId)
 
-	// Set the tenant id
-	user.TenantId = uint(lastId)
-
-	// Update our User
-	if _, err := tx.ExecContext(ctx, "UPDATE Users VALUES TenantId = ? WHERE UserId = ?", []any{user.TenantId, user.UserId}); err != nil {
+	updateQuery := "UPDATE Users SET TenantId = ?, UserHasTenant = TRUE WHERE UserId = ?"
+	if _, err := tx.ExecContext(ctx, updateQuery, lastId, userId); err != nil {
 		logging.Log(logging.Error, "[Tenant | CreateTenantInDatabase] "+err.Error())
 		return false
 	}
 
-	// Commits our transaction
 	if err := tx.Commit(); err != nil {
 		logging.Log(logging.Error, "[Tenant | CreateTenantInDatabase] "+err.Error())
 		return false
 	}
 
-	// Everything is awesomeeeee!!!!
 	return true
 }
 
@@ -98,7 +95,7 @@ func (t *Tenant) IsUserAdmin(userId uint) bool {
 
 // Gets the tenant pw
 func (t *Tenant) GetPw(dh *database.DbHandler, ctx context.Context) string {
-	tp, ok := database.QueryOne[TenantPwStruct](ctx, dh, "SelectTenantPwByTenantId", []any{t.TenantPwId})
+	tp, ok := database.QueryOne[TenantPwStruct](ctx, dh, "SelectTenantPwByTenantId", t.TenantPwId)
 
 	if !ok {
 		logging.Log(logging.Error, "Got more then one tenant pw...")

@@ -33,13 +33,15 @@ func PermissionMiddleware(dh *database.DbHandler) Middleware {
 
 			if permissionName == "" {
 				fail(http.StatusBadRequest, errors.New("No action given"))
+				return
 			}
 
-			permission, ok := database.QueryOne[userstructs.UserPermission](r.Context(), dh, "SelectPermissionByName", []any{permissionName})
+			permission, ok := database.QueryOne[userstructs.UserPermission](r.Context(), dh, "SelectPermissionByName", permissionName)
 
 			// If the permission isn´t ok we return an unauthorized
 			if !ok || permission.PermissionName != permissionName {
 				fail(http.StatusUnauthorized, errors.New("Failed getting or more then one permission"))
+				return
 			}
 
 			// Else serve it

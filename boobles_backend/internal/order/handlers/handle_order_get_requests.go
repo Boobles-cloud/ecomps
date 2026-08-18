@@ -26,6 +26,7 @@ func (ho *OrderHandler) HandleGettingOrderById(w http.ResponseWriter, r *http.Re
 
 	if err != nil {
 		fail(http.StatusBadRequest, err)
+		return
 	}
 
 	// Check if the item is in cache
@@ -41,17 +42,19 @@ func (ho *OrderHandler) HandleGettingOrderById(w http.ResponseWriter, r *http.Re
 			goto withOutCache
 		}
 
-		w.Write(jsonData)
+		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
+		w.Write(jsonData)
 	}
 
 withOutCache:
 	tenantId := r.Context().Value(middleware.TenantIdContextKey).(int)
 
-	tenant, ok := database.QueryOne[tenantstructs.Tenant](r.Context(), ho.Dh, "SelectTenantById", []any{tenantId})
+	tenant, ok := database.QueryOne[tenantstructs.Tenant](r.Context(), ho.Dh, "SelectTenantById", tenantId)
 
 	if !ok {
 		fail(http.StatusInternalServerError, errors.New("Failed getting tenant"))
+		return
 	}
 
 	// Gets the encrypted order
@@ -59,6 +62,7 @@ withOutCache:
 
 	if !ok {
 		fail(http.StatusInternalServerError, errors.New("Failed getting order"))
+		return
 	}
 
 	// Get all products for this order
@@ -68,13 +72,15 @@ withOutCache:
 
 	if err != nil {
 		fail(http.StatusInternalServerError, err)
+		return
 	}
 
 	// Write it into cache
 	go ho.insertItem(*order, uint(tenantId))
 
-	w.Write(jsonData)
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
+	w.Write(jsonData)
 }
 
 // Handels getting all orders for a tenant
@@ -96,34 +102,39 @@ func (ho *OrderHandler) HandleGettingAllOrdersByTenantId(w http.ResponseWriter, 
 			goto withOutCache
 		}
 
-		w.Write(jsonData)
+		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
+		w.Write(jsonData)
 	}
 
 withOutCache:
 
-	tenant, ok := database.QueryOne[tenantstructs.Tenant](r.Context(), ho.Dh, "SelectTenantById", []any{tenantId})
+	tenant, ok := database.QueryOne[tenantstructs.Tenant](r.Context(), ho.Dh, "SelectTenantById", tenantId)
 
 	if !ok {
 		fail(http.StatusInternalServerError, errors.New("Failed getting tenant"))
+		return
 	}
 
 	allOrders, ok := helper.GetAllOrders(uint(tenantId), tenant.GetPw(ho.Dh, r.Context()), ho.Dh, r.Context())
 
 	if !ok {
 		fail(http.StatusInternalServerError, errors.New("Failed getting orders"))
+		return
 	}
 
 	jsonData, err := json.Marshal(allOrders)
 
 	if err != nil {
 		fail(http.StatusInternalServerError, err)
+		return
 	}
 
 	go ho.insertItems(allOrders, uint(tenantId))
 
-	w.Write(jsonData)
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
+	w.Write(jsonData)
 }
 
 // Handles getting the order status by status_id and language_id
@@ -138,28 +149,33 @@ func (ho *OrderHandler) HandleGettingStatusById(w http.ResponseWriter, r *http.R
 
 	if err != nil {
 		fail(http.StatusBadRequest, err)
+		return
 	}
 
 	langId, err := strconv.Atoi(r.PathValue("language_id"))
 
 	if err != nil {
 		fail(http.StatusBadRequest, err)
+		return
 	}
 
-	status, ok := database.QueryOne[orderstructs.OrderStatus](r.Context(), ho.Dh, "SelectOrderStatusByIdAndLanguageId", []any{statusId, langId})
+	status, ok := database.QueryOne[orderstructs.OrderStatus](r.Context(), ho.Dh, "SelectOrderStatusByIdAndLanguageId", statusId, langId)
 
 	if !ok {
 		fail(http.StatusInternalServerError, errors.New("Failed getting status"))
+		return
 	}
 
 	jsonData, err := json.Marshal(status)
 
 	if err != nil {
 		fail(http.StatusInternalServerError, err)
+		return
 	}
 
-	w.Write(jsonData)
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
+	w.Write(jsonData)
 }
 
 // Handles getting all order status by language id
@@ -174,20 +190,24 @@ func (ho *OrderHandler) HandleGettingAllStatusByLangId(w http.ResponseWriter, r 
 
 	if err != nil {
 		fail(http.StatusBadRequest, err)
+		return
 	}
 
-	orderStatus, ok := database.QueryMany[orderstructs.OrderStatus](r.Context(), ho.Dh, "SelectAllStatusByLanguageId", []any{langId})
+	orderStatus, ok := database.QueryMany[orderstructs.OrderStatus](r.Context(), ho.Dh, "SelectAllStatusByLanguageId", langId)
 
 	if !ok {
 		fail(http.StatusInternalServerError, errors.New("Failed getting all order status"))
+		return
 	}
 
 	jsonData, err := json.Marshal(orderStatus)
 
 	if err != nil {
 		fail(http.StatusInternalServerError, err)
+		return
 	}
 
-	w.Write(jsonData)
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
+	w.Write(jsonData)
 }

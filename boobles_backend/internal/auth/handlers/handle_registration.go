@@ -29,6 +29,7 @@ func (ha *AuthHandler) HandleRegistration(w http.ResponseWriter, r *http.Request
 
 	if err != nil {
 		fail(http.StatusBadRequest, err)
+		return
 	}
 
 	var tmpUserStruct userstructs.UserStruct
@@ -36,10 +37,12 @@ func (ha *AuthHandler) HandleRegistration(w http.ResponseWriter, r *http.Request
 	// Get all content from the body
 	if err := json.Unmarshal(body, &tmpUserStruct); err != nil {
 		fail(http.StatusBadRequest, err)
+		return
 	}
 
 	if _, ok := database.QueryOne[userstructs.UserStruct](r.Context(), ha.Dh, "SelectUserByEmail", tmpUserStruct.UserMail); ok {
 		fail(http.StatusConflict, errors.New("User already exists"))
+		return
 	}
 
 	// Creates the user in the database
@@ -47,6 +50,7 @@ func (ha *AuthHandler) HandleRegistration(w http.ResponseWriter, r *http.Request
 
 	if !ok {
 		fail(http.StatusInternalServerError, nil)
+		return
 	}
 
 	// Sets the id for a user
@@ -57,6 +61,7 @@ func (ha *AuthHandler) HandleRegistration(w http.ResponseWriter, r *http.Request
 
 	if !ok {
 		fail(http.StatusInternalServerError, nil)
+		return
 	}
 
 	cookie := http.Cookie{
