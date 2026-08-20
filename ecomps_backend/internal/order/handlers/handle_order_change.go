@@ -1,9 +1,7 @@
 package handlers
 
 import (
-	"encoding/json"
 	"errors"
-	"io"
 	"net/http"
 	"time"
 
@@ -12,27 +10,18 @@ import (
 	orderstructs "ecomps.boobles.cloud/backend/internal/order/order_structs"
 	tenantstructs "ecomps.boobles.cloud/backend/internal/tenant/tenant_structs"
 	"ecomps.boobles.cloud/backend/utils/crypto"
-	"ecomps.boobles.cloud/backend/utils/logging"
+	httputils "ecomps.boobles.cloud/backend/utils/http_utils"
+	jsonutils "ecomps.boobles.cloud/backend/utils/http_utils/json_utils"
 )
 
 // Handles changing a order
 func (ho *OrderHandler) HandleChangingOrder(w http.ResponseWriter, r *http.Request) {
 
-	fail := func(status int, err error) {
-		logging.Log(logging.Error, "[Order | HandleChangingOrder] "+err.Error())
-		w.WriteHeader(status)
-	}
+	fail := httputils.NewFailHandler(w, "Order | HandleChangingOrder")
 
-	body, err := io.ReadAll(r.Body)
+	order, err := jsonutils.JsonDeserilizeHttpRequestBody[orderstructs.Order](r)
 
 	if err != nil {
-		fail(http.StatusBadRequest, err)
-		return
-	}
-
-	var order orderstructs.Order
-
-	if err := json.Unmarshal(body, &order); err != nil {
 		fail(http.StatusBadRequest, err)
 		return
 	}

@@ -9,7 +9,7 @@ import (
 	"ecomps.boobles.cloud/backend/internal/middleware"
 	tenantstructs "ecomps.boobles.cloud/backend/internal/tenant/tenant_structs"
 	userstructs "ecomps.boobles.cloud/backend/internal/user/user_structs"
-	"ecomps.boobles.cloud/backend/utils/logging"
+	httputils "ecomps.boobles.cloud/backend/utils/http_utils"
 )
 
 // Handle deleting a user
@@ -17,10 +17,7 @@ import (
 // If he is admin -> transfare to new user id or add user to a deletion database and check with every tenant deletion
 func (u *UserHandler) HandleUserDeletion(w http.ResponseWriter, r *http.Request) {
 
-	fail := func(status int, err error) {
-		logging.Log(logging.Error, "[User | HandleUserDeletion] "+err.Error())
-		w.WriteHeader(status)
-	}
+	fail := httputils.NewFailHandler(w, "User | HandleUserDeletion")
 
 	tenantId := r.Context().Value(middleware.TenantIdContextKey).(int)
 	userId := r.Context().Value(middleware.UserIdContextKey).(int)

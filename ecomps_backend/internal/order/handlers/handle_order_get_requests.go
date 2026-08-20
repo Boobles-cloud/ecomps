@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"encoding/json"
 	"errors"
 	"net/http"
 	"strconv"
@@ -11,18 +10,16 @@ import (
 	"ecomps.boobles.cloud/backend/internal/order/helper"
 	orderstructs "ecomps.boobles.cloud/backend/internal/order/order_structs"
 	tenantstructs "ecomps.boobles.cloud/backend/internal/tenant/tenant_structs"
-	"ecomps.boobles.cloud/backend/utils/logging"
+	httputils "ecomps.boobles.cloud/backend/utils/http_utils"
+	jsonutils "ecomps.boobles.cloud/backend/utils/http_utils/json_utils"
 )
 
 // Handles getting a order by Id and all its products
 func (ho *OrderHandler) HandleGettingOrderById(w http.ResponseWriter, r *http.Request) {
 
-	fail := func(status int, err error) {
-		logging.Log(logging.Error, "[Order | HandleGettingOrderById] "+err.Error())
-		w.WriteHeader(status)
-	}
+	fail := httputils.NewFailHandler(w, "Order | HandleGettingOrderById")
 
-	orderId, err := strconv.Atoi(r.PathValue("order_id"))
+	orderId, err := httputils.IntPathParam(r, "order_id")
 
 	if err != nil {
 		fail(http.StatusBadRequest, err)
@@ -35,19 +32,11 @@ func (ho *OrderHandler) HandleGettingOrderById(w http.ResponseWriter, r *http.Re
 
 	if ok {
 
-		jsonData, err := json.Marshal(cacheItem)
-
-		if err != nil {
-			// If there is an error, just continue there
-			goto withOutCache
+		if jsonutils.RespondWithJson(w, http.StatusOK, cacheItem) {
+			return
 		}
-
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
-		w.Write(jsonData)
 	}
 
-withOutCache:
 	tenantId := r.Context().Value(middleware.TenantIdContextKey).(int)
 
 	tenant, ok := database.QueryOne[tenantstructs.Tenant](r.Context(), ho.Dh, "SelectTenantById", tenantId)
@@ -68,46 +57,25 @@ withOutCache:
 	// Get all products for this order
 	order.GetAllProducts(r.Context(), ho.Dh)
 
-	jsonData, err := json.Marshal(*order)
-
-	if err != nil {
-		fail(http.StatusInternalServerError, err)
-		return
+	if !jsonutils.RespondWithJson(w, http.StatusOK, order) {
+		w.WriteHeader(http.StatusInternalServerError)
 	}
-
-	// Write it into cache
-	go ho.insertItem(*order, uint(tenantId))
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	w.Write(jsonData)
 }
 
 // Handels getting all orders for a tenant
 func (ho *OrderHandler) HandleGettingAllOrdersByTenantId(w http.ResponseWriter, r *http.Request) {
 
-	fail := func(status int, err error) {
-		logging.Log(logging.Error, "[Order | HandleGettingAllOrdersByTenantId] "+err.Error())
-		w.WriteHeader(status)
-	}
+	fail := httputils.NewFailHandler(w, "Order | HandleGettingAllOrdersByTenantId")
 
 	tenantId := r.Context().Value(middleware.TenantIdContextKey).(int)
 
 	cacheItems, ok := ho.OrderCache.GetItems(uint(tenantId))
 
 	if ok {
-		jsonData, err := json.Marshal(cacheItems)
-
-		if err != nil {
-			goto withOutCache
+		if jsonutils.RespondWithJson(w, http.StatusOK, cacheItems) {
+			return
 		}
-
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
-		w.Write(jsonData)
 	}
-
-withOutCache:
 
 	tenant, ok := database.QueryOne[tenantstructs.Tenant](r.Context(), ho.Dh, "SelectTenantById", tenantId)
 
@@ -123,36 +91,24 @@ withOutCache:
 		return
 	}
 
-	jsonData, err := json.Marshal(allOrders)
-
-	if err != nil {
-		fail(http.StatusInternalServerError, err)
-		return
+	if !jsonutils.RespondWithJson(w, http.StatusOK, allOrders) {
+		w.WriteHeader(http.StatusInternalServerError)
 	}
-
-	go ho.insertItems(allOrders, uint(tenantId))
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	w.Write(jsonData)
 }
 
 // Handles getting the order status by status_id and language_id
 func (ho *OrderHandler) HandleGettingStatusById(w http.ResponseWriter, r *http.Request) {
 
-	fail := func(status int, err error) {
-		logging.Log(logging.Error, "[Order | HandleGettingStatusById] "+err.Error())
-		w.WriteHeader(status)
-	}
+	fail := httputils.NewFailHandler(w, "Order | HandleGettingStatusById")
 
-	statusId, err := strconv.Atoi(r.PathValue("status_id"))
+	statusId, err := httputils.IntPathParam(r, "status_id")
 
 	if err != nil {
 		fail(http.StatusBadRequest, err)
 		return
 	}
 
-	langId, err := strconv.Atoi(r.PathValue("language_id"))
+	langId, err := httputils.IntPathParam(r, "language_id")
 
 	if err != nil {
 		fail(http.StatusBadRequest, err)
@@ -166,27 +122,17 @@ func (ho *OrderHandler) HandleGettingStatusById(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	jsonData, err := json.Marshal(status)
-
-	if err != nil {
-		fail(http.StatusInternalServerError, err)
-		return
+	if !jsonutils.RespondWithJson(w, http.StatusOK, status) {
+		w.WriteHeader(http.StatusOK)
 	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	w.Write(jsonData)
 }
 
 // Handles getting all order status by language id
 func (ho *OrderHandler) HandleGettingAllStatusByLangId(w http.ResponseWriter, r *http.Request) {
 
-	fail := func(status int, err error) {
-		logging.Log(logging.Error, "[Order | HandeGettingallStatusByLangId]"+err.Error())
-		w.WriteHeader(status)
-	}
+	fail := httputils.NewFailHandler(w, "Order | HandleGettingAllStatusByLangId")
 
-	langId, err := strconv.Atoi(r.PathValue("language_id"))
+	langId, err := httputils.IntPathParam(r, "language_id")
 
 	if err != nil {
 		fail(http.StatusBadRequest, err)
@@ -200,14 +146,7 @@ func (ho *OrderHandler) HandleGettingAllStatusByLangId(w http.ResponseWriter, r 
 		return
 	}
 
-	jsonData, err := json.Marshal(orderStatus)
-
-	if err != nil {
-		fail(http.StatusInternalServerError, err)
-		return
+	if !jsonutils.RespondWithJson(w, http.StatusOK, orderStatus) {
+		w.WriteHeader(http.StatusOK)
 	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	w.Write(jsonData)
 }

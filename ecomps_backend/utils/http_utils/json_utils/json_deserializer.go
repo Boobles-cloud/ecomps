@@ -6,7 +6,7 @@ import (
 )
 
 // Decodes a json http reqest body to a struct
-func JsonDeserilizeHttpRequest[T any](r *http.Request) (T, error) {
+func JsonDeserilizeHttpRequestBody[T any](r *http.Request) (T, error) {
 
 	var v T
 

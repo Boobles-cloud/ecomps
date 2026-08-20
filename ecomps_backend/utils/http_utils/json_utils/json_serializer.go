@@ -11,7 +11,7 @@ import (
 func RespondWithJson(w http.ResponseWriter, status int, data any) bool {
 	jsonData, err := json.Marshal(data)
 	if err != nil {
-		logging.Log(logging.Error, "[JsonUtils | RespondWithJson]")
+		logging.Log(logging.Error, "[JsonUtils | RespondWithJson] "+err.Error())
 		w.WriteHeader(http.StatusInternalServerError)
 		return false
 	}

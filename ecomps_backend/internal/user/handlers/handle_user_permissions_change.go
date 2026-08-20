@@ -1,14 +1,13 @@
 package handlers
 
 import (
-	"encoding/json"
 	"errors"
-	"io"
 	"net/http"
 
 	"ecomps.boobles.cloud/backend/database"
 	userstructs "ecomps.boobles.cloud/backend/internal/user/user_structs"
-	"ecomps.boobles.cloud/backend/utils/logging"
+	httputils "ecomps.boobles.cloud/backend/utils/http_utils"
+	jsonutils "ecomps.boobles.cloud/backend/utils/http_utils/json_utils"
 )
 
 // Handels the adding of a new permission for the user
@@ -16,21 +15,11 @@ import (
 // Only admins can access it
 func (u *UserHandler) HandleAddingNewUserPermission(w http.ResponseWriter, r *http.Request) {
 
-	fail := func(status int, err error) {
-		logging.Log(logging.Error, "[Permission | HandleAddingNewUserPermission] "+err.Error())
-		w.WriteHeader(status)
-	}
+	fail := httputils.NewFailHandler(w, "User | HandleAddingNewUserPermission")
 
-	body, err := io.ReadAll(r.Body)
+	userPermission, err := jsonutils.JsonDeserilizeHttpRequestBody[userstructs.UserPermission](r)
 
 	if err != nil {
-		fail(http.StatusBadRequest, err)
-		return
-	}
-
-	userPermission := userstructs.UserPermission{}
-
-	if err := json.Unmarshal(body, &userPermission); err != nil {
 		fail(http.StatusBadRequest, err)
 		return
 	}
@@ -50,7 +39,7 @@ func (u *UserHandler) HandleAddingNewUserPermission(w http.ResponseWriter, r *ht
 	}
 
 	for i := range allPermissions {
-		if allPermissions[i].PermissionName == user.UserName {
+		if allPermissions[i].PermissionName == userPermission.PermissionName {
 			w.WriteHeader(http.StatusOK)
 		}
 	}
@@ -68,15 +57,7 @@ func (u *UserHandler) HandleAddingNewUserPermission(w http.ResponseWriter, r *ht
 // Only admins can access it.
 func (u *UserHandler) HandleRemovingUserPermission(w http.ResponseWriter, r *http.Request) {
 
-	fail := func(status int, err error) {
-
-		if err != nil {
-			logging.Log(logging.Error, "[Permission | HandleRemovingNewUserPermission] "+err.Error())
-		}
-
-		w.WriteHeader(status)
-	}
+	fail := httputils.NewFailHandler(w, "User | HandleRemovinUserPermission")
 
 	fail(http.StatusBadRequest, errors.New("NOT IMPLEMENTED"))
-	return
 }

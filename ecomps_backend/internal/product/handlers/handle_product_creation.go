@@ -1,36 +1,25 @@
 package handlers
 
 import (
-	"encoding/json"
 	"errors"
-	"io"
 	"net/http"
 
 	"ecomps.boobles.cloud/backend/database"
 	"ecomps.boobles.cloud/backend/internal/middleware"
 	productstructs "ecomps.boobles.cloud/backend/internal/product/product_structs"
 	tenantstructs "ecomps.boobles.cloud/backend/internal/tenant/tenant_structs"
-	"ecomps.boobles.cloud/backend/utils/logging"
+	httputils "ecomps.boobles.cloud/backend/utils/http_utils"
+	jsonutils "ecomps.boobles.cloud/backend/utils/http_utils/json_utils"
 )
 
 // Handels creating a new product
 func (p *ProductHandler) HandleCreatingProduct(w http.ResponseWriter, r *http.Request) {
 
-	fail := func(status int, err error) {
-		logging.Log(logging.Error, "[Product | HandleCreatingProduct] "+err.Error())
-		w.WriteHeader(status)
-	}
+	fail := httputils.NewFailHandler(w, "Product | HandleCreatingProduct")
 
-	body, err := io.ReadAll(r.Body)
+	product, err := jsonutils.JsonDeserilizeHttpRequestBody[productstructs.Product](r)
 
 	if err != nil {
-		fail(http.StatusBadRequest, err)
-		return
-	}
-
-	var product productstructs.Product
-
-	if err := json.Unmarshal(body, &product); err != nil {
 		fail(http.StatusBadRequest, err)
 		return
 	}

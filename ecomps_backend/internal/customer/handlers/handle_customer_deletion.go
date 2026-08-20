@@ -5,18 +5,15 @@ import (
 	"net/http"
 	"strconv"
 
-	"ecomps.boobles.cloud/backend/utils/logging"
+	httputils "ecomps.boobles.cloud/backend/utils/http_utils"
 )
 
 // Handles the deletion of a customer
 func (ch *CustomerHandler) HandleCustomerDeletion(w http.ResponseWriter, r *http.Request) {
 
-	fail := func(status int, err error) {
-		logging.Log(logging.Error, "[Customer | HandleCustomerDeletion] "+err.Error())
-		w.WriteHeader(status)
-	}
+	fail := httputils.NewFailHandler(w, "Customer | HandleCustomerDeletion")
 
-	customerId, err := strconv.Atoi(r.PathValue("customer-id"))
+	customerId, err := httputils.IntPathParam(r, "customer-id")
 
 	if err != nil {
 		fail(http.StatusBadRequest, err)
