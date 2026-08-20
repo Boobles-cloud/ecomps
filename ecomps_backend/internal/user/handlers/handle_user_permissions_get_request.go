@@ -75,16 +75,22 @@ func (u *UserHandler) HandleGettingPermissionById(w http.ResponseWriter, r *http
 	}
 }
 
-// Handels getting all permissions
-// TODO: Add getting all permission for a language id!!
-func (u *UserHandler) HandleGettingAllPermissions(w http.ResponseWriter, r *http.Request) {
+// Handels getting all permissions by a language id
+func (u *UserHandler) HandleGettingAllPermissionsByLanguageId(w http.ResponseWriter, r *http.Request) {
 
-	fail := httputils.NewFailHandler(w, "Permission | HandleGettingAllPermissions")
+	fail := httputils.NewFailHandler(w, "Permission | HandleGettingAllPermissionsByLanguageId")
+
+	languageId, err := httputils.IntPathParam(r, "language_id")
+
+	if err != nil {
+		fail(http.StatusBadRequest, err)
+		return
+	}
 
 	// Not to cause confusion:
 	// We select all tenant actions here, because those are the real permissions.
 	// A User gets access to a specific action he can do
-	allPermissions, ok := database.QueryMany[userstructs.UserPermission](r.Context(), u.Dh, "SelectAllTenantActions", []any{})
+	allPermissions, ok := database.QueryMany[userstructs.UserPermission](r.Context(), u.Dh, "SelectAllTenantActionsByLanguageId", []any{languageId})
 
 	if !ok {
 		fail(http.StatusInternalServerError, errors.New("Failed to get all permissions"))

@@ -120,6 +120,11 @@
     "QueryType": 2
   },
   {
+    "QueryName": "SelectAllTenantDeletionByLanguageId",
+    "QueryVal": "SELECT * FROM TenantDeletions WHERE LanguageId = ?;",
+    "QueryType": 2
+  },
+  {
     "QueryName": "SelectTenantDeletionFromTenantId",
     "QueryVal": "SELECT * FROM TenantDeletions WHERE TenantId = ?;",
     "QueryType": 2
