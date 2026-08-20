@@ -4,7 +4,7 @@ import (
 	"context"
 	"database/sql"
 
-	"ecomps.boobles.cloud/backend/logging"
+	"ecomps.boobles.cloud/backend/utils/logging"
 )
 
 type Result struct {

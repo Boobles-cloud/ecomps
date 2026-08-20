@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"ecomps.boobles.cloud/backend/database"
-	"ecomps.boobles.cloud/backend/logging"
+	"ecomps.boobles.cloud/backend/utils/logging"
 )
 
 type OrderStatus struct {

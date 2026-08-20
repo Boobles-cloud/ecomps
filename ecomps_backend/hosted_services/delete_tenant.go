@@ -6,7 +6,7 @@ import (
 
 	"ecomps.boobles.cloud/backend/database"
 	tenantstructs "ecomps.boobles.cloud/backend/internal/tenant/tenant_structs"
-	"ecomps.boobles.cloud/backend/logging"
+	"ecomps.boobles.cloud/backend/utils/logging"
 )
 
 // Checks if a tenant needs to be deleted -> then deletes it and all its data

@@ -1,14 +1,13 @@
 package handlers
 
 import (
-	"encoding/json"
 	"errors"
 	"net/http"
-	"strconv"
 
 	"ecomps.boobles.cloud/backend/database"
 	userstructs "ecomps.boobles.cloud/backend/internal/user/user_structs"
-	"ecomps.boobles.cloud/backend/logging"
+	httputils "ecomps.boobles.cloud/backend/utils/http_utils"
+	jsonutils "ecomps.boobles.cloud/backend/utils/http_utils/json_utils"
 )
 
 // ============= NOTE =============
@@ -17,16 +16,10 @@ import (
 
 // Handles getting all permissions for a user
 func (u *UserHandler) HandleGettingUserPermissions(w http.ResponseWriter, r *http.Request) {
-	fail := func(status int, err error) {
 
-		if err != nil {
-			logging.Log(logging.Error, "[Permission | HandleGettingUserPemissions] "+err.Error())
-		}
+	fail := httputils.NewFailHandler(w, "Permission | HandleGettingUserPermission")
 
-		w.WriteHeader(status)
-	}
-
-	userId, err := strconv.Atoi(r.PathValue("user_id"))
+	userId, err := httputils.IntPathParam(r, "user_id")
 
 	if err != nil {
 		fail(http.StatusBadRequest, err)
@@ -50,30 +43,17 @@ func (u *UserHandler) HandleGettingUserPermissions(w http.ResponseWriter, r *htt
 		return
 	}
 
-	jsonData, err := json.Marshal(allPermissions)
-
-	if err != nil {
-		fail(http.StatusInternalServerError, err)
-		return
+	if !jsonutils.RespondWithJson(w, http.StatusOK, allPermissions) {
+		w.WriteHeader(http.StatusInternalServerError)
 	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	w.Write(jsonData)
 }
 
 // Handels getting permission by the given permission id
 func (u *UserHandler) HandleGettingPermissionById(w http.ResponseWriter, r *http.Request) {
-	fail := func(status int, err error) {
 
-		if err != nil {
-			logging.Log(logging.Error, "[Permission | HandleGettingPermissionById] "+err.Error())
-		}
+	fail := httputils.NewFailHandler(w, "Permission | HandleGettingPermissionById")
 
-		w.WriteHeader(status)
-	}
-
-	permissionId, err := strconv.Atoi(r.PathValue("permission_id"))
+	permissionId, err := httputils.IntPathParam(r, "permission_id")
 
 	if err != nil {
 		fail(http.StatusBadRequest, err)
@@ -90,48 +70,34 @@ func (u *UserHandler) HandleGettingPermissionById(w http.ResponseWriter, r *http
 		return
 	}
 
-	jsonData, err := json.Marshal(wantedPermission)
-
-	if err != nil {
-		fail(http.StatusInternalServerError, err)
-		return
+	if !jsonutils.RespondWithJson(w, http.StatusOK, wantedPermission) {
+		w.WriteHeader(http.StatusInternalServerError)
 	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	w.Write(jsonData)
 }
 
-// Handels getting all permissions
-func (u *UserHandler) HandleGettingAllPermissions(w http.ResponseWriter, r *http.Request) {
+// Handels getting all permissions by a language id
+func (u *UserHandler) HandleGettingAllPermissionsByLanguageId(w http.ResponseWriter, r *http.Request) {
 
-	fail := func(status int, err error) {
+	fail := httputils.NewFailHandler(w, "Permission | HandleGettingAllPermissionsByLanguageId")
 
-		if err != nil {
-			logging.Log(logging.Error, "[Permission | HandleGettingAllPermissions] "+err.Error())
-		}
+	languageId, err := httputils.IntPathParam(r, "language_id")
 
-		w.WriteHeader(status)
+	if err != nil {
+		fail(http.StatusBadRequest, err)
+		return
 	}
 
 	// Not to cause confusion:
 	// We select all tenant actions here, because those are the real permissions.
 	// A User gets access to a specific action he can do
-	allPermissions, ok := database.QueryMany[userstructs.UserPermission](r.Context(), u.Dh, "SelectAllTenantActions", []any{})
+	allPermissions, ok := database.QueryMany[userstructs.UserPermission](r.Context(), u.Dh, "SelectAllTenantActionsByLanguageId", []any{languageId})
 
 	if !ok {
 		fail(http.StatusInternalServerError, errors.New("Failed to get all permissions"))
 		return
 	}
 
-	jsonData, err := json.Marshal(allPermissions)
-
-	if err != nil {
-		fail(http.StatusInternalServerError, err)
-		return
+	if !jsonutils.RespondWithJson(w, http.StatusOK, allPermissions) {
+		w.WriteHeader(http.StatusInternalServerError)
 	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	w.Write(jsonData)
 }

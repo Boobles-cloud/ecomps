@@ -1,14 +1,14 @@
 package handlers
 
 import (
-	"encoding/json"
 	"errors"
 	"net/http"
 	"strconv"
 
 	"ecomps.boobles.cloud/backend/database"
 	userstructs "ecomps.boobles.cloud/backend/internal/user/user_structs"
-	"ecomps.boobles.cloud/backend/logging"
+	httputils "ecomps.boobles.cloud/backend/utils/http_utils"
+	jsonutils "ecomps.boobles.cloud/backend/utils/http_utils/json_utils"
 )
 
 // ============= NOTE =============
@@ -18,10 +18,7 @@ import (
 // Handles the getting the user by the accesstoken val
 func (u *UserHandler) HandleGettingUserByAuthTokenVal(w http.ResponseWriter, r *http.Request) {
 
-	fail := func(status int, err error) {
-		logging.Log(logging.Error, "[User | HanldeGettingUserByAuthTokenVal]"+err.Error())
-		w.WriteHeader(status)
-	}
+	fail := httputils.NewFailHandler(w, "User | HanldeGettingUserByAuthTokenVal")
 
 	authToken := r.PathValue("authtoken")
 
@@ -37,25 +34,15 @@ func (u *UserHandler) HandleGettingUserByAuthTokenVal(w http.ResponseWriter, r *
 		return
 	}
 
-	jsonData, err := json.Marshal(user)
-
-	if err != nil {
-		fail(http.StatusInternalServerError, err)
-		return
+	if !jsonutils.RespondWithJson(w, http.StatusOK, user) {
+		w.WriteHeader(http.StatusInternalServerError)
 	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	w.Write(jsonData)
 }
 
 // Handles getting the user by the user id
 func (u *UserHandler) HandleGettingUserById(w http.ResponseWriter, r *http.Request) {
 
-	fail := func(status int, err error) {
-		logging.Log(logging.Error, "[User | HandleGettingUserById] "+err.Error())
-		w.WriteHeader(status)
-	}
+	fail := httputils.NewFailHandler(w, "User | HandleGettingUserById")
 
 	userId, err := strconv.Atoi(r.PathValue("user_id"))
 
@@ -71,38 +58,21 @@ func (u *UserHandler) HandleGettingUserById(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	jsonData, err := json.Marshal(user)
-
-	if err != nil {
-		fail(http.StatusInternalServerError, err)
-		return
+	if !jsonutils.RespondWithJson(w, http.StatusOK, user) {
+		w.WriteHeader(http.StatusInternalServerError)
 	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	w.Write(jsonData)
 }
 
 // Handles getting the user by tenant and user name
 func (u *UserHandler) HandleGettingUserByTenantIdAndUserName(w http.ResponseWriter, r *http.Request) {
 
-	fail := func(status int, err error) {
-		logging.Log(logging.Error, "[User | HandleGettingUserByTenantIdAndUserName] "+err.Error())
-		w.WriteHeader(status)
-	}
+	fail := httputils.NewFailHandler(w, "User | HandleGettingUserByTenantIdAndUserName")
 
-	tenantIdString := r.PathValue("tenant-id")
+	tenantId, err := httputils.IntPathParam(r, "tenant_id")
 	userName := r.PathValue("user_name")
 
-	if tenantIdString == "" || userName == "" {
+	if err != nil || userName == "" {
 		fail(http.StatusBadRequest, errors.New("Failed to get user name or tenant id"))
-		return
-	}
-
-	tenantId, err := strconv.Atoi(tenantIdString)
-
-	if err != nil {
-		fail(http.StatusBadRequest, err)
 		return
 	}
 
@@ -113,27 +83,17 @@ func (u *UserHandler) HandleGettingUserByTenantIdAndUserName(w http.ResponseWrit
 		return
 	}
 
-	jsonData, err := json.Marshal(user)
-
-	if err != nil {
-		fail(http.StatusInternalServerError, err)
-		return
+	if !jsonutils.RespondWithJson(w, http.StatusOK, user) {
+		w.WriteHeader(http.StatusInternalServerError)
 	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	w.Write(jsonData)
 }
 
 // Handles the request for checking if a user has a tenant
 func (u *UserHandler) HandleHasUserATenant(w http.ResponseWriter, r *http.Request) {
 
-	fail := func(status int, err error) {
-		logging.Log(logging.Error, "[User | HandleHasUserATenant] "+err.Error())
-		w.WriteHeader(status)
-	}
+	fail := httputils.NewFailHandler(w, "User | HandleHasUserATenant")
 
-	userId, err := strconv.Atoi(r.PathValue("user_id"))
+	userId, err := httputils.IntPathParam(r, "user_id")
 
 	if err != nil {
 		fail(http.StatusBadRequest, err)
@@ -148,25 +108,14 @@ func (u *UserHandler) HandleHasUserATenant(w http.ResponseWriter, r *http.Reques
 	}
 
 	if user.UserHasTenant && user.TenantId != 0 {
-		jsonData, err := json.Marshal("Tenant = true")
-
-		if err != nil {
-			fail(http.StatusInternalServerError, err)
+		if !jsonutils.RespondWithJson(w, http.StatusOK, "Tenant = true") {
+			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
-
-		w.Write(jsonData)
-		w.WriteHeader(http.StatusOK)
 	}
 
-	jsonData, err := json.Marshal("Tenant = false")
-
-	if err != nil {
-		fail(http.StatusInternalServerError, err)
+	if !jsonutils.RespondWithJson(w, http.StatusOK, "Tenant = false") {
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	w.Write(jsonData)
 }

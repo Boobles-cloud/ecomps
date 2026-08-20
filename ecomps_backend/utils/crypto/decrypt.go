@@ -6,7 +6,7 @@ import (
 	"encoding/base64"
 	"reflect"
 
-	"ecomps.boobles.cloud/backend/logging"
+	"ecomps.boobles.cloud/backend/utils/logging"
 )
 
 // Decrypts a given struct

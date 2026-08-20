@@ -1,36 +1,22 @@
 package handlers
 
 import (
-	"encoding/json"
-	"io"
 	"net/http"
 	"time"
 
 	tenantstructs "ecomps.boobles.cloud/backend/internal/tenant/tenant_structs"
-	"ecomps.boobles.cloud/backend/logging"
+	httputils "ecomps.boobles.cloud/backend/utils/http_utils"
+	jsonutils "ecomps.boobles.cloud/backend/utils/http_utils/json_utils"
 )
 
 // Handels the deletion of a tenant
 func (t *TenantHandler) HandleTenantDeletion(w http.ResponseWriter, r *http.Request) {
 
-	fail := func(status int, err error) {
+	fail := httputils.NewFailHandler(w, "Tenant | HandleTenantDeletion")
 
-		if err != nil {
-			logging.Log(logging.Error, "[Tenant | HandleTenantDeletion] "+err.Error())
-		}
-
-		w.WriteHeader(status)
-	}
-
-	body, err := io.ReadAll(r.Body)
+	tenantDeleteStruct, err := jsonutils.JsonDeserilizeHttpRequestBody[tenantstructs.TenantDeletionStruct](r)
 
 	if err != nil {
-		fail(http.StatusBadRequest, err)
-		return
-	}
-
-	var tenantDeleteStruct tenantstructs.TenantDeletionStruct
-	if err := json.Unmarshal(body, &tenantDeleteStruct); err != nil {
 		fail(http.StatusBadRequest, err)
 		return
 	}

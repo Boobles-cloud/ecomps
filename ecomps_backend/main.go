@@ -8,8 +8,8 @@ import (
 
 	"ecomps.boobles.cloud/backend/database"
 	hostedServices "ecomps.boobles.cloud/backend/hosted_services"
-	"ecomps.boobles.cloud/backend/logging"
 	"ecomps.boobles.cloud/backend/startup"
+	"ecomps.boobles.cloud/backend/utils/logging"
 )
 
 func main() {

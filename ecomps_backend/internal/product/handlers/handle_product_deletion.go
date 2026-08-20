@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"ecomps.boobles.cloud/backend/logging"
+	httputils "ecomps.boobles.cloud/backend/utils/http_utils"
 )
 
 // Handels the deletion of a prodcut
@@ -13,12 +13,9 @@ func (p *ProductHandler) HandleDeletingProduct(w http.ResponseWriter, r *http.Re
 
 	// TODO: also delete all product pictures
 
-	fail := func(status int, err error) {
-		logging.Log(logging.Error, "[Product | HandleProductDeletion]"+err.Error())
-		w.WriteHeader(status)
-	}
+	fail := httputils.NewFailHandler(w, "Product | HandleDeletingProduct")
 
-	productId, err := strconv.Atoi(r.PathValue("product_id"))
+	productId, err := httputils.IntPathParam(r, "product_id")
 
 	if err != nil {
 		fail(http.StatusBadRequest, err)

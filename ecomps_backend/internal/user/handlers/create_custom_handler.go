@@ -1,9 +1,9 @@
 package handlers
 
 import (
-	"ecomps.boobles.cloud/backend/caching"
 	"ecomps.boobles.cloud/backend/database"
 	userstructs "ecomps.boobles.cloud/backend/internal/user/user_structs"
+	"ecomps.boobles.cloud/backend/utils/caching"
 )
 
 type UserHandler struct {

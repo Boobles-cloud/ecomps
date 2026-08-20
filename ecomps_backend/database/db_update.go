@@ -4,7 +4,7 @@ import (
 	"reflect"
 	"strings"
 
-	"ecomps.boobles.cloud/backend/logging"
+	"ecomps.boobles.cloud/backend/utils/logging"
 )
 
 // For updating stuff in the database.

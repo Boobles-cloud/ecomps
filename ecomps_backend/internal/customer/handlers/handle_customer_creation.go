@@ -1,36 +1,25 @@
 package handlers
 
 import (
-	"encoding/json"
 	"errors"
-	"io"
 	"net/http"
 
 	"ecomps.boobles.cloud/backend/database"
 	customerstructs "ecomps.boobles.cloud/backend/internal/customer/customer_structs"
 	"ecomps.boobles.cloud/backend/internal/middleware"
 	tenantstructs "ecomps.boobles.cloud/backend/internal/tenant/tenant_structs"
-	"ecomps.boobles.cloud/backend/logging"
+	httputils "ecomps.boobles.cloud/backend/utils/http_utils"
+	jsonutils "ecomps.boobles.cloud/backend/utils/http_utils/json_utils"
 )
 
 // Handels creating a customer
 func (ch *CustomerHandler) HandleCustomerCreation(w http.ResponseWriter, r *http.Request) {
 
-	fail := func(status int, err error) {
-		logging.Log(logging.Error, "[Customer | HandleCustomerCreation]"+err.Error())
-		w.WriteHeader(status)
-	}
+	fail := httputils.NewFailHandler(w, "Customer | HandleCustomerCreation")
 
-	body, err := io.ReadAll(r.Body)
+	customer, err := jsonutils.JsonDeserilizeHttpRequestBody[customerstructs.Customer](r)
 
 	if err != nil {
-		fail(http.StatusBadRequest, err)
-		return
-	}
-
-	var customer customerstructs.Customer
-
-	if err := json.Unmarshal(body, &customer); err != nil {
 		fail(http.StatusBadRequest, err)
 		return
 	}

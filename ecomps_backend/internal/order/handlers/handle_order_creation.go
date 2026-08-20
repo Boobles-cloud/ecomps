@@ -1,36 +1,25 @@
 package handlers
 
 import (
-	"encoding/json"
 	"errors"
-	"io"
 	"net/http"
 
 	"ecomps.boobles.cloud/backend/database"
 	"ecomps.boobles.cloud/backend/internal/middleware"
 	orderstructs "ecomps.boobles.cloud/backend/internal/order/order_structs"
 	tenantstructs "ecomps.boobles.cloud/backend/internal/tenant/tenant_structs"
-	"ecomps.boobles.cloud/backend/logging"
+	httputils "ecomps.boobles.cloud/backend/utils/http_utils"
+	jsonutils "ecomps.boobles.cloud/backend/utils/http_utils/json_utils"
 )
 
 // Handels creating a order and all its order products in database
 func (ho *OrderHandler) HandleCreatingOrder(w http.ResponseWriter, r *http.Request) {
 
-	fail := func(status int, err error) {
-		logging.Log(logging.Error, "[Order | HandleOrderCreation]"+err.Error())
-		w.WriteHeader(status)
-	}
+	fail := httputils.NewFailHandler(w, "Order | HandleCreatingOrder")
 
-	body, err := io.ReadAll(r.Body)
+	order, err := jsonutils.JsonDeserilizeHttpRequestBody[orderstructs.Order](r)
 
 	if err != nil {
-		fail(http.StatusBadRequest, err)
-		return
-	}
-
-	var order orderstructs.Order
-
-	if err := json.Unmarshal(body, &order); err != nil {
 		fail(http.StatusBadRequest, err)
 		return
 	}

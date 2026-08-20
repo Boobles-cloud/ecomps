@@ -3,9 +3,9 @@ package handlers
 import (
 	"strconv"
 
-	"ecomps.boobles.cloud/backend/caching"
 	"ecomps.boobles.cloud/backend/database"
 	orderstructs "ecomps.boobles.cloud/backend/internal/order/order_structs"
+	"ecomps.boobles.cloud/backend/utils/caching"
 )
 
 const (

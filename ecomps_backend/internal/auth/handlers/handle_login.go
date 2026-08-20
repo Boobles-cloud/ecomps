@@ -11,7 +11,7 @@ import (
 	"ecomps.boobles.cloud/backend/database"
 	authstructs "ecomps.boobles.cloud/backend/internal/auth/auth_structs"
 	userstructs "ecomps.boobles.cloud/backend/internal/user/user_structs"
-	"ecomps.boobles.cloud/backend/logging"
+	"ecomps.boobles.cloud/backend/utils/logging"
 	"github.com/golang-jwt/jwt/v4"
 )
 

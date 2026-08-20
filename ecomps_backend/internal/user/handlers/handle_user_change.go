@@ -1,34 +1,21 @@
 package handlers
 
 import (
-	"encoding/json"
-	"io"
 	"net/http"
 
 	userstructs "ecomps.boobles.cloud/backend/internal/user/user_structs"
-	"ecomps.boobles.cloud/backend/logging"
+	httputils "ecomps.boobles.cloud/backend/utils/http_utils"
+	jsonutils "ecomps.boobles.cloud/backend/utils/http_utils/json_utils"
 )
 
 // Handels the user change stuff
 func (u *UserHandler) HandleUserChange(w http.ResponseWriter, r *http.Request) {
 
-	fail := func(status int, err error) {
+	fail := httputils.NewFailHandler(w, "User | HandleUserChange")
 
-		if err != nil {
-			logging.Log(logging.Error, "[User | HandleUserChange] "+err.Error())
-		}
-		w.WriteHeader(status)
-	}
-
-	body, err := io.ReadAll(r.Body)
+	user, err := jsonutils.JsonDeserilizeHttpRequestBody[userstructs.UserStruct](r)
 
 	if err != nil {
-		fail(http.StatusBadRequest, err)
-		return
-	}
-
-	var user userstructs.UserStruct
-	if err := json.Unmarshal(body, &user); err != nil {
 		fail(http.StatusBadRequest, err)
 		return
 	}

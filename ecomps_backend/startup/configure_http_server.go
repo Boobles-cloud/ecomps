@@ -3,7 +3,6 @@ package startup
 import (
 	"net/http"
 
-	"ecomps.boobles.cloud/backend/caching"
 	"ecomps.boobles.cloud/backend/database"
 	authHandlers "ecomps.boobles.cloud/backend/internal/auth/handlers"
 	customerstructs "ecomps.boobles.cloud/backend/internal/customer/customer_structs"
@@ -17,6 +16,7 @@ import (
 	tenantstructs "ecomps.boobles.cloud/backend/internal/tenant/tenant_structs"
 	userHandlers "ecomps.boobles.cloud/backend/internal/user/handlers"
 	userstructs "ecomps.boobles.cloud/backend/internal/user/user_structs"
+	"ecomps.boobles.cloud/backend/utils/caching"
 )
 
 // Creates and configures the rest api
@@ -134,7 +134,7 @@ func ConfigureHTTPServer(dh *database.DbHandler) http.Server {
 	muxMainRouter.Handle("GET /user/frontend/by/id/{user_id}", userFrontendMiddleware(http.HandlerFunc(userHandler.HandleGettingUserById)))
 	muxMainRouter.Handle("GET /user/frontend/by/{tenant_id}/{user_name}", userFrontendMiddleware(http.HandlerFunc(userHandler.HandleGettingUserByTenantIdAndUserName)))
 	muxMainRouter.Handle("GET /user/frontend/has-tenant/{user_id}", userFrontendMiddleware(http.HandlerFunc(userHandler.HandleHasUserATenant)))
-	muxMainRouter.Handle("GET /user/frontend/permission/all", userFrontendMiddleware(http.HandlerFunc(userHandler.HandleGettingAllPermissions)))
+	muxMainRouter.Handle("GET /user/frontend/permission/{language_id}", userFrontendMiddleware(http.HandlerFunc(userHandler.HandleGettingAllPermissionsByLanguageId)))
 
 	// User permission stuff
 	muxMainRouter.Handle("GET /user/frontend/permission/all/by/{user_id}", userFrontendMiddleware(http.HandlerFunc(userHandler.HandleGettingUserPermissions)))

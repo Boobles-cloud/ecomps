@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"ecomps.boobles.cloud/backend/logging"
+	"ecomps.boobles.cloud/backend/utils/logging"
 )
 
 // Used to log any panics our program does

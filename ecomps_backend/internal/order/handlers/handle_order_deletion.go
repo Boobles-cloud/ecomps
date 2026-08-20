@@ -5,18 +5,15 @@ import (
 	"net/http"
 	"strconv"
 
-	"ecomps.boobles.cloud/backend/logging"
+	httputils "ecomps.boobles.cloud/backend/utils/http_utils"
 )
 
 // Handles deleting a order
 func (ho OrderHandler) HandleOrderDeletion(w http.ResponseWriter, r *http.Request) {
 
-	fail := func(status int, err error) {
-		logging.Log(logging.Error, "[Order | HandleOrderDeletion] "+err.Error())
-		w.WriteHeader(status)
-	}
+	fail := httputils.NewFailHandler(w, "Order | HandleOrderDeletion")
 
-	orderId, err := strconv.Atoi(r.PathValue("order_id"))
+	orderId, err := httputils.IntPathParam(r, "order_id")
 
 	if err != nil {
 		fail(http.StatusBadRequest, err)

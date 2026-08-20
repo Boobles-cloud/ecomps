@@ -1,26 +1,20 @@
 package handlers
 
 import (
-	"encoding/json"
-	"io"
 	"net/http"
 
 	"ecomps.boobles.cloud/backend/database"
 	tenantstructs "ecomps.boobles.cloud/backend/internal/tenant/tenant_structs"
-	"ecomps.boobles.cloud/backend/logging"
+	httputils "ecomps.boobles.cloud/backend/utils/http_utils"
+	jsonutils "ecomps.boobles.cloud/backend/utils/http_utils/json_utils"
 )
 
+// Handels a tenant change
 func (t *TenantHandler) HandleTenantChange(w http.ResponseWriter, r *http.Request) {
 
-	fail := func(status int, err error) {
+	fail := httputils.NewFailHandler(w, "Tenant | HandleTenantChange")
 
-		if err != nil {
-			logging.Log(logging.Error, "[Tenant | HandleTenantChange] "+err.Error())
-		}
-
-		w.WriteHeader(status)
-	}
-
+	// TODO: Check why we need this here?
 	wantedUpdateType := r.URL.Query().Get("type")
 
 	if wantedUpdateType == "" {
@@ -28,15 +22,9 @@ func (t *TenantHandler) HandleTenantChange(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	body, err := io.ReadAll(r.Body)
+	tenant, err := jsonutils.JsonDeserilizeHttpRequestBody[tenantstructs.Tenant](r)
 
 	if err != nil {
-		fail(http.StatusBadRequest, err)
-		return
-	}
-
-	var tenant tenantstructs.Tenant
-	if err := json.Unmarshal(body, &tenant); err != nil {
 		fail(http.StatusBadRequest, err)
 		return
 	}

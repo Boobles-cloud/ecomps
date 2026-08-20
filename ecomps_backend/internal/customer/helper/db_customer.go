@@ -3,10 +3,10 @@ package helper
 import (
 	"context"
 
-	"ecomps.boobles.cloud/backend/crypto"
 	"ecomps.boobles.cloud/backend/database"
 	customerstructs "ecomps.boobles.cloud/backend/internal/customer/customer_structs"
-	"ecomps.boobles.cloud/backend/logging"
+	"ecomps.boobles.cloud/backend/utils/crypto"
+	"ecomps.boobles.cloud/backend/utils/logging"
 )
 
 // Gets and decrypts a customer

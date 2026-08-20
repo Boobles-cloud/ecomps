@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"encoding/json"
 	"errors"
 	"net/http"
 	"strconv"
@@ -10,18 +9,16 @@ import (
 	"ecomps.boobles.cloud/backend/internal/middleware"
 	"ecomps.boobles.cloud/backend/internal/product/helper"
 	tenantstructs "ecomps.boobles.cloud/backend/internal/tenant/tenant_structs"
-	"ecomps.boobles.cloud/backend/logging"
+	httputils "ecomps.boobles.cloud/backend/utils/http_utils"
+	jsonutils "ecomps.boobles.cloud/backend/utils/http_utils/json_utils"
 )
 
 // Gets a Product by the id
 func (p *ProductHandler) HandleGettingProductById(w http.ResponseWriter, r *http.Request) {
 
-	fail := func(status int, err error) {
-		logging.Log(logging.Error, "[Product | HandleGettingProductById] "+err.Error())
-		w.WriteHeader(status)
-	}
+	fail := httputils.NewFailHandler(w, "Product | HandleGettingProductById")
 
-	id, err := strconv.Atoi(r.PathValue("product_id"))
+	id, err := httputils.IntPathParam(r, "product_id")
 
 	if err != nil {
 		fail(http.StatusBadRequest, err)
@@ -35,19 +32,10 @@ func (p *ProductHandler) HandleGettingProductById(w http.ResponseWriter, r *http
 
 	if ok {
 
-		jsonData, err := json.Marshal(cacheItem)
-
-		if err != nil {
-			// If there is an error, just continue there
-			goto withOutCache
+		if jsonutils.RespondWithJson(w, http.StatusOK, cacheItem) {
+			return
 		}
-
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
-		w.Write(jsonData)
 	}
-
-withOutCache:
 
 	tenant, ok := database.QueryOne[tenantstructs.Tenant](r.Context(), p.Dh, "SelectTenantById", tenantId.(int))
 
@@ -65,27 +53,15 @@ withOutCache:
 		return
 	}
 
-	jsonData, err := json.Marshal(product)
-
-	if err != nil {
-		fail(http.StatusInternalServerError, err)
-		return
+	if !jsonutils.RespondWithJson(w, http.StatusOK, product) {
+		w.WriteHeader(http.StatusInternalServerError)
 	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	w.Write(jsonData)
 }
 
 // Gets all products by the given tenant id
 func (p *ProductHandler) HandleGettingAllProductsByTenantId(w http.ResponseWriter, r *http.Request) {
 
-	fail := func(status int, err error) {
-
-		logging.Log(logging.Error, "[Product | HandleGettingAllProductsByTenantId] "+err.Error())
-
-		w.WriteHeader(status)
-	}
+	fail := httputils.NewFailHandler(w, "Product | HandleGettingAllProductByTenantId")
 
 	tenantId := r.Context().Value(middleware.TenantIdContextKey).(int)
 
@@ -93,19 +69,10 @@ func (p *ProductHandler) HandleGettingAllProductsByTenantId(w http.ResponseWrite
 
 	if ok || len(cacheItems) != 0 {
 
-		jsonData, err := json.Marshal(cacheItems)
-
-		if err != nil {
-			// If there is an error, just continue there
-			goto withOutCache
+		if jsonutils.RespondWithJson(w, http.StatusOK, cacheItems) {
+			return
 		}
-
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
-		w.Write(jsonData)
 	}
-
-withOutCache:
 
 	// We always need to get the tenant, because all items are encrypted in the database
 	tenant, ok := database.QueryOne[tenantstructs.Tenant](r.Context(), p.Dh, "SelectTenantById", tenantId)
@@ -126,16 +93,9 @@ withOutCache:
 		return
 	}
 
-	jsonData, err := json.Marshal(allProducts)
-
-	if err != nil {
-		fail(http.StatusInternalServerError, err)
-		return
+	if !jsonutils.RespondWithJson(w, http.StatusOK, allProducts) {
+		w.WriteHeader(http.StatusInternalServerError)
 	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	w.Write(jsonData)
 }
 
 // TODO: Change this, so we can get more pictures from one item

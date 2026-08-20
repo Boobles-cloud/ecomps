@@ -6,7 +6,7 @@ import (
 	"path"
 	"time"
 
-	"ecomps.boobles.cloud/backend/logging"
+	"ecomps.boobles.cloud/backend/utils/logging"
 	_ "github.com/go-sql-driver/mysql"
 )
 

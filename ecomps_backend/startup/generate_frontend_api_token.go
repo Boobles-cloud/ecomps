@@ -5,7 +5,7 @@ import (
 	"math/big"
 	"os"
 
-	"ecomps.boobles.cloud/backend/logging"
+	"ecomps.boobles.cloud/backend/utils/logging"
 )
 
 // Used on first init to generate a api token
