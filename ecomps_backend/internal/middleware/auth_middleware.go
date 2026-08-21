@@ -4,10 +4,10 @@ import (
 	"context"
 	"net/http"
 	"os"
-	"strings"
 
 	"ecomps.boobles.cloud/backend/database"
 	authstructs "ecomps.boobles.cloud/backend/internal/auth/auth_structs"
+	httputils "ecomps.boobles.cloud/backend/utils/http_utils"
 	"ecomps.boobles.cloud/backend/utils/logging"
 	"github.com/golang-jwt/jwt/v4"
 )
@@ -28,29 +28,20 @@ func AuthMiddleware(dh *database.DbHandler) Middleware {
 				return
 			}
 
-			token := r.Header.Get("Authorization")
+			cookie, err := r.Cookie(httputils.AuthTokenCookieName)
 
-			if token == "" {
-				logging.Log(logging.Information, "Request, to authorize user, from: "+r.RemoteAddr+" failed!")
-				w.WriteHeader(http.StatusUnauthorized)
+			if err != nil {
+				logging.Log(logging.Error, "[Middleware | AuthMiddleware] "+err.Error())
+				w.WriteHeader(http.StatusBadRequest)
 				return
-			}
-
-			var tokenWithoutBaerer string
-
-			// Replaces the bearer with empty string
-			if strings.Contains(token, "bearer") {
-				tokenWithoutBaerer = strings.ReplaceAll(token, "bearer ", "")
-			} else {
-				tokenWithoutBaerer = strings.ReplaceAll(token, "Bearer ", "")
 			}
 
 			reqCtx := r.Context()
 
 			// Checks if the token is valid and gets all claims
-			tokenValid, claims := tokenValid(tokenWithoutBaerer)
+			tokenValid, claims := tokenValid(cookie.Value)
 
-			if !tokenValid && !tokenInDB(tokenWithoutBaerer, dh, reqCtx) {
+			if !tokenValid || !tokenInDB(cookie.Value, dh, reqCtx) {
 				w.WriteHeader(http.StatusUnauthorized)
 				return
 			}

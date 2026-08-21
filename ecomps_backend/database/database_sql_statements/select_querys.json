@@ -61,12 +61,12 @@
   },
   {
     "QueryName": "SelectTenantActionById",
-    "QueryVal": "SELECT * FROM TenantAction WHERE ActionId = ?;",
+    "QueryVal": "SELECT * FROM TenantActions WHERE ActionId = ?;",
     "QueryType": 2
   },
   {
-    "QueryName": "SelectPermissionsByName",
-    "QueryVal": "SELECT * FROM TenantAction WHERE ActionName = ?;",
+    "QueryName": "SelectPermissionByName",
+    "QueryVal": "SELECT * FROM TenantActions WHERE ActionName = ?;",
     "QueryType": 2
   },
   {

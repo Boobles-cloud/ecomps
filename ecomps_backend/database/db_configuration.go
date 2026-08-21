@@ -57,7 +57,7 @@ func createDBConn() (*sql.DB, bool) {
 	db, err := sql.Open("mysql", os.Getenv("Database-Conn"))
 
 	if err != nil {
-		logging.Log(logging.Error, err.Error())
+		logging.Log(logging.Error, "[Database | CreateDbConnection] "+err.Error())
 		return nil, false
 	}
 

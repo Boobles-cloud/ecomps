@@ -28,6 +28,17 @@ func (t *TenantHandler) HandleTenantCreation(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
+	cookie, err := httputils.CreateAuthCookie(uint(r.Context().Value(middleware.UserIdContextKey).(int)), tenantStruct.TenantId, t.Dh)
+
+	if err != nil {
+		// TODO: Change this here, so the frontend nows that the user needs to be logged out again
+		// This will be added with the whole refactoring of the error stuff
+		jsonutils.RespondWithJson(w, http.StatusOK, tenantStruct)
+		return
+	}
+
+	http.SetCookie(w, &cookie)
+
 	if !jsonutils.RespondWithJson(w, http.StatusOK, tenantStruct) {
 		w.WriteHeader(http.StatusInternalServerError)
 	}

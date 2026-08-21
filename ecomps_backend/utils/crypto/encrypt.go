@@ -32,7 +32,7 @@ func Encrypt[T any](toEncrypt T, key string) (T, bool) {
 			decryptedMsg, ok := encryptionHelper(field.String(), key)
 
 			if !ok {
-				logging.Log(logging.Error, "[Crypto | Encrypt] Failed to decrypt: "+field.Type().Name())
+				logging.Log(logging.Error, "[Crypto | Encrypt] Failed to encrypt: "+field.Type().Name())
 				return toEncrypt, false
 			} else {
 				field.SetString(decryptedMsg)

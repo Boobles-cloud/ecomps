@@ -5,25 +5,17 @@ import (
 	"errors"
 	"io"
 	"net/http"
-	"time"
 
 	"ecomps.boobles.cloud/backend/database"
 	userstructs "ecomps.boobles.cloud/backend/internal/user/user_structs"
-	"ecomps.boobles.cloud/backend/utils/logging"
+	httputils "ecomps.boobles.cloud/backend/utils/http_utils"
 )
 
 // Handels the registration of a user.
 // Sends back an access token.
 func (ha *AuthHandler) HandleRegistration(w http.ResponseWriter, r *http.Request) {
 
-	fail := func(status int, err error) {
-
-		if err != nil {
-			logging.Log(logging.Error, "[Auth | HandleRegistration] "+err.Error())
-		}
-
-		w.WriteHeader(status)
-	}
+	fail := httputils.NewFailHandler(w, "Auth | HandleRegistration")
 
 	body, err := io.ReadAll(r.Body)
 
@@ -49,7 +41,7 @@ func (ha *AuthHandler) HandleRegistration(w http.ResponseWriter, r *http.Request
 	ok, id := tmpUserStruct.CreateUserInDB(ha.Dh)
 
 	if !ok {
-		fail(http.StatusInternalServerError, nil)
+		fail(http.StatusInternalServerError, errors.New("Failed creating user in database"))
 		return
 	}
 
@@ -57,19 +49,11 @@ func (ha *AuthHandler) HandleRegistration(w http.ResponseWriter, r *http.Request
 	tmpUserStruct.UserId = id
 
 	// Creates a token for the user
-	token, ok := createJWT(tmpUserStruct, ha.Dh)
+	cookie, err := httputils.CreateAuthCookie(tmpUserStruct.UserId, tmpUserStruct.TenantId, ha.Dh)
 
-	if !ok {
-		fail(http.StatusInternalServerError, nil)
+	if err != nil {
+		fail(http.StatusInternalServerError, err)
 		return
-	}
-
-	cookie := http.Cookie{
-		Name:     "AuthTokenBoobles",
-		Value:    token,
-		Path:     "/",
-		HttpOnly: true,
-		Expires:  time.Now().AddDate(0, 0, 3),
 	}
 
 	http.SetCookie(w, &cookie)

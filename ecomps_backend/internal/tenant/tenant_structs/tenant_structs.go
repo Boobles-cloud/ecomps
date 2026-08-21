@@ -13,8 +13,8 @@ import (
 type Tenant struct {
 	TenantId          uint      `json:"TenantId"`
 	TenantName        string    `json:"TenantName"`
-	TenantAdminUserId uint      `json:"TenantAdminUser"`
 	TenantCreation    time.Time `json:"-"`
+	TenantAdminUserId uint      `json:"TenantAdminUser"`
 	TenantPwId        uint      `json:"-"`
 }
 
@@ -56,8 +56,8 @@ func (t *Tenant) CreateTenantInDatabase(ctx context.Context, userId int, dh *dat
 	}
 	t.TenantPwId = masterKeyID
 
-	insertQuery := "INSERT INTO Tenant (TenantName, TenantAdminUserId, TenantCreation, TenantPwId) VALUES (?, ?, ?, ?)"
-	result, err := tx.ExecContext(ctx, insertQuery, t.TenantName, t.TenantAdminUserId, t.TenantCreation, t.TenantPwId)
+	insertQuery := "INSERT INTO Tenant (TenantName, TenantCreation, TenantAdminUserId, TenantPwId) VALUES (?, ?, ?, ?)"
+	result, err := tx.ExecContext(ctx, insertQuery, t.TenantName, t.TenantCreation, t.TenantAdminUserId, t.TenantPwId)
 	if err != nil {
 		logging.Log(logging.Error, "[Tenant | CreateTenantInDatabase] "+err.Error())
 		return false
