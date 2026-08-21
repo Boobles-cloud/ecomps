@@ -4,29 +4,18 @@ import (
 	"encoding/base64"
 	"errors"
 	"net/http"
-	"os"
 	"strings"
-	"time"
 
 	"ecomps.boobles.cloud/backend/database"
-	authstructs "ecomps.boobles.cloud/backend/internal/auth/auth_structs"
 	userstructs "ecomps.boobles.cloud/backend/internal/user/user_structs"
-	"ecomps.boobles.cloud/backend/utils/logging"
-	"github.com/golang-jwt/jwt/v4"
+	httputils "ecomps.boobles.cloud/backend/utils/http_utils"
 )
 
 // Creates a new JWT for the given user.
 // The pw from the user, is encrypted via the frontend.
 func (ha *AuthHandler) HandleLogin(w http.ResponseWriter, r *http.Request) {
 
-	fail := func(status int, err error) {
-
-		if err != nil {
-			logging.Log(logging.Error, "[Auth | HandleLogin] "+err.Error())
-		}
-
-		w.WriteHeader(status)
-	}
+	fail := httputils.NewFailHandler(w, "Auth | HandleLogin")
 
 	basicAuth := r.Header.Get("Authorization")
 
@@ -58,58 +47,13 @@ func (ha *AuthHandler) HandleLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	token, ok := createJWT(userFromDB, ha.Dh)
+	cookie, err := httputils.CreateAuthCookie(userFromDB.UserId, userFromDB.TenantId, ha.Dh)
 
-	if !ok {
-		fail(http.StatusInternalServerError, nil)
+	if err != nil {
+		fail(http.StatusInternalServerError, err)
 		return
-	}
-
-	cookie := http.Cookie{
-		Name:     "AuthTokenBoobles",
-		Value:    token,
-		Path:     "/",
-		HttpOnly: true,
-		Expires:  time.Now().AddDate(0, 0, 3),
 	}
 
 	http.SetCookie(w, &cookie)
 	w.WriteHeader(http.StatusOK)
-}
-
-// Creates the jwt
-func createJWT(user userstructs.UserStruct, dh *database.DbHandler) (string, bool) {
-
-	claims := authstructs.JWTClaimsStruct{
-		UserId:   user.UserId,
-		TenantId: user.TenantId,
-		RegisteredClaims: jwt.RegisteredClaims{
-			Issuer:    "Boobles_backend_server",
-			IssuedAt:  jwt.NewNumericDate(time.Now()),
-			ExpiresAt: jwt.NewNumericDate(time.Now().AddDate(0, 0, 3)),
-		},
-	}
-
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	tokenSigned, err := token.SignedString([]byte(os.Getenv("JWT-Secret")))
-
-	// Insert our token into the database
-	tokenDB := authstructs.JWTDatabaseStruct{
-		UserAccessId: 0,
-		TokenVal:     tokenSigned,
-		TokenExpire:  time.Now().AddDate(0, 0, 3),
-		UserId:       user.UserId,
-	}
-
-	// Checking if ok
-	if !tokenDB.InsertIntoDB(dh) {
-		return "", false
-	}
-
-	if err != nil {
-		logging.Log(logging.Error, "[AuthHandler | HandleLogin]"+err.Error())
-		return "", false
-	}
-
-	return tokenSigned, true
 }

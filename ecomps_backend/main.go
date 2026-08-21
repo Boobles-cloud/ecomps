@@ -40,7 +40,7 @@ func main() {
 	// If its first init -> set to false
 	if firstInit() {
 
-		file, err := os.OpenFile(os.Getenv("env_path"), os.O_APPEND, 0600)
+		file, err := os.OpenFile(os.Getenv("env_path"), os.O_APPEND|os.O_WRONLY, 0600)
 
 		if err != nil {
 			logging.Log(logging.Error, "[Main | getting env file]"+err.Error())
