@@ -30,8 +30,6 @@ func AuthMiddleware(dh *database.DbHandler) Middleware {
 
 			cookie, err := r.Cookie(httputils.AuthTokenCookieName)
 
-			logging.Log(logging.Information, cookie.Value)
-
 			if err != nil {
 				logging.Log(logging.Error, "[Middleware | AuthMiddleware] "+err.Error())
 				w.WriteHeader(http.StatusBadRequest)
@@ -43,7 +41,7 @@ func AuthMiddleware(dh *database.DbHandler) Middleware {
 			// Checks if the token is valid and gets all claims
 			tokenValid, claims := tokenValid(cookie.Value)
 
-			if !tokenValid && !tokenInDB(cookie.Value, dh, reqCtx) {
+			if !tokenValid || !tokenInDB(cookie.Value, dh, reqCtx) {
 				w.WriteHeader(http.StatusUnauthorized)
 				return
 			}

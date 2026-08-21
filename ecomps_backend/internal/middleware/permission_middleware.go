@@ -3,6 +3,7 @@ package middleware
 import (
 	"errors"
 	"net/http"
+	"strconv"
 
 	"ecomps.boobles.cloud/backend/database"
 	tenantstructs "ecomps.boobles.cloud/backend/internal/tenant/tenant_structs"
@@ -35,7 +36,7 @@ func PermissionMiddleware(dh *database.DbHandler) Middleware {
 			tenantId, okTenant := r.Context().Value(TenantIdContextKey).(int)
 
 			if !okUser || !okTenant {
-				fail(http.StatusBadRequest, errors.New("Failed getting user or tenant id from context"))
+				fail(http.StatusBadRequest, errors.New("Failed getting user or tenant id from context UserId:"+strconv.Itoa(userId)+"; TenantId:"+strconv.Itoa(tenantId)))
 				return
 			}
 
@@ -48,6 +49,7 @@ func PermissionMiddleware(dh *database.DbHandler) Middleware {
 
 			if tenant.IsUserAdmin(uint(userId)) {
 				h.ServeHTTP(w, r)
+				return
 			}
 
 			permissionName := r.Header.Get(HeaderPermissionVal)

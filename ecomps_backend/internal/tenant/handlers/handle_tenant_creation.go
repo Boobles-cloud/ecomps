@@ -28,7 +28,7 @@ func (t *TenantHandler) HandleTenantCreation(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	cookie, err := httputils.CreateAuthCookie(r.Context().Value(middleware.UserIdContextKey).(uint), tenantStruct.TenantId, t.Dh)
+	cookie, err := httputils.CreateAuthCookie(uint(r.Context().Value(middleware.UserIdContextKey).(int)), tenantStruct.TenantId, t.Dh)
 
 	if err != nil {
 		// TODO: Change this here, so the frontend nows that the user needs to be logged out again

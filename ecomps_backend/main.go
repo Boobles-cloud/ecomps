@@ -48,7 +48,7 @@ func main() {
 
 		defer file.Close()
 
-		if _, err := file.WriteString("first-init=false"); err != nil {
+		if _, err := file.WriteString("\nfirst-init=false"); err != nil {
 			logging.Log(logging.Error, "[Main] Failed to write to env file! Please add first-init yourself! "+err.Error())
 		}
 	}
