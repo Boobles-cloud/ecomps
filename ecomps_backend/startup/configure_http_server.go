@@ -134,11 +134,11 @@ func ConfigureHTTPServer(dh *database.DbHandler) http.Server {
 	muxMainRouter.Handle("GET /user/frontend/by/id/{user_id}", userFrontendMiddleware(http.HandlerFunc(userHandler.HandleGettingUserById)))
 	muxMainRouter.Handle("GET /user/frontend/by/{tenant_id}/{user_name}", userFrontendMiddleware(http.HandlerFunc(userHandler.HandleGettingUserByTenantIdAndUserName)))
 	muxMainRouter.Handle("GET /user/frontend/has-tenant/{user_id}", userFrontendMiddleware(http.HandlerFunc(userHandler.HandleHasUserATenant)))
-	muxMainRouter.Handle("GET /user/frontend/permission/{language_id}", userFrontendMiddleware(http.HandlerFunc(userHandler.HandleGettingAllPermissionsByLanguageId)))
+	muxMainRouter.Handle("GET /user/frontend/permission/all/{language_id}", userFrontendMiddleware(http.HandlerFunc(userHandler.HandleGettingAllPermissionsByLanguageId)))
 
 	// User permission stuff
 	muxMainRouter.Handle("GET /user/frontend/permission/all/by/{user_id}", userFrontendMiddleware(http.HandlerFunc(userHandler.HandleGettingUserPermissions)))
-	muxMainRouter.Handle("GET /user/frontend/permission/{permission_id}", userFrontendMiddleware(http.HandlerFunc(userHandler.HandleGettingPermissionById)))
+	muxMainRouter.Handle("GET /user/frontend/permission/by/{permission_id}", userFrontendMiddleware(http.HandlerFunc(userHandler.HandleGettingPermissionById)))
 
 	// ============ Product stuff ============
 
