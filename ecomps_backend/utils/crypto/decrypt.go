@@ -24,6 +24,10 @@ func Decrypt[T any](toDecrypt *T, key string) (*T, bool) {
 		// Get the field
 		field := valOfT.Field(i)
 
+		if field.String() == "" {
+			continue
+		}
+
 		// Check if the field is a string
 		// We only decrypt strings
 		if field.IsValid() && field.CanSet() && field.Kind() == reflect.String {
@@ -32,9 +36,8 @@ func Decrypt[T any](toDecrypt *T, key string) (*T, bool) {
 			if !ok {
 				logging.Log(logging.Error, "[Crypto | Decrypt] Failed to decrypt: "+field.Type().Name())
 				return toDecrypt, false
-			} else {
-				field.SetString(decryptedMsg)
 			}
+			field.SetString(decryptedMsg)
 		}
 	}
 

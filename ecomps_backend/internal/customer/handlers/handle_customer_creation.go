@@ -33,6 +33,8 @@ func (ch *CustomerHandler) HandleCustomerCreation(w http.ResponseWriter, r *http
 		return
 	}
 
+	copyOfCustomer := customer
+
 	id, ok := customer.CreateCustomerInDatabase(tenant.GetPw(ch.Dh, r.Context()), ch.Dh)
 
 	if !ok {
@@ -40,8 +42,8 @@ func (ch *CustomerHandler) HandleCustomerCreation(w http.ResponseWriter, r *http
 		return
 	}
 
-	customer.CustomerId = id
+	copyOfCustomer.CustomerId = id
 
-	go ch.insertItem(customer)
+	go ch.insertItem(copyOfCustomer)
 	w.WriteHeader(http.StatusOK)
 }

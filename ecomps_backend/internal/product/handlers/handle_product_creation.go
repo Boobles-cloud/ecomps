@@ -33,6 +33,9 @@ func (p *ProductHandler) HandleCreatingProduct(w http.ResponseWriter, r *http.Re
 		return
 	}
 
+	// We create a copy here so we dont set the ecrypted stuff into the cache
+	copyOfProduct := product
+
 	id, ok := product.CreateProductInDatabase(tenant.GetPw(p.Dh, r.Context()), p.Dh)
 
 	if !ok {
@@ -40,9 +43,9 @@ func (p *ProductHandler) HandleCreatingProduct(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	product.ProductId = id
+	copyOfProduct.ProductId = id
 
-	go p.insertItem(product)
+	go p.insertItem(copyOfProduct)
 	w.WriteHeader(http.StatusOK)
 }
 

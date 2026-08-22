@@ -27,18 +27,18 @@ func main() {
 
 	logging.Log(logging.Information, "Startig application")
 
-	if !startup.SetupTabels(databaseConf) {
-		fmt.Println(logging.ErrorColor, "Failed to setup table \nCheck the logs for more information!", logging.ResetColor)
-		os.Exit(1)
-	}
-
-	if !startup.GenerateFrontendApiToken() {
-		fmt.Println(logging.ErrorColor, "Failed to generate api key...", logging.ResetColor)
-		os.Exit(1)
-	}
-
-	// If its first init -> set to false
+	// If its first init -> set it to false and setup all other stuff
 	if firstInit() {
+
+		if !startup.SetupTabels(databaseConf) {
+			fmt.Println(logging.ErrorColor, "Failed to setup table \nCheck the logs for more information!", logging.ResetColor)
+			os.Exit(1)
+		}
+
+		if !startup.GenerateFrontendApiToken() {
+			fmt.Println(logging.ErrorColor, "Failed to generate api key...", logging.ResetColor)
+			os.Exit(1)
+		}
 
 		file, err := os.OpenFile(os.Getenv("env_path"), os.O_APPEND|os.O_WRONLY, 0600)
 

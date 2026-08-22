@@ -49,13 +49,6 @@ func encryptionHelper(fieldVal, key string) (string, bool) {
 
 	// Masive thanks to: https://tutorialedge.net/golang/go-encrypt-decrypt-aes-tutorial/
 
-	fieldValByte, err := base64.StdEncoding.DecodeString(fieldVal)
-
-	if err != nil {
-		logging.Log(logging.Error, "[Crypto | Encrypt] "+err.Error())
-		return "", false
-	}
-
 	// Creates our cipher block
 	c, err := aes.NewCipher([]byte(key))
 
@@ -80,7 +73,7 @@ func encryptionHelper(fieldVal, key string) (string, bool) {
 	}
 
 	// Encryptes the given byte array
-	encrypted := gcm.Seal(nonce, nonce, fieldValByte, nil)
+	encrypted := gcm.Seal(nonce, nonce, []byte(fieldVal), nil)
 
-	return string(encrypted), true
+	return base64.StdEncoding.EncodeToString(encrypted), true
 }

@@ -13,11 +13,6 @@ import (
 // Reads the included .sql file and excecute it, to setup all our tables
 func SetupTabels(dh *database.DbHandler) bool {
 
-	// Checks if there was a first init before
-	if f := os.Getenv("first-init"); f == "false" {
-		return true
-	}
-
 	data, err := os.ReadFile(os.Getenv("tables_path"))
 
 	if err != nil {

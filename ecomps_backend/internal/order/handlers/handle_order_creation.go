@@ -34,6 +34,8 @@ func (ho *OrderHandler) HandleCreatingOrder(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
+	copyOfOrder := order
+
 	// Create the order
 	id, ok := order.CreateOrderInDatabase(tenant.GetPw(ho.Dh, r.Context()), ho.Dh)
 
@@ -50,9 +52,9 @@ func (ho *OrderHandler) HandleCreatingOrder(w http.ResponseWriter, r *http.Reque
 		}
 	}
 
-	order.OrderId = id
+	copyOfOrder.OrderId = id
 
-	go ho.insertItem(order, uint(tenantId))
+	go ho.insertItem(copyOfOrder, uint(tenantId))
 
 	w.WriteHeader(http.StatusOK)
 }
