@@ -12,10 +12,6 @@ import (
 // This func sets the api token as enviroment var
 func GenerateFrontendApiToken() bool {
 
-	if f := os.Getenv("first-init"); f == "false" {
-		return true
-	}
-
 	allCharacters := []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
 
 	apiKey := make([]rune, 64)

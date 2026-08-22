@@ -3,7 +3,6 @@ package tenantstructs
 import (
 	"context"
 	"database/sql"
-	"encoding/base64"
 	"math/rand"
 	"time"
 
@@ -16,11 +15,9 @@ const (
 )
 
 // Creates the master key for the given tenant, inside the given transaction.
-func createMasterKey(ctx context.Context, tx *sql.Tx, dh *database.DbHandler, t Tenant) (uint, bool) {
-	tenantPw := t.TenantName + createRandomString(maxLengthOfKey)
-	tenantPwBase64 := base64.StdEncoding.EncodeToString([]byte(tenantPw))
-
-	result := dh.ExecuteSQLStatementTx(ctx, tx, "InsertTenantPw", []any{tenantPwBase64})
+func createMasterKey(ctx context.Context, tx *sql.Tx, dh *database.DbHandler) (uint, bool) {
+	tenantPw := createRandomString(maxLengthOfKey)
+	result := dh.ExecuteSQLStatementTx(ctx, tx, "InsertTenantPw", []any{tenantPw})
 	return result.LastId, result.Ok
 }
 

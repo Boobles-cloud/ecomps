@@ -31,7 +31,7 @@ func (o *Order) CreateOrderInDatabase(key string, dh *database.DbHandler) (uint,
 		return 0, false
 	}
 
-	result := dh.ExecuteSQLStatement("InsertOrder", []any{order.OrderId, order.OrderName, order.OrderDate, order.OrderStatus, order.OrderPostalCode, order.OrderStreetAndHouseNr, order.OrderCity, order.OrderLastChanged, order.TenantId})
+	result := dh.ExecuteSQLStatement("InsertOrder", []any{order.OrderName, order.OrderDate, order.OrderStatus, order.OrderPostalCode, order.OrderStreetAndHouseNr, order.OrderCity, order.OrderLastChanged, order.TenantId})
 
 	return result.LastId, result.Ok
 }

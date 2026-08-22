@@ -21,10 +21,5 @@ func CreateNewCacheEntry[T any](item T, tenantId uint) CacheEntry[T] {
 
 // Checks if the cache entry is expired
 func (c CacheEntry[T]) IsCacheEntryExpired() bool {
-
-	if c.ExpirationTime.After(time.Now()) {
-		return true
-	}
-
-	return false
+	return time.Now().After(c.ExpirationTime)
 }

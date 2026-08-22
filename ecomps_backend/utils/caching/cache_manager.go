@@ -11,7 +11,9 @@ type CacheManager[T any] struct {
 
 // Creates a new instance of cache manager
 func CreateNewCacheManager[T any]() *CacheManager[T] {
-	return &CacheManager[T]{}
+	return &CacheManager[T]{
+		Items: make(map[string]CacheEntry[T]),
+	}
 }
 
 // Sets or updates the wanted item
@@ -38,7 +40,6 @@ func (c *CacheManager[T]) GetItem(key string) (T, bool) {
 
 	// Checks if the entry is expired
 	if c.Items[key].IsCacheEntryExpired() {
-		c.Lock.Unlock()
 		c.RemoveItem(key)
 		return empty, false
 	}
@@ -52,7 +53,7 @@ func (c *CacheManager[T]) GetItems(tenantId uint) ([]T, bool) {
 	c.Lock.Lock()
 	defer c.Lock.Unlock()
 
-	allItems := make([]T, 100)
+	allItems := make([]T, 0, 100)
 
 	for k := range c.Items {
 		if c.Items[k].TenantId == tenantId {
@@ -78,10 +79,6 @@ func (c *CacheManager[T]) RemoveItem(key string) {
 
 // Checks if a key exists
 func (c *CacheManager[T]) keyExists(key string) bool {
-	for k := range c.Items {
-		if k == key {
-			return true
-		}
-	}
-	return false
+	_, ok := c.Items[key]
+	return ok
 }

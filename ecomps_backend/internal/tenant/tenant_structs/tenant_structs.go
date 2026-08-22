@@ -49,7 +49,7 @@ func (t *Tenant) CreateTenantInDatabase(ctx context.Context, userId int, dh *dat
 
 	t.TenantCreation = time.Now()
 
-	masterKeyID, ok := createMasterKey(ctx, tx, dh, *t)
+	masterKeyID, ok := createMasterKey(ctx, tx, dh)
 	if !ok {
 		logging.Log(logging.Error, "[Tenant | CreateTenantInDatabase] Failed to create master key!")
 		return false

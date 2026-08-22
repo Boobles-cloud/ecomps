@@ -25,8 +25,8 @@ func (p *Product) CreateProductInDatabase(key string, dh *database.DbHandler) (u
 		return 0, false
 	}
 
-	if res := dh.ExecuteSQLStatement("InserProduct", []any{product.ProductId, product.ProductName,
-		product.ProductPrice, product.ProductPrice, product.ProductDescription, product.ProductPrice, product.TenantId}); res.Ok {
+	if res := dh.ExecuteSQLStatement("InsertProduct", []any{product.ProductName,
+		product.ProductPrice, product.ProductDescription, "", product.TenantId}); res.Ok {
 		return res.LastId, true
 	}
 
