@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"errors"
 	"net/http"
 
 	"ecomps.boobles.cloud/backend/database"
@@ -18,7 +19,7 @@ func (t *TenantHandler) HandleTenantChange(w http.ResponseWriter, r *http.Reques
 	wantedUpdateType := r.URL.Query().Get("type")
 
 	if wantedUpdateType == "" {
-		fail(http.StatusBadRequest, nil)
+		fail(http.StatusBadRequest, errors.New("Failed getting update type"))
 		return
 	}
 
@@ -30,7 +31,7 @@ func (t *TenantHandler) HandleTenantChange(w http.ResponseWriter, r *http.Reques
 	}
 
 	if !database.UpdateDatabaseEntry[tenantstructs.Tenant](t.Dh, "UpdateTenant", "TenantId", tenant) {
-		fail(http.StatusInternalServerError, nil)
+		fail(http.StatusInternalServerError, errors.New("Failed updating tenant"))
 		return
 	}
 

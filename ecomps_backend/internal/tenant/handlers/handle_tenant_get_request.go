@@ -27,7 +27,7 @@ func (t *TenantHandler) HandleGetTenantByUserId(w http.ResponseWriter, r *http.R
 	tenant, ok := database.QueryOne[tenantstructs.Tenant](r.Context(), t.Dh, "SelectTenantByUserId", userIdInt)
 
 	if !ok {
-		fail(http.StatusBadRequest, nil)
+		fail(http.StatusBadRequest, errors.New("Failed getting tenant"))
 		return
 	}
 

@@ -13,7 +13,7 @@ func (ch *CustomerHandler) HandleCustomerDeletion(w http.ResponseWriter, r *http
 
 	fail := httputils.NewFailHandler(w, "Customer | HandleCustomerDeletion")
 
-	customerId, err := httputils.IntPathParam(r, "customer-id")
+	customerId, err := httputils.IntPathParam(r, "customer_id")
 
 	if err != nil {
 		fail(http.StatusBadRequest, err)

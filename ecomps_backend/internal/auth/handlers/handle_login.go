@@ -20,7 +20,7 @@ func (ha *AuthHandler) HandleLogin(w http.ResponseWriter, r *http.Request) {
 	basicAuth := r.Header.Get("Authorization")
 
 	if basicAuth == "" {
-		fail(http.StatusBadRequest, nil)
+		fail(http.StatusBadRequest, errors.New("Failed getting Authorization header"))
 		return
 	}
 

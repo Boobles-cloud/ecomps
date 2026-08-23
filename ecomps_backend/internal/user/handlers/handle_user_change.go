@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"errors"
 	"net/http"
 
 	userstructs "ecomps.boobles.cloud/backend/internal/user/user_structs"
@@ -21,7 +22,7 @@ func (u *UserHandler) HandleUserChange(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if !user.UpdateUserInDB(u.Dh) {
-		fail(http.StatusInternalServerError, nil)
+		fail(http.StatusInternalServerError, errors.New("Failed updating user in database"))
 		return
 	}
 

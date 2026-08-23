@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"errors"
 	"net/http"
 	"time"
 
@@ -27,7 +28,7 @@ func (t *TenantHandler) HandleTenantDeletion(w http.ResponseWriter, r *http.Requ
 	tenantDeleteStruct.Deleted = false
 
 	if result := t.Dh.ExecuteSQLStatement("InsertTenantDeletion", []any{tenantDeleteStruct.IssuedFrom, tenantDeleteStruct.IssuedOn, tenantDeleteStruct.WhenToComplete, tenantDeleteStruct.Deleted, tenantDeleteStruct.TenantId}); !result.Ok {
-		fail(http.StatusInternalServerError, nil)
+		fail(http.StatusInternalServerError, errors.New("Failed inserting in database"))
 		return
 	}
 

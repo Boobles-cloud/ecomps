@@ -24,6 +24,8 @@
   input,select,textarea{background:var(--panel2);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:6px 8px;font-family:inherit;font-size:13px}
   input:focus,select:focus,textarea:focus{outline:1px solid var(--accent)}
   .top-field input{width:220px}
+  .token-field{display:flex;flex-direction:column;gap:2px;min-width:220px}
+  .token-field input{width:100%;font-family:var(--mono);font-size:11.5px}
   .dot{width:8px;height:8px;border-radius:50%;background:var(--danger);display:inline-block;margin-right:6px}
   .dot.ok{background:var(--accent)}
   .layout{display:flex;flex:1;min-height:0}
@@ -81,88 +83,97 @@
 
 const { useState, useEffect } = React;
 
-// ---- real routes, taken directly from startup/configure_http_server.go + the individual handlers ----
 const PRESETS = [
   { group: "Auth", name: "Login (Basic Auth)", method: "GET", path: "/authwall/login",
-    body: null, note: "Kein JSON-Body. Nutzername/Passwort gehen als Basic-Auth-Header rein &mdash; siehe Login-Panel oben." },
-  { group: "Auth", name: "Logout", method: "GET", path: "/authwall/logout", body: null, },
+    body: null, note: "Kein JSON-Body. Nutzername/Passwort gehen als Basic-Auth-Header rein &mdash; siehe Login-Panel oben. Setzt den EcompsAuthToken-Cookie, danach musst du nichts weiter tun: AuthMiddleware liest ausschließlich den Cookie, nie einen Authorization-Header, und der Browser schickt ihn dank credentials: include automatisch mit." },
+  { group: "Auth", name: "Logout", method: "GET", path: "/authwall/logout", body: null,
+    note: "Liest den EcompsAuthToken-Cookie serverseitig &mdash; funktioniert automatisch, solange du vorher eingeloggt bist." },
   { group: "Auth", name: "Register", method: "POST", path: "/authwall/register",
-    body: { UserId: 0, UserName: "maxmuster", UserPw: "changeme", UserMail: "max@example.com", UserTel: "+49 170 0000000", UserHas2Fa: false, UserHasTenant: false, TenantId: 1 } },
+    body: { UserName: "maxmuster", UserPw: "changeme", UserMail: "max@example.com", UserTel: "+49 170 0000000", UserHas2Fa: false, UserHasTenant: false, TenantId: 0 },
+    note: "Setzt beim Erfolg ebenfalls den EcompsAuthToken-Cookie, genau wie Login." },
 
   { group: "Tenant", name: "Create tenant", method: "POST", path: "/tenant/create",
-    body: { TenantId: 0, TenantName: "Meine Firma", TenantAdminUser: 1 } },
-  { group: "Tenant", name: "Get tenant by id \u26A0", method: "GET", path: "/tenant/1", body: null },
+    body: { TenantId: 0, TenantName: "Meine Firma", TenantAdminUser: 0 } },
+  { group: "Tenant", name: "Get tenant by id", method: "GET", path: "/tenant/1", body: null,
+    note: "Fix bestätigt: liest jetzt korrekt PathValue \"tenant_id\"." },
   { group: "Tenant", name: "Get tenant by user id", method: "GET", path: "/tenant/by/1", body: null },
   { group: "Tenant", name: "Get all users of my tenant", method: "GET", path: "/tenant/all/users", body: null },
   { group: "Tenant", name: "Change tenant (admin)", method: "POST", path: "/tenant/change?type=name",
     body: { TenantId: 1, TenantName: "Neuer Name", TenantAdminUser: 1 },
-    note: "Braucht ?type=... Query-Param und Admin-Rechte (Tenant-Admin-User)." },
+    note: "Braucht weiterhin ?type=... Query-Param (im Code selbst als TODO markiert, unklar wozu) und Admin-Rechte." },
   { group: "Tenant", name: "Delete tenant (admin)", method: "POST", path: "/tenant/delete",
     body: { IssuedFrom: "admin-panel", TenantId: 1 } },
   { group: "Tenant", name: "Add user permission (admin)", method: "POST", path: "/user/permissions/add",
-    body: { PermissionId: 0, PermissionName: "product.create", PermissionDescription: "Darf Produkte anlegen", UserId: 1 } },
-  { group: "Tenant", name: "Remove user permission \u26A0", method: "POST", path: "/user/permissions/remove",
-    body: { PermissionId: 1, UserId: 1 }, note: "Backend: NOT IMPLEMENTED, gibt immer 400 zur&uuml;ck." },
+    body: { PermissionId: 0, PermissionName: "product.create", PermissionDescription: "Darf Produkte anlegen", UserId: 1 },
+    note: "Keine json-Tags im Struct mehr, funktioniert aber weiterhin case-insensitive mit PascalCase-Keys." },
+  { group: "Tenant", name: "Remove user permission (admin) \u26A0", method: "POST", path: "/user/permissions/remove",
+    body: { PermissionId: 1, UserId: 1 }, note: "Immer noch NOT IMPLEMENTED im Code, gibt immer 400 zur&uuml;ck." },
 
   { group: "User", name: "Update user", method: "POST", path: "/user/change",
     body: { UserId: 1, UserName: "maxmuster", UserPw: "changeme", UserMail: "max@example.com", UserTel: "+49 170 0000000", UserHas2Fa: false, UserHasTenant: true, TenantId: 1 } },
-  { group: "User", name: "Delete user ", method: "DELETE", path: "/user/deletion", body: {}},
+  { group: "User", name: "Delete user", method: "DELETE", path: "/user/deletion", body: null,
+    note: "Fix best&auml;tigt: Route zeigt jetzt korrekt auf HandleUserDeletion." },
 
-  { group: "User (frontend-key)", name: "Get user by authtoken", method: "GET", path: "/user/frontend/by/REPLACE_WITH_TOKEN", body: null,
-    note: "Braucht Authorization: Bearer &lt;API_Key&gt; (NICHT das User-JWT!). API_Key steht in /app/shared/.env im Container nach dem ersten Start." },
-  { group: "User (frontend-key)", name: "Get user by id", method: "GET", path: "/user/frontend/by/id", body: null },
+  { group: "User (frontend-key)", name: "Get user by authtoken", method: "GET", path: "/user/frontend/by/token/REPLACE_WITH_TOKEN", body: null,
+    note: "Braucht den Frontend API Key (Feld oben rechts), nicht das User-JWT/den Cookie! Wird als Authorization: Bearer &lt;API_Key&gt; gesendet." },
+  { group: "User (frontend-key)", name: "Get user by id", method: "GET", path: "/user/frontend/by/id/1", body: null },
   { group: "User (frontend-key)", name: "Get user by tenant+name", method: "GET", path: "/user/frontend/by/1/maxmuster", body: null },
-  { group: "User (frontend-key)", name: "Has tenant?", method: "GET", path: "/user/frontend/has-tenant", body: null },
-  { group: "User (frontend-key)", name: "All permissions", method: "GET", path: "/user/frontend/permission/all", body: null },
+  { group: "User (frontend-key)", name: "Has tenant?", method: "GET", path: "/user/frontend/has-tenant/1", body: null },
+  { group: "User (frontend-key)", name: "All permissions by language", method: "GET", path: "/user/frontend/permission/all/1", body: null },
   { group: "User (frontend-key)", name: "Permissions of user", method: "GET", path: "/user/frontend/permission/all/by/1", body: null },
-  { group: "User (frontend-key)", name: "Permission by id", method: "GET", path: "/user/frontend/permission/1", body: null },
+  { group: "User (frontend-key)", name: "Permission by id", method: "GET", path: "/user/frontend/permission/by/1", body: null },
 
   { group: "Product", name: "Get product by id", method: "GET", path: "/product/by/1", body: null },
   { group: "Product", name: "Get all products", method: "GET", path: "/product/all", body: null,
-    note: "Backend-Bug: Handler erwartet eine tenant-id im Pfad, die Route hat aber keine &rarr; antwortet immer mit 400." },
-  { group: "Product", name: "Get product picture", method: "GET", path: "/product/picture/by/1", body: null,
-    note: "Backend: noch nicht implementiert (TODO), antwortet immer mit 400." },
+    note: "Fix bestätigt: nutzt jetzt die tenant_id aus dem Context statt einer nicht existierenden Pfad-ID." },
   { group: "Product", name: "Create product", method: "POST", path: "/product/create",
-    body: { ProductId: 0, ProductName: "T-Shirt Schwarz", ProductPrice: "19.99", ProductDescription: "100% Baumwolle", TenantId: 1 },
-    note: "Braucht zus&auml;tzlich Header ActionName: &lt;permission-name&gt;.", action: "product.create" },
-  { group: "Product", name: "Create product picture \u26A0", method: "POST", path: "/product/picture/create", body: {},
-    note: "Backend: noch nicht implementiert (TODO), antwortet immer mit 400.", action: "product.create" },
+    body: { ProductName: "T-Shirt Schwarz", ProductPrice: "19.99", ProductDescription: "100% Baumwolle" },
+    note: "TenantId wird serverseitig gesetzt, ProductPicturePath gibt es im Struct nicht mehr &mdash; Bilder laufen jetzt &uuml;ber die eigenen /product/picture/*-Routen. Braucht Header ActionName.", action: "product.create" },
   { group: "Product", name: "Change product", method: "POST", path: "/product/change",
     body: { ProductId: 1, ProductName: "T-Shirt Schwarz XL", ProductPrice: "21.99", ProductDescription: "100% Baumwolle", TenantId: 1 },
-    note: "Braucht zus&auml;tzlich Header ActionName: &lt;permission-name&gt;.", action: "product.change" },
+    note: "Braucht Header ActionName.", action: "product.change" },
   { group: "Product", name: "Delete product", method: "DELETE", path: "/product/delete/by/1", body: null },
+
+  { group: "Product Picture", name: "Get picture by product+position", method: "GET", path: "/product/picture/by/1/1", body: null,
+    note: "Antwortet nicht mit JSON, sondern liefert die Bilddatei direkt (http.ServeFile)." },
+  { group: "Product Picture", name: "Create picture \u26A0", method: "POST", path: "/product/picture/create", body: null,
+    note: "Erwartet multipart/form-data (Metadaten + Datei), nicht JSON &mdash; mit diesem Tool nicht direkt testbar. Beispiel: <code>curl -F metadata='{\"PicturePosition\":1,\"ProductId\":1}' -F file=@bild.png -b \"EcompsAuthToken=DEIN_COOKIE_WERT\" -H \"ActionName: product.create\" $BASEURL/product/picture/create</code>", action: "product.create" },
+  { group: "Product Picture", name: "Delete/List picture \u26A0 nicht geroutet", method: "GET", path: "/product/picture/???", body: null,
+    note: "HandleDeletingProductPicture und HandleGettingAllImageMetadataForProductId existieren im Code, sind aber in configure_http_server.go nicht an eine Route gebunden &mdash; aktuell nicht erreichbar." },
 
   { group: "Order", name: "Get order by id", method: "GET", path: "/order/by/1", body: null },
   { group: "Order", name: "Get all orders", method: "GET", path: "/order/all", body: null },
   { group: "Order", name: "Get status by id+lang", method: "GET", path: "/order/status/by/1/1", body: null },
-  { group: "Order", name: "Get status by lang", method: "GET", path: "/order/status/1", body: null,
-    note: "Backend-Bug: derselbe Handler braucht auch status_id, den dieser Pfad nicht liefert &rarr; immer 400." },
+  { group: "Order", name: "Get status by lang \u26A0", method: "GET", path: "/order/status/1", body: null,
+    note: "Immer noch auf HandleGettingStatusById geroutet, der zus&auml;tzlich status_id braucht &rarr; immer 400. Es gibt jetzt eine passende HandleGettingAllStatusByLangId-Funktion im Code, die aber (noch) an keine Route gebunden ist." },
   { group: "Order", name: "Create order", method: "POST", path: "/order/create",
-    body: { OrderName: "Bestellung #1", OderDate: new Date().toISOString(), OrderStatus: 1, OrderPostalCode: "12345", OrderStreetAndHouseNr: "Musterstr. 1", OrderCity: "Musterstadt", TenantId: 1, Products: [{ ProductId: 1, Amount: 2 }] },
-    note: "Braucht zus&auml;tzlich Header ActionName. Beachte den Tippfehler im JSON-Feld \"OderDate\" (so im Backend, nicht \"OrderDate\").", action: "order.create" },
+    body: { OrderName: "Bestellung #1", OderDate: new Date().toISOString(), OrderStatus: 1, OrderPostalCode: "12345", OrderStreetAndHouseNr: "Musterstr. 1", OrderCity: "Musterstadt", Products: [{ ProductId: 1, Amount: 2 }] },
+    note: "TenantId wird serverseitig gesetzt. Tippfehler \"OderDate\" weiterhin im JSON-Vertrag. Braucht Header ActionName.", action: "order.create" },
   { group: "Order", name: "Change order", method: "POST", path: "/order/change",
     body: { OrderId: 1, OrderName: "Bestellung #1", OderDate: new Date().toISOString(), OrderStatus: 2, OrderPostalCode: "12345", OrderStreetAndHouseNr: "Musterstr. 1", OrderCity: "Musterstadt", TenantId: 1, Products: [{ ProductId: 1, Amount: 3 }] },
-    note: "Braucht zus&auml;tzlich Header ActionName.", action: "order.change" },
+    note: "Braucht Header ActionName.", action: "order.change" },
   { group: "Order", name: "Delete order", method: "DELETE", path: "/order/delete/by/1", body: null },
 
   { group: "Customer", name: "Get customer by id", method: "GET", path: "/customer/by/1", body: null,
-    note: "Backend-Bug: Handler liest PathValue \"customer-id\" statt \"customer_id\" &rarr; antwortet immer mit 400." },
+    note: "Fix bestätigt: liest jetzt korrekt \"customer_id\"." },
   { group: "Customer", name: "Get all customers", method: "GET", path: "/customer/all", body: null },
   { group: "Customer", name: "Create customer", method: "POST", path: "/customer/create",
-    body: { CustomerName: "Max Mustermann", CustomerPostalCode: "12345", CustomerStreetAndHouseNr: "Musterstr. 1", CustomerCity: "Musterstadt", TenantId: 1 },
-    note: "Braucht zus&auml;tzlich Header ActionName.", action: "customer.create" },
+    body: { CustomerName: "Max Mustermann", CustomerPostalCode: "12345", CustomerStreetAndHouseNr: "Musterstr. 1", CustomerCity: "Musterstadt" },
+    note: "TenantId und CustomerLastChanged werden serverseitig gesetzt. Braucht Header ActionName.", action: "customer.create" },
   { group: "Customer", name: "Change customer", method: "POST", path: "/customer/change",
     body: { CustomerId: 1, CustomerName: "Max Mustermann", CustomerPostalCode: "12345", CustomerStreetAndHouseNr: "Musterstr. 1", CustomerCity: "Musterstadt", TenantId: 1 },
-    note: "Braucht zus&auml;tzlich Header ActionName.", action: "customer.change" },
-  { group: "Customer", name: "Delete customer", method: "DELETE", path: "/customer/delete/by/1", body: null },
+    note: "Braucht Header ActionName.", action: "customer.change" },
+  { group: "Customer", name: "Delete customer \u26A0", method: "DELETE", path: "/customer/delete/by/1", body: null},
 ];
 
-const GROUP_ORDER = ["Auth", "Tenant", "User", "User (frontend-key)", "Product", "Order", "Customer"];
+const GROUP_ORDER = ["Auth", "Tenant", "User", "User (frontend-key)", "Product", "Product Picture", "Order", "Customer"];
+const FRONTEND_KEY_GROUP = "User (frontend-key)";
 
 function methodClass(m){ return "m-" + m; }
 
 function App(){
-  const [baseUrl, setBaseUrl] = useState(localStorage.getItem("bt_baseUrl") || "http://localhost:8080");
+  const [baseUrl, setBaseUrl] = useState(localStorage.getItem("et_baseUrl") || "http://localhost:8080");
+  const [frontendApiKey, setFrontendApiKey] = useState(localStorage.getItem("et_frontendApiKey") || "");
 
   const [loginUser, setLoginUser] = useState("");
   const [loginPw, setLoginPw] = useState("");
@@ -172,13 +183,13 @@ function App(){
   const [headers, setHeaders] = useState([]);
   const [body, setBody] = useState("");
   const [activeNote, setActiveNote] = useState(null);
-  const [autoAuth, setAutoAuth] = useState(true);
 
   const [loading, setLoading] = useState(false);
   const [resp, setResp] = useState(null);
   const [history, setHistory] = useState([]);
 
-  useEffect(() => { localStorage.setItem("bt_baseUrl", baseUrl); }, [baseUrl]);
+  useEffect(() => { localStorage.setItem("et_baseUrl", baseUrl); }, [baseUrl]);
+  useEffect(() => { localStorage.setItem("et_frontendApiKey", frontendApiKey); }, [frontendApiKey]);
 
   function applyPreset(p){
     setMethod(p.method);
@@ -188,6 +199,9 @@ function App(){
     const hdrs = [];
     if (p.body) hdrs.push({ key: "Content-Type", value: "application/json" });
     if (p.action) hdrs.push({ key: "ActionName", value: p.action });
+    if (p.group === FRONTEND_KEY_GROUP) {
+      hdrs.push({ key: "Authorization", value: "Bearer " + frontendApiKey });
+    }
     setHeaders(hdrs);
   }
 
@@ -197,7 +211,7 @@ function App(){
     setPath("/authwall/login");
     setBody("");
     setHeaders([{ key: "Authorization", value: "Basic " + basic }]);
-    setActiveNote("Login sendet Basic-Auth. Token wird als cookie gespeichert. Du musst nix weiter tuen");
+    setActiveNote("Login sendet Basic-Auth. Token wird als Cookie gespeichert. Danach musst du nichts weiter tun — der Browser schickt den Cookie automatisch mit.");
   }
 
   function updateHeader(i, field, val){
@@ -221,13 +235,18 @@ function App(){
     try {
       const r = await fetch(url, opts);
       const ms = Math.round(performance.now() - start);
-      const text = await r.text();
-      let pretty = text;
-      try { pretty = JSON.stringify(JSON.parse(text), null, 2); } catch(e) {}
+      const contentType = r.headers.get("content-type") || "";
+      let bodyText;
+      if (contentType.includes("application/json") || contentType.includes("text/")) {
+        const text = await r.text();
+        try { bodyText = JSON.stringify(JSON.parse(text), null, 2); } catch(e) { bodyText = text || "(leerer Body)"; }
+      } else {
+        bodyText = "(Bin\u00E4r- oder Datei-Antwort, Content-Type: " + (contentType || "unbekannt") + ")";
+      }
       const hdrs = {};
       r.headers.forEach((v,k) => hdrs[k] = v);
 
-      setResp({ status: r.status, statusText: r.statusText, headers: hdrs, bodyText: pretty || "(leerer Body)", ms });
+      setResp({ status: r.status, statusText: r.statusText, headers: hdrs, bodyText, ms });
       setHistory(h => [{ method, path, status: r.status, ms }, ...h].slice(0, 25));
     } catch (err) {
       const ms = Math.round(performance.now() - start);
@@ -265,6 +284,13 @@ function App(){
           <input style={{width:130}} type="password" value={loginPw} onChange={e => setLoginPw(e.target.value)} />
         </div>
         <button className="small-btn" onClick={doLogin}>Login-Request vorbereiten</button>
+        <div className="token-field">
+          <label style={{fontSize:10,color:"var(--muted)",textTransform:"uppercase"}}>Frontend API Key (nur "User (frontend-key)")</label>
+          <div style={{display:"flex",gap:6,alignItems:"center"}}>
+            <span className={"dot " + (frontendApiKey ? "ok" : "")}></span>
+            <input placeholder="API_Key aus dem Backend-Env" value={frontendApiKey} onChange={e => setFrontendApiKey(e.target.value)} />
+          </div>
+        </div>
       </header>
 
       <div className="layout">

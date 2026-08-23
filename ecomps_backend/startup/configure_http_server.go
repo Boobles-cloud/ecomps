@@ -157,6 +157,7 @@ func ConfigureHTTPServer(dh *database.DbHandler) http.Server {
 
 	// DELETE Requests
 	muxMainRouter.Handle("DELETE /product/delete/by/{product_id}", productMiddleware(http.HandlerFunc(productHandler.HandleDeletingProduct)))
+	muxMainRouter.Handle("DELETE /product/picture/delete/by/{picture_id}", productMiddleware(http.HandlerFunc(productPictureHandler.HandleDeletingProductPicture)))
 
 	// ============ Order stuff ============
 
@@ -164,7 +165,7 @@ func ConfigureHTTPServer(dh *database.DbHandler) http.Server {
 	muxMainRouter.Handle("GET /order/by/{order_id}", orderMiddleware(http.HandlerFunc(orderHandler.HandleGettingOrderById)))
 	muxMainRouter.Handle("GET /order/all", orderMiddleware(http.HandlerFunc(orderHandler.HandleGettingAllOrdersByTenantId)))
 	muxMainRouter.Handle("GET /order/status/by/{status_id}/{language_id}", orderMiddleware(http.HandlerFunc(orderHandler.HandleGettingStatusById)))
-	muxMainRouter.Handle("GET /order/status/{language_id}", orderMiddleware(http.HandlerFunc(orderHandler.HandleGettingStatusById)))
+	muxMainRouter.Handle("GET /order/status/{language_id}", orderMiddleware(http.HandlerFunc(orderHandler.HandleGettingAllStatusByLangId)))
 
 	// POST Requests
 	muxMainRouter.Handle("POST /order/create", orderMiddleware(http.HandlerFunc(orderHandler.HandleCreatingOrder)))

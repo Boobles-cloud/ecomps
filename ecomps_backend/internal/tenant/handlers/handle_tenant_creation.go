@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"errors"
 	"net/http"
 
 	"ecomps.boobles.cloud/backend/internal/middleware"
@@ -24,7 +25,7 @@ func (t *TenantHandler) HandleTenantCreation(w http.ResponseWriter, r *http.Requ
 
 	// Create the tenant
 	if !tenantStruct.CreateTenantInDatabase(r.Context(), r.Context().Value(middleware.UserIdContextKey).(int), t.Dh) {
-		fail(http.StatusInternalServerError, nil)
+		fail(http.StatusInternalServerError, errors.New("Failed creating tenant in database"))
 		return
 	}
 
