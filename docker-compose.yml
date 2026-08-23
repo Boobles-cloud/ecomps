@@ -45,6 +45,7 @@ services:
       JWT-Secret: "TestAsdEsAowiASdlASooPp" # NOTE: Change this if you run this in production
       Database-Conn: "ecomps_backend:YOUR-PW-HERE@tcp(ecomps-db:3306)/Ecomps?parseTime=true"
       env_path: "/app/shared/.env"
+      product_picture_path: "/app/product-pictures"
     ports:
       - "8080:8080"
     volumes:

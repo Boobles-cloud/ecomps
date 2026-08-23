@@ -35,6 +35,7 @@ func (p *ProductHandler) HandleCreatingProduct(w http.ResponseWriter, r *http.Re
 
 	// We create a copy here so we dont set the ecrypted stuff into the cache
 	copyOfProduct := product
+	product.TenantId = tenant.TenantId
 
 	id, ok := product.CreateProductInDatabase(tenant.GetPw(p.Dh, r.Context()), p.Dh)
 
@@ -47,10 +48,4 @@ func (p *ProductHandler) HandleCreatingProduct(w http.ResponseWriter, r *http.Re
 
 	go p.insertItem(copyOfProduct)
 	w.WriteHeader(http.StatusOK)
-}
-
-// TODO: we want to accept more then one picture here
-func (p *ProductHandler) HandleCreatingProductPicture(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("TODO"))
-	w.WriteHeader(http.StatusBadRequest)
 }

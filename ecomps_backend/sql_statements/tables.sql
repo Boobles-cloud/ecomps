@@ -157,9 +157,11 @@ CREATE TABLE OrderProducts(
 -- For storring all product pictures
 CREATE TABLE ProductPictures(
     PictureId int unsigned NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    PictureName varchar(250) NOT NULL,
     PicturePath varchar(250) NOT NULL,
     PicturePosition int unsigned,
-    ProductId int unsigned NOT NULL
+    ProductId int unsigned NOT NULL,
+    TenantId int unsigned NOT NULL,
 );
 
 -- All products a tenant has
@@ -238,7 +240,8 @@ ALTER TABLE OrderProducts
     ADD CONSTRAINT FK_OrderProducts_Orders FOREIGN KEY (OrderId) REFERENCES Orders(OrderId);
 
 ALTER TABLE ProductPictures
-    ADD CONSTRAINT FK_ProductPictures_Product FOREIGN KEY (ProductId) REFERENCES Product(ProductId);
+    ADD CONSTRAINT FK_ProductPictures_Product FOREIGN KEY (ProductId) REFERENCES Product(ProductId),
+    ADD CONSTRAINT FK_ProductPictures_Tenant FOREIGN KEY (TenantId) REFERENCES Tenant(TenantId);
 
 ALTER TABLE Product
     ADD CONSTRAINT FK_Product_Tenant FOREIGN KEY (TenantId) REFERENCES Tenant(TenantId);

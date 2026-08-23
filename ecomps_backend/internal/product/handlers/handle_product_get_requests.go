@@ -97,9 +97,3 @@ func (p *ProductHandler) HandleGettingAllProductsByTenantId(w http.ResponseWrite
 		w.WriteHeader(http.StatusInternalServerError)
 	}
 }
-
-// TODO: Change this, so we can get more pictures from one item
-func (p *ProductHandler) HandleGettingPictureByProductId(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("TODO"))
-	w.WriteHeader(http.StatusBadRequest)
-}

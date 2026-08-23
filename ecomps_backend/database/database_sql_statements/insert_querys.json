@@ -31,7 +31,7 @@
   },
   {
     "QueryName": "InsertProduct",
-    "QueryVal": "INSERT INTO Product() VALUES(DEFAULT, ?, ?, ?, ?, ?);",
+    "QueryVal": "INSERT INTO Product() VALUES(DEFAULT, ?, ?, ?, ?);",
     "QueryType": 0
   },
   {
@@ -47,6 +47,11 @@
   {
     "QueryName": "InsertUserDeletion",
     "QueryVal": "INSERT INTO UserDeletion() VALUES(DEFAULT, ?, ?, ?);",
+    "QueryType": 0
+  },
+  {
+    "QueryName": "InsertProductPicture",
+    "QueryVal": "INSERT INTO ProductPictures() VALUES(DEFAULT, ?, ?, ?, ?, ?);",
     "QueryType": 0
   }
 ]
