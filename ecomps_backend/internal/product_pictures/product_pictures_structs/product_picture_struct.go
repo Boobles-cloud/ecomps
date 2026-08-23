@@ -1,4 +1,4 @@
-package productstructs
+package productpicturetructs
 
 type ProductPictures struct {
 	PictureId       uint   `json:"PictureId"`

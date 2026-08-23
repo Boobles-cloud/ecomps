@@ -135,8 +135,18 @@
     "QueryType": 2
   },
   {
-    "QueryName": "SelectProductPictureByIdAndPosition",
-    "QueryVal": "SELECT * FROM ProductPictures WHERE PictureId = ? AND PicturePosition = ?;",
+    "QueryName": "SelectProductPictureByProductIdAndPosition",
+    "QueryVal": "SELECT * FROM ProductPictures WHERE ProductId = ? AND PicturePosition = ?;",
+    "QueryType": 2
+  },
+  {
+    "QueryName": "SelectProductPicturesByProductId",
+    "QueryVal": "SELECT * FROM ProductPictures WHERE ProductId = ?;",
+    "QueryType": 2
+  },
+  {
+    "QueryName": "SelectProductPictureById",
+    "QueryVal": "SELECT * FROM ProductPictures WHERE PictureId = ?;",
     "QueryType": 2
   }
 ]
