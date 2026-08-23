@@ -49,27 +49,3 @@ func (p *ProductHandler) HandleCreatingProduct(w http.ResponseWriter, r *http.Re
 	go p.insertItem(copyOfProduct)
 	w.WriteHeader(http.StatusOK)
 }
-
-// Handles the upload of a picture for a product
-func (p *ProductHandler) HandleCreatingProductPicture(w http.ResponseWriter, r *http.Request) {
-
-	fail := httputils.NewFailHandler(w, "Product | HandleCreatingProductPicture")
-
-	picture, err := httputils.GetMetadataAndFileFromFormValues[productstructs.ProductPictures](r, ProductFormMetaDataKey,
-		ProductFormFileKey, "PicturePath")
-
-	if err != nil {
-		fail(http.StatusInternalServerError, err)
-		return
-	}
-
-	tenantId := r.Context().Value(middleware.TenantIdContextKey).(int)
-
-	if result := p.Dh.ExecuteSQLStatement("", []any{picture.PictureName, picture.PicturePath, picture.PicturePosition,
-		picture.ProductId, tenantId}); !result.Ok {
-		fail(http.StatusInternalServerError, errors.New("Failed inserting item in database"))
-		return
-	}
-
-	w.WriteHeader(http.StatusOK)
-}

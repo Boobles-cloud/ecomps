@@ -12,6 +12,7 @@ import (
 	orderstructs "ecomps.boobles.cloud/backend/internal/order/order_structs"
 	producthandlers "ecomps.boobles.cloud/backend/internal/product/handlers"
 	productstructs "ecomps.boobles.cloud/backend/internal/product/product_structs"
+	productpicturehandler "ecomps.boobles.cloud/backend/internal/product_pictures/handler"
 	tenanthandlers "ecomps.boobles.cloud/backend/internal/tenant/handlers"
 	tenantstructs "ecomps.boobles.cloud/backend/internal/tenant/tenant_structs"
 	userHandlers "ecomps.boobles.cloud/backend/internal/user/handlers"
@@ -39,6 +40,8 @@ func ConfigureHTTPServer(dh *database.DbHandler) http.Server {
 	// Product cache config
 	productCache := caching.CreateNewCacheManager[productstructs.Product]()
 	productHandler := producthandlers.CreateNewProductHandler(productCache, dh)
+
+	productPictureHandler := productpicturehandler.CreateNewProductHandler(dh)
 
 	// Order cache config
 	orderCache := caching.CreateNewCacheManager[orderstructs.Order]()
@@ -145,12 +148,12 @@ func ConfigureHTTPServer(dh *database.DbHandler) http.Server {
 	// GET Requests
 	muxMainRouter.Handle("GET /product/by/{product_id}", productMiddleware(http.HandlerFunc(productHandler.HandleGettingProductById)))
 	muxMainRouter.Handle("GET /product/all", productMiddleware(http.HandlerFunc(productHandler.HandleGettingAllProductsByTenantId)))
-	muxMainRouter.Handle("GET /product/picture/by/{product_id}/{position_id}", productMiddleware(http.HandlerFunc(productHandler.HandleGettingPictureByProductIdAndPosition)))
+	muxMainRouter.Handle("GET /product/picture/by/{product_id}/{position_id}", productMiddleware(http.HandlerFunc(productPictureHandler.HandleGettingPictureByProductIdAndPosition)))
 
 	// POST Requests
 	muxMainRouter.Handle("POST /product/create", productMiddleware(http.HandlerFunc(productHandler.HandleCreatingProduct)))
-	muxMainRouter.Handle("POST /product/picture/create", productMiddleware(http.HandlerFunc(productHandler.HandleCreatingProductPicture)))
 	muxMainRouter.Handle("POST /product/change", productMiddleware(http.HandlerFunc(productHandler.HandleChangingProduct)))
+	muxMainRouter.Handle("POST /product/picture/create", productMiddleware(http.HandlerFunc(productPictureHandler.HandleCreatingProductPicture)))
 
 	// DELETE Requests
 	muxMainRouter.Handle("DELETE /product/delete/by/{product_id}", productMiddleware(http.HandlerFunc(productHandler.HandleDeletingProduct)))
