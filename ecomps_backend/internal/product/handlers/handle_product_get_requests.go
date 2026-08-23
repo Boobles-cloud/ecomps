@@ -8,6 +8,7 @@ import (
 	"ecomps.boobles.cloud/backend/database"
 	"ecomps.boobles.cloud/backend/internal/middleware"
 	"ecomps.boobles.cloud/backend/internal/product/helper"
+	productstructs "ecomps.boobles.cloud/backend/internal/product/product_structs"
 	tenantstructs "ecomps.boobles.cloud/backend/internal/tenant/tenant_structs"
 	httputils "ecomps.boobles.cloud/backend/utils/http_utils"
 	jsonutils "ecomps.boobles.cloud/backend/utils/http_utils/json_utils"
@@ -59,7 +60,6 @@ func (p *ProductHandler) HandleGettingProductById(w http.ResponseWriter, r *http
 }
 
 // Gets all products by the given tenant id
-// TODO: Add getting the main picture (index 1) for every picture
 func (p *ProductHandler) HandleGettingAllProductsByTenantId(w http.ResponseWriter, r *http.Request) {
 
 	fail := httputils.NewFailHandler(w, "Product | HandleGettingAllProductByTenantId")
@@ -99,8 +99,32 @@ func (p *ProductHandler) HandleGettingAllProductsByTenantId(w http.ResponseWrite
 	}
 }
 
-// TODO: Change this, so we can get more pictures from one item
-func (p *ProductHandler) HandleGettingPictureByProductId(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("TODO"))
-	w.WriteHeader(http.StatusBadRequest)
+// This handels getting a image by position and picture id
+func (p *ProductHandler) HandleGettingPictureByProductIdAndPosition(w http.ResponseWriter, r *http.Request) {
+
+	fail := httputils.NewFailHandler(w, "Product | HandleGettingPictureByProductIdAndPosition")
+
+	productId, err := httputils.IntPathParam(r, "product_id")
+
+	if err != nil {
+		fail(http.StatusBadRequest, err)
+		return
+	}
+
+	positionId, err := httputils.IntPathParam(r, "position_id")
+
+	if err != nil {
+		fail(http.StatusBadRequest, err)
+		return
+	}
+
+	picture, ok := database.QueryOne[productstructs.ProductPictures](r.Context(), p.Dh, "SelectProductPictureByIdAndPosition", []any{productId, positionId})
+
+	if !ok {
+		fail(http.StatusInternalServerError, errors.New("Failed to get picture"))
+		return
+	}
+
+	w.Header().Set("Cache-Control", "public, max-age=86400")
+	http.ServeFile(w, r, picture.PicturePath)
 }

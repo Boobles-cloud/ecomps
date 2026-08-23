@@ -145,7 +145,7 @@ func ConfigureHTTPServer(dh *database.DbHandler) http.Server {
 	// GET Requests
 	muxMainRouter.Handle("GET /product/by/{product_id}", productMiddleware(http.HandlerFunc(productHandler.HandleGettingProductById)))
 	muxMainRouter.Handle("GET /product/all", productMiddleware(http.HandlerFunc(productHandler.HandleGettingAllProductsByTenantId)))
-	muxMainRouter.Handle("GET /product/picture/by/{product_id}", productMiddleware(http.HandlerFunc(productHandler.HandleGettingPictureByProductId)))
+	muxMainRouter.Handle("GET /product/picture/by/{product_id}/{position_id}", productMiddleware(http.HandlerFunc(productHandler.HandleGettingPictureByProductIdAndPosition)))
 
 	// POST Requests
 	muxMainRouter.Handle("POST /product/create", productMiddleware(http.HandlerFunc(productHandler.HandleCreatingProduct)))

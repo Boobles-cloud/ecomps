@@ -10,6 +10,8 @@ import (
 // For updating stuff in the database.
 // NOTE:
 // The names of the database tables must match the names of the struct fields!
+// TODO: Update this, so it checks if the struct has a json attribute "-" or "omitempty"
+// -> If so we dont update this item!
 func UpdateDatabaseEntry[T any](dh *DbHandler, queryName, filterValueName string, queryData T) bool {
 
 	// Gets our unfinished query from the json file

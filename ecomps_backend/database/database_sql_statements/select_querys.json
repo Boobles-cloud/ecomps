@@ -133,5 +133,10 @@
     "QueryName": "SelectAllUserDeletions",
     "QueryVal": "SELECT * FROM UserDeletion;",
     "QueryType": 2
+  },
+  {
+    "QueryName": "SelectProductPictureByIdAndPosition",
+    "QueryVal": "SELECT * FROM ProductPictures WHERE PictureId = ? AND PicturePosition = ?;",
+    "QueryType": 2
   }
 ]
