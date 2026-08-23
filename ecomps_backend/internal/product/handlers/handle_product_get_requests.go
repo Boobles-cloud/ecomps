@@ -59,6 +59,7 @@ func (p *ProductHandler) HandleGettingProductById(w http.ResponseWriter, r *http
 }
 
 // Gets all products by the given tenant id
+// TODO: Add getting the main picture (index 1) for every picture
 func (p *ProductHandler) HandleGettingAllProductsByTenantId(w http.ResponseWriter, r *http.Request) {
 
 	fail := httputils.NewFailHandler(w, "Product | HandleGettingAllProductByTenantId")

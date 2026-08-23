@@ -11,7 +11,6 @@ type Product struct {
 	ProductName        string `json:"ProductName"`
 	ProductPrice       string `json:"ProductPrice"`
 	ProductDescription string `json:"ProductDescription"`
-	ProductPicturePath string `json:"-"` // TODO: set this path as a picture is added
 	TenantId           uint   `json:"TenantId"`
 }
 
@@ -26,7 +25,7 @@ func (p *Product) CreateProductInDatabase(key string, dh *database.DbHandler) (u
 	}
 
 	if res := dh.ExecuteSQLStatement("InsertProduct", []any{product.ProductName,
-		product.ProductPrice, product.ProductDescription, "", product.TenantId}); res.Ok {
+		product.ProductPrice, product.ProductDescription, product.TenantId}); res.Ok {
 		return res.LastId, true
 	}
 

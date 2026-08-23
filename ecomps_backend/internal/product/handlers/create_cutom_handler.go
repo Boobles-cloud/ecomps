@@ -9,7 +9,9 @@ import (
 )
 
 const (
-	ProductCacheKey = "PRODUCT:"
+	ProductCacheKey        = "PRODUCT:"
+	ProductFormFileKey     = "file-data"
+	ProductFormMetaDataKey = "meta-data"
 )
 
 type ProductHandler struct {

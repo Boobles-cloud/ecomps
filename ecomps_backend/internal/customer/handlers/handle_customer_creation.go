@@ -34,6 +34,7 @@ func (ch *CustomerHandler) HandleCustomerCreation(w http.ResponseWriter, r *http
 	}
 
 	copyOfCustomer := customer
+	customer.TenantId = tenant.TenantId
 
 	id, ok := customer.CreateCustomerInDatabase(tenant.GetPw(ch.Dh, r.Context()), ch.Dh)
 

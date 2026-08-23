@@ -35,6 +35,7 @@ func (ho *OrderHandler) HandleCreatingOrder(w http.ResponseWriter, r *http.Reque
 	}
 
 	copyOfOrder := order
+	order.TenantId = tenant.TenantId
 
 	// Create the order
 	id, ok := order.CreateOrderInDatabase(tenant.GetPw(ho.Dh, r.Context()), ho.Dh)

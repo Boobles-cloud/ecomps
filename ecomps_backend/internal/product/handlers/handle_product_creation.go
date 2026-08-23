@@ -35,6 +35,7 @@ func (p *ProductHandler) HandleCreatingProduct(w http.ResponseWriter, r *http.Re
 
 	// We create a copy here so we dont set the ecrypted stuff into the cache
 	copyOfProduct := product
+	product.TenantId = tenant.TenantId
 
 	id, ok := product.CreateProductInDatabase(tenant.GetPw(p.Dh, r.Context()), p.Dh)
 
@@ -49,8 +50,26 @@ func (p *ProductHandler) HandleCreatingProduct(w http.ResponseWriter, r *http.Re
 	w.WriteHeader(http.StatusOK)
 }
 
-// TODO: we want to accept more then one picture here
+// Handles the upload of a picture for a product
 func (p *ProductHandler) HandleCreatingProductPicture(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("TODO"))
-	w.WriteHeader(http.StatusBadRequest)
+
+	fail := httputils.NewFailHandler(w, "Product | HandleCreatingProductPicture")
+
+	picture, err := httputils.GetMetadataAndFileFromFormValues[productstructs.ProductPictures](r, ProductFormMetaDataKey,
+		ProductFormFileKey, "PicturePath")
+
+	if err != nil {
+		fail(http.StatusInternalServerError, err)
+		return
+	}
+
+	tenantId := r.Context().Value(middleware.TenantIdContextKey).(int)
+
+	if result := p.Dh.ExecuteSQLStatement("", []any{picture.PictureName, picture.PicturePath, picture.PicturePosition,
+		picture.ProductId, tenantId}); !result.Ok {
+		fail(http.StatusInternalServerError, errors.New("Failed inserting item in database"))
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
 }
