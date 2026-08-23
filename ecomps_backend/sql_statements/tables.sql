@@ -161,7 +161,7 @@ CREATE TABLE ProductPictures(
     PicturePath varchar(250) NOT NULL,
     PicturePosition int unsigned,
     ProductId int unsigned NOT NULL,
-    TenantId int unsigned NOT NULL,
+    TenantId int unsigned NOT NULL
 );
 
 -- All products a tenant has
