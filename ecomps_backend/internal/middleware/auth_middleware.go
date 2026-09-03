@@ -61,7 +61,7 @@ func tokenValid(token string) (bool, authstructs.JWTClaimsStruct) {
 	claims := authstructs.JWTClaimsStruct{}
 
 	parsedToken, err := jwt.ParseWithClaims(token, &claims, func(token *jwt.Token) (interface{}, error) {
-		return []byte(os.Getenv("JWT-Secret")), nil
+		return []byte(os.Getenv("jwt_secret")), nil
 	})
 
 	if err != nil {

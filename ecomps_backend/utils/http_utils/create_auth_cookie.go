@@ -48,7 +48,7 @@ func createJWT(userId, tenantId uint, dh *database.DbHandler) (string, bool) {
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	tokenSigned, err := token.SignedString([]byte(os.Getenv("JWT-Secret")))
+	tokenSigned, err := token.SignedString([]byte(os.Getenv("jwt_secret")))
 
 	if err != nil {
 		logging.Log(logging.Error, "Httputils | CreateJwt"+err.Error())

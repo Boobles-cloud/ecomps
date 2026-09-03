@@ -41,22 +41,24 @@ services:
       ecomps-db:
         condition: service_healthy
     environment:
-      tables_path: "sql_statements/tables.sql"
-      JWT-Secret: "TestAsdEsAowiASdlASooPp" # NOTE: Change this if you run this in production
-      Database-Conn: "ecomps_backend:YOUR-PW-HERE@tcp(ecomps-db:3306)/Ecomps?parseTime=true"
+      db_conffiles: "/app/config_files/db_conf"
+      jwt_secret: "TestAsdEsAowiASdlASooPp" # NOTE: Change this if you run this in production
+      database_connection_string: "ecomps_backend:YOUR-PW-HERE@tcp(ecomps-db:3306)/Ecomps?parseTime=true"
       env_path: "/app/shared/.env"
       product_picture_path: "/app/product-pictures"
+      cors_allowed_origin: "localhost:8081"
       email_host: ""
       email_user: ""
       email_pw: ""
       email_norepy_address: ""
-      email_config_path: "" # The path where the email templates are storred
+      email_config_path: "/app/config_files/email_conf" # The path where the email templates are storred
     ports:
       - "8080:8080"
     volumes:
       - logs:/app/logs
       - shared-env:/app/shared
       - product-pictures:/app/product-pictures
+      - config:/app/config_files
     links:
       - "ecomps-db"
 
@@ -82,3 +84,4 @@ volumes:
   shared-env:
   product-pictures:
   logs:
+  config:

@@ -34,8 +34,7 @@ func CreateDbHandler() (*DbHandler, bool) {
 	// Set it
 	dbHandler.DbConnection = db
 
-	currentDir, _ := os.Getwd()
-	wantedFolder := path.Join(currentDir, "database", "database_sql_statements")
+	wantedFolder := os.Getenv("db_conffiles")
 
 	// Get all querys from the json files
 	querys, ok := readJsonFile([]string{path.Join(wantedFolder, "delete_querys.json"), path.Join(wantedFolder, "insert_querys.json"),
@@ -54,7 +53,7 @@ func CreateDbHandler() (*DbHandler, bool) {
 // Returns the connection and a bool to indicate success
 func createDBConn() (*sql.DB, bool) {
 
-	db, err := sql.Open("mysql", os.Getenv("Database-Conn"))
+	db, err := sql.Open("mysql", os.Getenv("database_connection_string"))
 
 	if err != nil {
 		logging.Log(logging.Error, "[Database | CreateDbConnection] "+err.Error())

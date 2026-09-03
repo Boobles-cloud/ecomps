@@ -22,7 +22,7 @@ const (
 // Sends a mail to the given email address
 // Wants a email type as a string
 // The Email stands in a json
-// TODO: Maybe redo this with html Templates
+// TODO: redo this with html Templates
 func SendEmail(emailType, emailAddress, userName, link string) error {
 
 	emailContent, err := getEmailByType(emailType)
