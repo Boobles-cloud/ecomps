@@ -80,7 +80,7 @@
     "QueryType": 2
   },
   {
-    "QueryName": "SelectOrdersByTenantId",
+    "QueryName": "SelectOrderByTenantId",
     "QueryVal": "SELECT * FROM Orders WHERE TenantId = ?;",
     "QueryType": 2
   },

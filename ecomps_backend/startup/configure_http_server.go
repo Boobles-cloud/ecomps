@@ -2,6 +2,7 @@ package startup
 
 import (
 	"net/http"
+	"time"
 
 	"ecomps.boobles.cloud/backend/database"
 	authHandlers "ecomps.boobles.cloud/backend/internal/auth/handlers"
@@ -21,7 +22,7 @@ import (
 )
 
 // Creates and configures the rest api
-func ConfigureHTTPServer(dh *database.DbHandler) http.Server {
+func ConfigureHTTPServer(dh *database.DbHandler) *http.Server {
 
 	// ============ Cache config stuff ============
 
@@ -187,8 +188,12 @@ func ConfigureHTTPServer(dh *database.DbHandler) http.Server {
 	// DELETE Requests
 	muxMainRouter.Handle("DELETE /customer/delete/by/{customer_id}", customerMiddleware(http.HandlerFunc(customerHandler.HandleCustomerDeletion)))
 
-	return http.Server{
-		Addr:    ":8080",
-		Handler: globalMiddlewareConfig(muxMainRouter),
+	return &http.Server{
+		Addr:              ":8080",
+		Handler:           globalMiddlewareConfig(muxMainRouter),
+		ReadHeaderTimeout: 5 * time.Second,
+		ReadTimeout:       1 * time.Second,
+		WriteTimeout:      1 * time.Second,
+		IdleTimeout:       30 * time.Second,
 	}
 }

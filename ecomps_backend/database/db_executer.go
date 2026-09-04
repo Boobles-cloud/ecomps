@@ -14,8 +14,8 @@ type Result struct {
 
 // Executes a registered SQL statement against the pooled connection.
 // NOTE: Only use this for executing DELETE or INSERT commads!!
-func (dh *DbHandler) ExecuteSQLStatement(statementName string, args []any) *Result {
-	return dh.execStatement(context.Background(), dh.DbConnection, statementName, args)
+func (dh *DbHandler) ExecuteSQLStatement(ctx context.Context, statementName string, args []any) *Result {
+	return dh.execStatement(ctx, dh.DbConnection, statementName, args)
 }
 
 // Same as ExecuteSQLStatement, but runs inside an existing transaction

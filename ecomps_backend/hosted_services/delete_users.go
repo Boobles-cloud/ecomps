@@ -29,8 +29,8 @@ func DeleteUsers(ctx context.Context, dh *database.DbHandler) {
 
 			for i := range allUserDeletion {
 				if allUserDeletion[i].IsDeletionToday() {
-					dh.ExecuteSQLStatement("DeleteUserById", []any{allUserDeletion[i].UserId})
-					dh.ExecuteSQLStatement("DeleteUserDeletionById", []any{allUserDeletion[i].DeletionId})
+					dh.ExecuteSQLStatement(ctx, "DeleteUserById", []any{allUserDeletion[i].UserId})
+					dh.ExecuteSQLStatement(ctx, "DeleteUserDeletionById", []any{allUserDeletion[i].DeletionId})
 				}
 			}
 

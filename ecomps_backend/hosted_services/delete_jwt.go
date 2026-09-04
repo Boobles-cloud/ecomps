@@ -29,7 +29,7 @@ func DeleteExpiredJWT(ctx context.Context, dh *database.DbHandler) {
 
 			for i := range allTokens {
 				if allTokens[i].IsExpired() {
-					dh.ExecuteSQLStatement("DeleteUserAccestoken", []any{allTokens[i].UserAccessId})
+					dh.ExecuteSQLStatement(ctx, "DeleteUserAccestoken", []any{allTokens[i].UserAccessId})
 				}
 			}
 
