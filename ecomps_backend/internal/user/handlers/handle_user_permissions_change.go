@@ -13,7 +13,7 @@ import (
 // Handels the adding of a new permission for the user
 // NOTE: for this to work, use the [CheckAdminMiddleware]
 // Only admins can access it
-func (u *UserHandler) HandleAddingNewUserPermission(w http.ResponseWriter, r *http.Request) {
+func (hu *UserHandler) HandleAddingNewUserPermission(w http.ResponseWriter, r *http.Request) {
 
 	fail := httputils.NewFailHandler(w, "User | HandleAddingNewUserPermission")
 
@@ -24,14 +24,14 @@ func (u *UserHandler) HandleAddingNewUserPermission(w http.ResponseWriter, r *ht
 		return
 	}
 
-	user, ok := database.QueryOne[userstructs.UserStruct](r.Context(), u.Dh, "SelectUserById", userPermission.UserId)
+	user, ok := database.QueryOne[userstructs.UserStruct](r.Context(), hu.Dh, "SelectUserById", userPermission.UserId)
 
 	if !ok {
 		fail(http.StatusInternalServerError, errors.New("Failed getting user"))
 		return
 	}
 
-	allPermissions, ok := user.GetPermissionsByUser(r.Context(), u.Dh)
+	allPermissions, ok := user.GetPermissionsByUser(r.Context(), hu.Dh)
 
 	if !ok {
 		fail(http.StatusInternalServerError, errors.New("Failed getting user permissions"))
@@ -44,7 +44,7 @@ func (u *UserHandler) HandleAddingNewUserPermission(w http.ResponseWriter, r *ht
 		}
 	}
 
-	if _, ok := userPermission.SetNewPermission(u.Dh); !ok {
+	if _, ok := userPermission.SetNewPermission(hu.Dh); !ok {
 		fail(http.StatusInternalServerError, errors.New("Failed to create user permission"))
 		return
 	}
@@ -55,7 +55,7 @@ func (u *UserHandler) HandleAddingNewUserPermission(w http.ResponseWriter, r *ht
 // Handels the removing of a user permission
 // NOTE: for this to work, use the [CheckAdminMiddleware]
 // Only admins can access it.
-func (u *UserHandler) HandleRemovingUserPermission(w http.ResponseWriter, r *http.Request) {
+func (hu *UserHandler) HandleRemovingUserPermission(w http.ResponseWriter, r *http.Request) {
 
 	fail := httputils.NewFailHandler(w, "User | HandleRemovinUserPermission")
 

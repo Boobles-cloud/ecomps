@@ -1,22 +1,24 @@
-package database
+package repositorys
 
 import (
 	"context"
 	"database/sql"
 	"errors"
+
+	"ecomps.boobles.cloud/backend/database"
 )
 
 // This gets used by our services
 // IMPORTANT: dont forgett to implement "ToArgsFunc"
 type DatabaseRepository[T any] struct {
-	db         *DbHandler
+	db         *database.DbHandler
 	entityName string
 	toArgs     ToArgsFunc[T]
 }
 
 type ToArgsFunc[T any] func(item T) []any
 
-func NewDatabaseRepository[T any](db *DbHandler, entityName string, toArgs ToArgsFunc[T]) *DatabaseRepository[T] {
+func NewDatabaseRepository[T any](db *database.DbHandler, entityName string, toArgs ToArgsFunc[T]) *DatabaseRepository[T] {
 	return &DatabaseRepository[T]{
 		db:         db,
 		entityName: entityName,
@@ -28,7 +30,7 @@ func (d *DatabaseRepository[T]) GetById(ctx context.Context, id uint) (T, error)
 
 	var item T
 
-	item, ok := QueryOne[T](ctx, d.db, "Select"+d.entityName+"ById", id)
+	item, ok := database.QueryOne[T](ctx, d.db, "Select"+d.entityName+"ById", id)
 
 	if !ok {
 		return item, sql.ErrNoRows
@@ -41,7 +43,7 @@ func (d *DatabaseRepository[T]) GetAllByTenantId(ctx context.Context, tenantId u
 
 	var items []T
 
-	items, ok := QueryMany[T](ctx, d.db, "Select"+d.entityName+"ByTenantId", tenantId)
+	items, ok := database.QueryMany[T](ctx, d.db, "Select"+d.entityName+"ByTenantId", tenantId)
 
 	if !ok {
 		return items, sql.ErrNoRows
@@ -63,7 +65,7 @@ func (d *DatabaseRepository[T]) Create(ctx context.Context, item T) error {
 
 func (d *DatabaseRepository[T]) Update(ctx context.Context, item T, filterName string) error {
 
-	if ok := UpdateDatabaseEntry[T](d.db, "Update"+d.entityName, filterName, item); !ok {
+	if ok := database.UpdateDatabaseEntry[T](d.db, "Update"+d.entityName, filterName, item); !ok {
 		return errors.New("Failed to update item")
 	}
 

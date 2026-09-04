@@ -1,21 +1,25 @@
 package handlers
 
 import (
+	"context"
 	"encoding/json"
-	"errors"
 	"io"
 	"net/http"
+	"time"
 
-	"ecomps.boobles.cloud/backend/database"
 	userstructs "ecomps.boobles.cloud/backend/internal/user/user_structs"
 	httputils "ecomps.boobles.cloud/backend/utils/http_utils"
 )
 
 // Handels the registration of a user.
 // Sends back an access token.
-func (ha *AuthHandler) HandleRegistration(w http.ResponseWriter, r *http.Request) {
+func (hu *UserHandler) HandleRegistration(w http.ResponseWriter, r *http.Request) {
 
-	fail := httputils.NewFailHandler(w, "Auth | HandleRegistration")
+	ctx, cancel := context.WithTimeout(r.Context(), 2*time.Second)
+
+	defer cancel()
+
+	fail := httputils.NewFailHandler(w, "User | HandleRegistration")
 
 	body, err := io.ReadAll(r.Body)
 
@@ -32,16 +36,10 @@ func (ha *AuthHandler) HandleRegistration(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	if _, ok := database.QueryOne[userstructs.UserStruct](r.Context(), ha.Dh, "SelectUserByEmail", tmpUserStruct.UserMail); ok {
-		fail(http.StatusConflict, errors.New("User already exists"))
-		return
-	}
+	id, err := hu.userService.CreateUser(ctx, tmpUserStruct)
 
-	// Creates the user in the database
-	ok, id := tmpUserStruct.CreateUserInDB(ha.Dh)
-
-	if !ok {
-		fail(http.StatusInternalServerError, errors.New("Failed creating user in database"))
+	if err != nil {
+		fail(http.StatusInternalServerError, err)
 		return
 	}
 
@@ -49,7 +47,7 @@ func (ha *AuthHandler) HandleRegistration(w http.ResponseWriter, r *http.Request
 	tmpUserStruct.UserId = id
 
 	// Creates a token for the user
-	cookie, err := httputils.CreateAuthCookie(tmpUserStruct.UserId, tmpUserStruct.TenantId, ha.Dh)
+	cookie, err := httputils.CreateAuthCookie(tmpUserStruct.UserId, tmpUserStruct.TenantId, hu.Dh)
 
 	if err != nil {
 		fail(http.StatusInternalServerError, err)

@@ -15,7 +15,7 @@ import (
 // ================================
 
 // Handles getting all permissions for a user
-func (u *UserHandler) HandleGettingUserPermissions(w http.ResponseWriter, r *http.Request) {
+func (hu *UserHandler) HandleGettingUserPermissions(w http.ResponseWriter, r *http.Request) {
 
 	fail := httputils.NewFailHandler(w, "Permission | HandleGettingUserPermission")
 
@@ -27,7 +27,7 @@ func (u *UserHandler) HandleGettingUserPermissions(w http.ResponseWriter, r *htt
 	}
 
 	// Gets the wanted user from the database
-	wantedUser, ok := database.QueryOne[userstructs.UserStruct](r.Context(), u.Dh, "SelectUserById", userId)
+	wantedUser, ok := database.QueryOne[userstructs.UserStruct](r.Context(), hu.Dh, "SelectUserById", userId)
 
 	// Checks for err and if its only one
 	if !ok {
@@ -36,7 +36,7 @@ func (u *UserHandler) HandleGettingUserPermissions(w http.ResponseWriter, r *htt
 	}
 
 	// Gets all permissions
-	allPermissions, ok := wantedUser.GetPermissionsByUser(r.Context(), u.Dh)
+	allPermissions, ok := wantedUser.GetPermissionsByUser(r.Context(), hu.Dh)
 
 	if !ok {
 		fail(http.StatusInternalServerError, errors.New("Failed to get user permissions"))
@@ -49,7 +49,7 @@ func (u *UserHandler) HandleGettingUserPermissions(w http.ResponseWriter, r *htt
 }
 
 // Handels getting permission by the given permission id
-func (u *UserHandler) HandleGettingPermissionById(w http.ResponseWriter, r *http.Request) {
+func (hu *UserHandler) HandleGettingPermissionById(w http.ResponseWriter, r *http.Request) {
 
 	fail := httputils.NewFailHandler(w, "Permission | HandleGettingPermissionById")
 
@@ -63,7 +63,7 @@ func (u *UserHandler) HandleGettingPermissionById(w http.ResponseWriter, r *http
 	// Not to cause confusion:
 	// We select all tenant actions here, because those are the real permissions.
 	// A User gets access to a specific action he can do
-	wantedPermission, ok := database.QueryOne[userstructs.UserPermission](r.Context(), u.Dh, "SelectTenantActionById", permissionId)
+	wantedPermission, ok := database.QueryOne[userstructs.UserPermission](r.Context(), hu.Dh, "SelectTenantActionById", permissionId)
 
 	if !ok {
 		fail(http.StatusInternalServerError, errors.New("Failed to get permission from database"))
@@ -76,7 +76,7 @@ func (u *UserHandler) HandleGettingPermissionById(w http.ResponseWriter, r *http
 }
 
 // Handels getting all permissions by a language id
-func (u *UserHandler) HandleGettingAllPermissionsByLanguageId(w http.ResponseWriter, r *http.Request) {
+func (hu *UserHandler) HandleGettingAllPermissionsByLanguageId(w http.ResponseWriter, r *http.Request) {
 
 	fail := httputils.NewFailHandler(w, "Permission | HandleGettingAllPermissionsByLanguageId")
 
@@ -90,7 +90,7 @@ func (u *UserHandler) HandleGettingAllPermissionsByLanguageId(w http.ResponseWri
 	// Not to cause confusion:
 	// We select all tenant actions here, because those are the real permissions.
 	// A User gets access to a specific action he can do
-	allPermissions, ok := database.QueryMany[userstructs.UserPermission](r.Context(), u.Dh, "SelectAllTenantActionsByLanguageId", []any{languageId})
+	allPermissions, ok := database.QueryMany[userstructs.UserPermission](r.Context(), hu.Dh, "SelectAllTenantActionsByLanguageId", []any{languageId})
 
 	if !ok {
 		fail(http.StatusInternalServerError, errors.New("Failed to get all permissions"))

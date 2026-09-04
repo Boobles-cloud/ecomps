@@ -10,7 +10,7 @@ import (
 )
 
 // Handels the user change stuff
-func (u *UserHandler) HandleUserChange(w http.ResponseWriter, r *http.Request) {
+func (hu *UserHandler) HandleUserChange(w http.ResponseWriter, r *http.Request) {
 
 	fail := httputils.NewFailHandler(w, "User | HandleUserChange")
 
@@ -21,7 +21,7 @@ func (u *UserHandler) HandleUserChange(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !user.UpdateUserInDB(u.Dh) {
+	if !user.UpdateUserInDB(hu.Dh) {
 		fail(http.StatusInternalServerError, errors.New("Failed updating user in database"))
 		return
 	}
