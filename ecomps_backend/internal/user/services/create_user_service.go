@@ -7,16 +7,15 @@ import (
 
 // Used for all our buisness logic
 type UserService struct {
-	userRepo           repository.UserRepository
-	userPermissionRepo repository.UserPermissionRepository
+	userRepo repository.UserRepository
 }
 
 // TODO: We need the tenant service here -> for user deletion!!
+// -> Also get the auth package here!
 
-func CreateNewUserService(r repository.UserRepository, rp repository.UserPermissionRepository) *UserService {
+func CreateNewUserService(r repository.UserRepository) *UserService {
 	return &UserService{
-		userRepo:           r,
-		userPermissionRepo: rp,
+		userRepo: r,
 	}
 }
 

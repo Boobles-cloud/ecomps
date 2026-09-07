@@ -20,6 +20,11 @@
     "QueryType": 2
   },
   {
+    "QueryName": "SelectPermissionsByLanguageId",
+    "QueryVal": "SELECT * FROM TenantActions WHERE LanguageId = ?;",
+    "QueryType": 2
+  },
+  {
     "QueryName": "SelectUserById",
     "QueryVal": "SELECT * FROM Users WHERE UserId = ?;",
     "QueryType": 2

@@ -59,7 +59,7 @@ func PermissionMiddleware(dh *database.DbHandler) Middleware {
 				return
 			}
 
-			permission, ok := database.QueryOne[userstructs.UserPermission](r.Context(), dh, "SelectPermissionByName", permissionName)
+			permission, ok := database.QueryOne[userstructs.Permission](r.Context(), dh, "SelectPermissionByName", permissionName)
 
 			// If the permission isn´t ok we return an unauthorized
 			if !ok || permission.PermissionName != permissionName {

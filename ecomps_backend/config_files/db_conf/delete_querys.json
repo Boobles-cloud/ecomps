@@ -68,5 +68,10 @@
     "QueryName": "DeleteUserDeletionById",
     "QueryVal": "DELETE FROM UserDeletion WHERE DeletionId = ?;",
     "QueryType": 1
+  },
+  {
+    "QueryName": "DeletePermissionFromUserByUserIdAndPermissionId",
+    "QueryVal": "DELETE FROM Permissions WHERE UserId = ? AND TenantActionId = ?;",
+    "QueryType": 1
   }
 ]

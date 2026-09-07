@@ -1,6 +1,6 @@
-package userstructs
+package permissionstructs
 
-type UserPermission struct {
+type Permission struct {
 	PermissionId          uint
 	PermissionName        string
 	PermissionDescription string

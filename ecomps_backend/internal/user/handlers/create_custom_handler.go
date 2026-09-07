@@ -7,17 +7,15 @@ import (
 )
 
 type UserHandler struct {
-	UserCache       *caching.CacheManager[userstructs.UserStruct]
-	PermissionCache *caching.CacheManager[userstructs.UserPermission]
-	userService     *services.UserService
+	UserCache   *caching.CacheManager[userstructs.UserStruct]
+	userService *services.UserService
 }
 
 // Creates a new UserHandler
 // NOTE: We dont use the cache here, but for future stuff its already there
-func CreateNewUserHander(uc *caching.CacheManager[userstructs.UserStruct], pc *caching.CacheManager[userstructs.UserPermission], us *services.UserService) *UserHandler {
+func CreateNewUserHander(uc *caching.CacheManager[userstructs.UserStruct], us *services.UserService) *UserHandler {
 	return &UserHandler{
-		UserCache:       uc,
-		PermissionCache: pc,
-		userService:     us,
+		UserCache:   uc,
+		userService: us,
 	}
 }

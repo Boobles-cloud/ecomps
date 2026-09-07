@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 
+	permssionstructs "ecomps.boobles.cloud/backend/internal/permission/permission_structs"
 	tenantstructs "ecomps.boobles.cloud/backend/internal/tenant/tenant_structs"
 	userstructs "ecomps.boobles.cloud/backend/internal/user/user_structs"
 )
@@ -22,8 +23,10 @@ type UserRepository interface {
 	CreateUserDeletionDate(ctx context.Context, userId uint) error
 }
 
-type UserPermissionRepository interface {
-	Repository[userstructs.UserPermission]
-	GetAllPermissionsByLanguageId(ctx context.Context, langId uint) ([]userstructs.UserPermission, error)
-	GetAllPermissionsForUserId(ctx context.Context, userId uint) ([]userstructs.UserPermission, error)
+type PermissionRepository interface {
+	Repository[permssionstructs.Permission]
+	AsingUserPermission(ctx context.Context, userId, permissionId uint) error
+	GetAllPermissionsByLanguageId(ctx context.Context, langId uint) ([]permssionstructs.Permission, error)
+	GetAllPermissionsForUserId(ctx context.Context, userId uint) ([]permssionstructs.Permission, error)
+	RemoveUserPermission(ctx context.Context, userId, permissionId uint) error
 }

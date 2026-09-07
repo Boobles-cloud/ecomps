@@ -1,11 +1,10 @@
 package handlers
 
 import (
-	"errors"
+	"context"
 	"net/http"
+	"time"
 
-	"ecomps.boobles.cloud/backend/database"
-	userstructs "ecomps.boobles.cloud/backend/internal/user/user_structs"
 	httputils "ecomps.boobles.cloud/backend/utils/http_utils"
 	jsonutils "ecomps.boobles.cloud/backend/utils/http_utils/json_utils"
 )
@@ -15,7 +14,11 @@ import (
 // ================================
 
 // Handles getting all permissions for a user
-func (hu *UserHandler) HandleGettingUserPermissions(w http.ResponseWriter, r *http.Request) {
+func (ph *PermissionHandler) HandleGettingUserPermissions(w http.ResponseWriter, r *http.Request) {
+
+	ctx, cancel := context.WithTimeout(r.Context(), 2*time.Second)
+
+	defer cancel()
 
 	fail := httputils.NewFailHandler(w, "Permission | HandleGettingUserPermission")
 
@@ -26,22 +29,8 @@ func (hu *UserHandler) HandleGettingUserPermissions(w http.ResponseWriter, r *ht
 		return
 	}
 
-	// Gets the wanted user from the database
-	wantedUser, ok := database.QueryOne[userstructs.UserStruct](r.Context(), hu.Dh, "SelectUserById", userId)
-
-	// Checks for err and if its only one
-	if !ok {
-		fail(http.StatusInternalServerError, errors.New("Failed to get user from database"))
-		return
-	}
-
 	// Gets all permissions
-	allPermissions, ok := wantedUser.GetPermissionsByUser(r.Context(), hu.Dh)
-
-	if !ok {
-		fail(http.StatusInternalServerError, errors.New("Failed to get user permissions"))
-		return
-	}
+	allPermissions, err := ph.permissionService.GetAllPermissionsForUserId(ctx, uint(userId))
 
 	if !jsonutils.RespondWithJson(w, http.StatusOK, allPermissions) {
 		w.WriteHeader(http.StatusInternalServerError)
@@ -49,7 +38,11 @@ func (hu *UserHandler) HandleGettingUserPermissions(w http.ResponseWriter, r *ht
 }
 
 // Handels getting permission by the given permission id
-func (hu *UserHandler) HandleGettingPermissionById(w http.ResponseWriter, r *http.Request) {
+func (ph *PermissionHandler) HandleGettingPermissionById(w http.ResponseWriter, r *http.Request) {
+
+	ctx, cancel := context.WithTimeout(r.Context(), 2*time.Second)
+
+	defer cancel()
 
 	fail := httputils.NewFailHandler(w, "Permission | HandleGettingPermissionById")
 
@@ -63,10 +56,10 @@ func (hu *UserHandler) HandleGettingPermissionById(w http.ResponseWriter, r *htt
 	// Not to cause confusion:
 	// We select all tenant actions here, because those are the real permissions.
 	// A User gets access to a specific action he can do
-	wantedPermission, ok := database.QueryOne[userstructs.UserPermission](r.Context(), hu.Dh, "SelectTenantActionById", permissionId)
+	wantedPermission, err := ph.permissionService.GetPermissionById(ctx, uint(permissionId))
 
-	if !ok {
-		fail(http.StatusInternalServerError, errors.New("Failed to get permission from database"))
+	if err != nil {
+		fail(http.StatusInternalServerError, err)
 		return
 	}
 
@@ -76,7 +69,11 @@ func (hu *UserHandler) HandleGettingPermissionById(w http.ResponseWriter, r *htt
 }
 
 // Handels getting all permissions by a language id
-func (hu *UserHandler) HandleGettingAllPermissionsByLanguageId(w http.ResponseWriter, r *http.Request) {
+func (ph *PermissionHandler) HandleGettingAllPermissionsByLanguageId(w http.ResponseWriter, r *http.Request) {
+
+	ctx, cancel := context.WithTimeout(r.Context(), 2*time.Second)
+
+	defer cancel()
 
 	fail := httputils.NewFailHandler(w, "Permission | HandleGettingAllPermissionsByLanguageId")
 
@@ -90,10 +87,10 @@ func (hu *UserHandler) HandleGettingAllPermissionsByLanguageId(w http.ResponseWr
 	// Not to cause confusion:
 	// We select all tenant actions here, because those are the real permissions.
 	// A User gets access to a specific action he can do
-	allPermissions, ok := database.QueryMany[userstructs.UserPermission](r.Context(), hu.Dh, "SelectAllTenantActionsByLanguageId", []any{languageId})
+	allPermissions, err := ph.permissionService.GetAllPermissionsByLanguageId(ctx, uint(languageId))
 
-	if !ok {
-		fail(http.StatusInternalServerError, errors.New("Failed to get all permissions"))
+	if err != nil {
+		fail(http.StatusInternalServerError, err)
 		return
 	}
 
