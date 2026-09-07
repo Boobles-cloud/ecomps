@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 
+	tenantstructs "ecomps.boobles.cloud/backend/internal/tenant/tenant_structs"
 	userstructs "ecomps.boobles.cloud/backend/internal/user/user_structs"
 )
 
@@ -26,6 +27,15 @@ func (s *UserService) GetAllByTenantId(ctx context.Context, tenantId uint) ([]us
 	}
 
 	return s.userRepo.GetAllByTenantId(ctx, tenantId)
+}
+
+func (s *UserService) GetTenant(ctx context.Context, tenantId uint) (tenantstructs.Tenant, error) {
+
+	if tenantId == 0 {
+		return tenantstructs.Tenant{}, errors.New("Tenant Id cant be 0")
+	}
+
+	return s.userRepo.GetTenant(ctx, tenantId)
 }
 
 func (s *UserService) CreateUser(ctx context.Context, user userstructs.UserStruct) (uint, error) {
@@ -51,12 +61,36 @@ func (s *UserService) CreateUser(ctx context.Context, user userstructs.UserStruc
 	return s.userRepo.Create(ctx, user)
 }
 
+// Updates a user
 func (s *UserService) UpdateUser(ctx context.Context, user userstructs.UserStruct, filterName string) error {
-	// TODO
-	return errors.ErrUnsupported
+	return s.userRepo.Update(ctx, user, "UserId")
 }
 
-func (s *UserService) DeleteUser(ctx context.Context, id uint) error {
-	// TODO
-	return errors.ErrUnsupported
+// Deletes a user
+func (s *UserService) DeleteUser(ctx context.Context, userId, tenantId uint) error {
+
+	if userId == 0 {
+		return errors.New("UserId cannot be 0")
+	}
+
+	tenant, err := s.GetTenant(ctx, tenantId)
+
+	if err != nil {
+		return err
+	}
+
+	// TODO: insert Tenant service
+	// isThere := s.tenantService.CheckTenantDeletion()
+
+	// If the user isnt a admin user we can just delete him
+	// If he is a admin user and the tenant is in deletion we set the date of deletion to 2 Months
+	if tenant.IsUserAdmin(userId) {
+		return s.userRepo.CreateUserDeletionDate(ctx, userId)
+	} else if !tenant.IsUserAdmin(userId) {
+		s.DeleteUser(ctx, userId, tenantId)
+	} else {
+		return errors.New("User is still admin!")
+	}
+
+	return nil
 }

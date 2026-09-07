@@ -3,7 +3,6 @@ package handlers
 import (
 	"context"
 	"net/http"
-	"strconv"
 	"time"
 
 	httputils "ecomps.boobles.cloud/backend/utils/http_utils"
@@ -23,7 +22,7 @@ func (hu *UserHandler) HandleGettingUserById(w http.ResponseWriter, r *http.Requ
 
 	fail := httputils.NewFailHandler(w, "User | HandleGettingUserById")
 
-	userId, err := strconv.Atoi(r.PathValue("user_id"))
+	userId, err := httputils.IntPathParam(r, "user_id")
 
 	if err != nil {
 		fail(http.StatusBadRequest, err)
@@ -51,7 +50,7 @@ func (hu *UserHandler) HandleHasUserATenant(w http.ResponseWriter, r *http.Reque
 
 	fail := httputils.NewFailHandler(w, "User | HandleHasUserATenant")
 
-	userId, err := strconv.Atoi(r.PathValue("user_id"))
+	userId, err := httputils.IntPathParam(r, "user_id")
 
 	if err != nil {
 		fail(http.StatusBadRequest, err)

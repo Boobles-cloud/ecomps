@@ -1,8 +1,9 @@
 package handlers
 
 import (
-	"errors"
+	"context"
 	"net/http"
+	"time"
 
 	userstructs "ecomps.boobles.cloud/backend/internal/user/user_structs"
 	httputils "ecomps.boobles.cloud/backend/utils/http_utils"
@@ -11,6 +12,10 @@ import (
 
 // Handels the user change stuff
 func (hu *UserHandler) HandleUserChange(w http.ResponseWriter, r *http.Request) {
+
+	ctx, cancel := context.WithTimeout(r.Context(), 2*time.Second)
+
+	defer cancel()
 
 	fail := httputils.NewFailHandler(w, "User | HandleUserChange")
 
@@ -21,9 +26,8 @@ func (hu *UserHandler) HandleUserChange(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	if !user.UpdateUserInDB(hu.Dh) {
-		fail(http.StatusInternalServerError, errors.New("Failed updating user in database"))
-		return
+	if err := hu.userService.UpdateUser(ctx, user, "UserId"); err != nil {
+		fail(http.StatusInternalServerError, err)
 	}
 
 	w.WriteHeader(http.StatusOK)

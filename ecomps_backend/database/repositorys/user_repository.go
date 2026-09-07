@@ -3,6 +3,9 @@ package repositorys
 import (
 	"context"
 	"database/sql"
+	"errors"
+	"strconv"
+	"time"
 
 	"ecomps.boobles.cloud/backend/database"
 	userstructs "ecomps.boobles.cloud/backend/internal/user/user_structs"
@@ -29,4 +32,16 @@ func (r *UserRepository) GetUserByEmail(ctx context.Context, email string) (user
 	}
 
 	return user, nil
+}
+
+// Creates a user deletion date in the database
+// Our background worker will then get those and delete them
+func (r *UserRepository) CreateUserDeletionDate(ctx context.Context, userId uint) error {
+
+	result := r.db.ExecuteSQLStatement(ctx, "InsertUserDeletion", []any{time.Now(), time.Now().AddDate(0, 1, 0), userId})
+
+	if !result.Ok {
+		return errors.New("Failed to insert user deletion for userId:" + strconv.Itoa(int(userId)))
+	}
+	return nil
 }
