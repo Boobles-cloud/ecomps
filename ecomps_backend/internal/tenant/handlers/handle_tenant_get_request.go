@@ -13,6 +13,7 @@ import (
 )
 
 // Handels the request for getting a tenant by the user Id
+// TODO: move this to user repository
 func (t *TenantHandler) HandleGetTenantByUserId(w http.ResponseWriter, r *http.Request) {
 
 	fail := httputils.NewFailHandler(w, "Tenant | HandleGetTenantByUserId")
@@ -62,6 +63,7 @@ func (t *TenantHandler) HandleGetTenantByTenantId(w http.ResponseWriter, r *http
 
 // Handels getting all users for a tenant
 // The tenant id is providet by our auth middleware
+// TODO: move this to user repository
 func (t *TenantHandler) HandleGettingAllUsersByUserTenantId(w http.ResponseWriter, r *http.Request) {
 
 	fail := httputils.NewFailHandler(w, "Tenant | HandleGettingAllUsersByUserTenantId")
