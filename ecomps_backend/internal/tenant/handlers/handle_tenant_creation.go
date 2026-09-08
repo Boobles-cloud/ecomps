@@ -1,8 +1,9 @@
 package handlers
 
 import (
-	"errors"
+	"context"
 	"net/http"
+	"time"
 
 	"ecomps.boobles.cloud/backend/internal/middleware"
 	tenantstructs "ecomps.boobles.cloud/backend/internal/tenant/tenant_structs"
@@ -12,6 +13,10 @@ import (
 
 // Handles the tenant creation
 func (t *TenantHandler) HandleTenantCreation(w http.ResponseWriter, r *http.Request) {
+
+	ctx, cancel := context.WithTimeout(r.Context(), 2*time.Second)
+
+	defer cancel()
 
 	fail := httputils.NewFailHandler(w, "Tenant | HandleTenantCreation")
 
@@ -23,13 +28,14 @@ func (t *TenantHandler) HandleTenantCreation(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	// Create the tenant
-	if !tenantStruct.CreateTenantInDatabase(r.Context(), r.Context().Value(middleware.UserIdContextKey).(int), t.Dh) {
-		fail(http.StatusInternalServerError, errors.New("Failed creating tenant in database"))
+	userId := ctx.Value(middleware.UserIdContextKey).(int)
+
+	if err := t.tenantService.CreateTenant(ctx, tenantStruct, uint(userId)); err != nil {
+		fail(http.StatusInternalServerError, err)
 		return
 	}
 
-	cookie, err := httputils.CreateAuthCookie(uint(r.Context().Value(middleware.UserIdContextKey).(int)), tenantStruct.TenantId, t.Dh)
+	cookie, err := httputils.CreateAuthCookie(userId, tenantStruct.TenantId)
 
 	if err != nil {
 		// TODO: Change this here, so the frontend nows that the user needs to be logged out again

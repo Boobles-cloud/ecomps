@@ -8,10 +8,10 @@ import (
 // TODO: Create own TenantRepository!!!
 
 type TenantService struct {
-	tenantRepo repository.Repository[tenantstructs.Tenant]
+	tenantRepo repository.TenantRepository
 }
 
-func CreateNewTenantService(r repository.Repository[tenantstructs.Tenant]) *TenantService {
+func CreateNewTenantService(r repository.TenantRepository) *TenantService {
 	return &TenantService{
 		tenantRepo: r,
 	}

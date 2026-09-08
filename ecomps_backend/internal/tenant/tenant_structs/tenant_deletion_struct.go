@@ -4,7 +4,7 @@ import "time"
 
 type TenantDeletionStruct struct {
 	TenantDeletionId uint      `json:"-"`
-	IssuedFrom       string    `json:"IssuedFrom"`
+	IssuedFrom       uint      `json:"IssuedFrom"`
 	IssuedOn         time.Time `json:"-"`
 	WhenToComplete   time.Time `json:"-"`
 	Deleted          bool      `json:"-"`

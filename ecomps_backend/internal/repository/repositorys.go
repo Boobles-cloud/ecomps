@@ -17,6 +17,14 @@ type Repository[T any] interface {
 	Delete(ctx context.Context, id uint, tenantId uint) error
 }
 
+type TenantRepository interface {
+	GetById(ctx context.Context, id uint) (tenantstructs.Tenant, error)
+	GetPw(ctx context.Context, tenantId uint) (string, error)
+	Create(ctx context.Context, tenant tenantstructs.Tenant, userId uint) error
+	Update(ctx context.Context, tenant tenantstructs.Tenant) error
+	Delete(ctx context.Context, userId, tenantId uint) error
+}
+
 type UserRepository interface {
 	Repository[userstructs.UserStruct]
 	GetUserByEmail(ctx context.Context, email string) (userstructs.UserStruct, error)

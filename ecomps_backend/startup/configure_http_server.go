@@ -122,7 +122,7 @@ func ConfigureHTTPServer(dh *database.DbHandler) *http.Server {
 	muxMainRouter.Handle("POST /tenant/change", tenantPermissionMiddleware(http.HandlerFunc(tenantHandler.HandleTenantChange)))
 	muxMainRouter.Handle("POST /tenant/delete", tenantPermissionMiddleware(http.HandlerFunc(tenantHandler.HandleTenantDeletion)))
 	muxMainRouter.Handle("POST /user/permissions/add", tenantPermissionMiddleware(http.HandlerFunc(userHandler.HandleAddingNewUserPermission)))
-	muxMainRouter.Handle("GET /user/permissions/remove/{permission_id}/for/{user_id}", tenantPermissionMiddleware(http.HandlerFunc(userHandler.HandleRemovingUserPermission)))
+	muxMainRouter.Handle("DELETE /user/permissions/remove/{permission_id}/for/{user_id}", tenantPermissionMiddleware(http.HandlerFunc(userHandler.HandleRemovingUserPermission)))
 
 	// ============ User stuff ============
 
