@@ -1,19 +1,22 @@
 package handlers
 
 import (
-	"errors"
+	"context"
 	"net/http"
+	"time"
 
-	"ecomps.boobles.cloud/backend/database"
 	customerstructs "ecomps.boobles.cloud/backend/internal/customer/customer_structs"
 	"ecomps.boobles.cloud/backend/internal/middleware"
-	tenantstructs "ecomps.boobles.cloud/backend/internal/tenant/tenant_structs"
 	httputils "ecomps.boobles.cloud/backend/utils/http_utils"
 	jsonutils "ecomps.boobles.cloud/backend/utils/http_utils/json_utils"
 )
 
 // Handels creating a customer
-func (ch *CustomerHandler) HandleCustomerCreation(w http.ResponseWriter, r *http.Request) {
+func (c *CustomerHandler) HandleCustomerCreation(w http.ResponseWriter, r *http.Request) {
+
+	ctx, cancel := context.WithTimeout(r.Context(), 2*time.Second)
+
+	defer cancel()
 
 	fail := httputils.NewFailHandler(w, "Customer | HandleCustomerCreation")
 
@@ -24,27 +27,19 @@ func (ch *CustomerHandler) HandleCustomerCreation(w http.ResponseWriter, r *http
 		return
 	}
 
-	tenantId := r.Context().Value(middleware.TenantIdContextKey).(int)
+	tenantId := ctx.Value(middleware.TenantIdContextKey).(int)
 
-	tenant, ok := database.QueryOne[tenantstructs.Tenant](r.Context(), ch.Dh, "SelectTenantById", tenantId)
+	customer.TenantId = uint(tenantId)
 
-	if !ok {
-		fail(http.StatusInternalServerError, errors.New("Failed getting tenant"))
+	cId, err := c.customerService.Create(ctx, customer)
+
+	if err != nil {
+		fail(http.StatusInternalServerError, err)
 		return
 	}
 
-	copyOfCustomer := customer
-	customer.TenantId = tenant.TenantId
+	customer.CustomerId = cId
 
-	id, ok := customer.CreateCustomerInDatabase(tenant.GetPw(ch.Dh, r.Context()), ch.Dh)
-
-	if !ok {
-		fail(http.StatusInternalServerError, errors.New("Failed creating customer"))
-		return
-	}
-
-	copyOfCustomer.CustomerId = id
-
-	go ch.insertItem(copyOfCustomer)
+	go c.insertItem(customer)
 	w.WriteHeader(http.StatusOK)
 }

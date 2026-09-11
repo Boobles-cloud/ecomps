@@ -59,7 +59,7 @@ func (p *ProductHandler) HandleGettingAllProductsByTenantId(w http.ResponseWrite
 
 	fail := httputils.NewFailHandler(w, "Product | HandleGettingAllProductByTenantId")
 
-	tenantId := r.Context().Value(middleware.TenantIdContextKey).(int)
+	tenantId := ctx.Value(middleware.TenantIdContextKey).(int)
 
 	cacheItems, ok := p.productCache.GetItems(uint(tenantId))
 

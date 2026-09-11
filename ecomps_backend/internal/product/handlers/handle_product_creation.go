@@ -27,9 +27,9 @@ func (p *ProductHandler) HandleCreatingProduct(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	tenantId := r.Context().Value(middleware.TenantIdContextKey).(int)
+	tenantId := uint(ctx.Value(middleware.TenantIdContextKey).(int))
 
-	product.TenantId = uint(tenantId)
+	product.TenantId = tenantId
 
 	pId, err := p.productService.Create(ctx, product)
 

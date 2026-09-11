@@ -65,7 +65,7 @@
     "QueryType": 2
   },
   {
-    "QueryName": "SelectTenantActionById",
+    "QueryName": "SelectPermissionById",
     "QueryVal": "SELECT * FROM TenantActions WHERE ActionId = ?;",
     "QueryType": 2
   },

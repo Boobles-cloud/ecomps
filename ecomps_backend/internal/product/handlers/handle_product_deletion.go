@@ -28,7 +28,7 @@ func (p *ProductHandler) HandleDeletingProduct(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	p.productService.Delete(ctx, uint(productId), ctx.Value(middleware.TenantIdContextKey).(uint))
+	p.productService.Delete(ctx, uint(productId), uint(ctx.Value(middleware.TenantIdContextKey).(int)))
 
 	key := ProductCacheKey + strconv.Itoa(productId)
 	p.productCache.RemoveItem(key)

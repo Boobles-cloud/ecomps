@@ -6,8 +6,8 @@ import (
 	"strconv"
 
 	"ecomps.boobles.cloud/backend/database"
+	permissionstructs "ecomps.boobles.cloud/backend/internal/permission/permission_structs"
 	tenantstructs "ecomps.boobles.cloud/backend/internal/tenant/tenant_structs"
-	userstructs "ecomps.boobles.cloud/backend/internal/user/user_structs"
 	"ecomps.boobles.cloud/backend/utils/logging"
 )
 
@@ -59,7 +59,7 @@ func PermissionMiddleware(dh *database.DbHandler) Middleware {
 				return
 			}
 
-			permission, ok := database.QueryOne[userstructs.Permission](r.Context(), dh, "SelectPermissionByName", permissionName)
+			permission, ok := database.QueryOne[permissionstructs.Permission](r.Context(), dh, "SelectPermissionByName", permissionName)
 
 			// If the permission isn´t ok we return an unauthorized
 			if !ok || permission.PermissionName != permissionName {

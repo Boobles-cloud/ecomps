@@ -57,9 +57,11 @@ func (p *ProductService) GetAllByTenantId(ctx context.Context, tenantId uint) ([
 
 	for i := range encryptedProduct {
 
-		product, _ := crypto.Decrypt[productstructs.Product](&products[i], pw)
+		product, ok := crypto.Decrypt[productstructs.Product](&products[i], pw)
 
-		products = append(products, *product)
+		if ok {
+			products = append(products, *product)
+		}
 	}
 
 	return products, nil
