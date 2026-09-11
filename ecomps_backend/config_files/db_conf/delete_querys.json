@@ -15,6 +15,11 @@
     "QueryType": 1
   },
   {
+    "QueryName": "DeleteProductPictureById",
+    "QueryVal": "DELETE FROM ProductPictures WHERE PictureId = ?;",
+    "QueryType": 1
+  },
+  {
     "QueryName": "DeleteOrderById",
     "QueryVal": "DELETE FROM Orders WHERE OrderId = ?;",
     "QueryType": 1

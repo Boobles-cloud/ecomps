@@ -4,6 +4,7 @@ import (
 	"context"
 
 	permssionstructs "ecomps.boobles.cloud/backend/internal/permission/permission_structs"
+	productpicturetructs "ecomps.boobles.cloud/backend/internal/product_pictures/product_pictures_structs"
 	tenantstructs "ecomps.boobles.cloud/backend/internal/tenant/tenant_structs"
 	userstructs "ecomps.boobles.cloud/backend/internal/user/user_structs"
 )
@@ -37,4 +38,12 @@ type PermissionRepository interface {
 	GetAllPermissionsByLanguageId(ctx context.Context, langId uint) ([]permssionstructs.Permission, error)
 	GetAllPermissionsForUserId(ctx context.Context, userId uint) ([]permssionstructs.Permission, error)
 	RemoveUserPermission(ctx context.Context, userId, permissionId uint) error
+}
+
+type ProductPictureRepository interface {
+	GetByIdAndPosition(ctx context.Context, productId, position uint) (productpicturetructs.ProductPictures, error)
+	GetByProductId(ctx context.Context, id uint) ([]productpicturetructs.ProductPictures, error)
+	GetById(ctx context.Context, id uint) (productpicturetructs.ProductPictures, error)
+	Create(ctx context.Context, item productpicturetructs.ProductPictures) (uint, error)
+	Delete(ctx context.Context, id uint) error
 }
