@@ -17,6 +17,15 @@ func (t *TenantService) GetTenantById(ctx context.Context, id uint) (tenantstruc
 	return t.tenantRepo.GetById(ctx, id)
 }
 
+func (t *TenantService) GetPw(ctx context.Context, id uint) (string, error) {
+
+	if id == 0 {
+		return "", errors.New("TenantId cant be 0")
+	}
+
+	return t.tenantRepo.GetPw(ctx, id)
+}
+
 func (t *TenantService) CreateTenant(ctx context.Context, tenant tenantstructs.Tenant, userId uint) error {
 
 	if tenant.TenantName == "" {

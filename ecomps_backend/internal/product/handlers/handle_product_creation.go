@@ -1,19 +1,22 @@
 package handlers
 
 import (
-	"errors"
+	"context"
 	"net/http"
+	"time"
 
-	"ecomps.boobles.cloud/backend/database"
 	"ecomps.boobles.cloud/backend/internal/middleware"
 	productstructs "ecomps.boobles.cloud/backend/internal/product/product_structs"
-	tenantstructs "ecomps.boobles.cloud/backend/internal/tenant/tenant_structs"
 	httputils "ecomps.boobles.cloud/backend/utils/http_utils"
 	jsonutils "ecomps.boobles.cloud/backend/utils/http_utils/json_utils"
 )
 
 // Handels creating a new product
 func (p *ProductHandler) HandleCreatingProduct(w http.ResponseWriter, r *http.Request) {
+
+	ctx, cancel := context.WithTimeout(r.Context(), 2*time.Second)
+
+	defer cancel()
 
 	fail := httputils.NewFailHandler(w, "Product | HandleCreatingProduct")
 
@@ -26,26 +29,17 @@ func (p *ProductHandler) HandleCreatingProduct(w http.ResponseWriter, r *http.Re
 
 	tenantId := r.Context().Value(middleware.TenantIdContextKey).(int)
 
-	tenant, ok := database.QueryOne[tenantstructs.Tenant](r.Context(), p.Dh, "SelectTenantById", tenantId)
+	product.TenantId = uint(tenantId)
 
-	if !ok {
-		fail(http.StatusInternalServerError, errors.New("Failed getting Tenant"))
+	pId, err := p.productService.Create(ctx, product)
+
+	if err != nil {
+		fail(http.StatusInternalServerError, err)
 		return
 	}
 
-	// We create a copy here so we dont set the ecrypted stuff into the cache
-	copyOfProduct := product
-	product.TenantId = tenant.TenantId
+	product.ProductId = pId
 
-	id, ok := product.CreateProductInDatabase(tenant.GetPw(p.Dh, r.Context()), p.Dh)
-
-	if !ok {
-		fail(http.StatusInternalServerError, errors.New("Failed to create product"))
-		return
-	}
-
-	copyOfProduct.ProductId = id
-
-	go p.insertItem(copyOfProduct)
+	go p.insertItem(product)
 	w.WriteHeader(http.StatusOK)
 }

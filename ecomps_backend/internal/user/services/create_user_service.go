@@ -2,20 +2,23 @@ package services
 
 import (
 	"ecomps.boobles.cloud/backend/internal/repository"
+	"ecomps.boobles.cloud/backend/internal/tenant/services"
 	userstructs "ecomps.boobles.cloud/backend/internal/user/user_structs"
 )
 
 // Used for all our buisness logic
 type UserService struct {
-	userRepo repository.UserRepository
+	userRepo      repository.UserRepository
+	tenantService *services.TenantService
 }
 
 // TODO: We need the tenant service here -> for user deletion!!
 // -> Also get the auth package here!
 
-func CreateNewUserService(r repository.UserRepository) *UserService {
+func CreateNewUserService(r repository.UserRepository, t *services.TenantService) *UserService {
 	return &UserService{
-		userRepo: r,
+		userRepo:      r,
+		tenantService: t,
 	}
 }
 

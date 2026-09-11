@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 
-	tenantstructs "ecomps.boobles.cloud/backend/internal/tenant/tenant_structs"
 	userstructs "ecomps.boobles.cloud/backend/internal/user/user_structs"
 )
 
@@ -27,15 +26,6 @@ func (s *UserService) GetAllByTenantId(ctx context.Context, tenantId uint) ([]us
 	}
 
 	return s.userRepo.GetAllByTenantId(ctx, tenantId)
-}
-
-func (s *UserService) GetTenant(ctx context.Context, tenantId uint) (tenantstructs.Tenant, error) {
-
-	if tenantId == 0 {
-		return tenantstructs.Tenant{}, errors.New("Tenant Id cant be 0")
-	}
-
-	return s.userRepo.GetTenant(ctx, tenantId)
 }
 
 func (s *UserService) CreateUser(ctx context.Context, user userstructs.UserStruct) (uint, error) {
@@ -73,7 +63,7 @@ func (s *UserService) DeleteUser(ctx context.Context, userId, tenantId uint) err
 		return errors.New("UserId cannot be 0")
 	}
 
-	tenant, err := s.GetTenant(ctx, tenantId)
+	tenant, err := s.tenantService.GetTenantById(ctx, tenantId)
 
 	if err != nil {
 		return err

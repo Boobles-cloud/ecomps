@@ -5,17 +5,10 @@ import (
 	"errors"
 
 	permissionstructs "ecomps.boobles.cloud/backend/internal/permission/permission_structs"
-	tenantstructs "ecomps.boobles.cloud/backend/internal/tenant/tenant_structs"
 )
 
 func (p *PermissionService) GetPermissionById(ctx context.Context, id uint) (permissionstructs.Permission, error) {
 	return p.permissionRepo.GetById(ctx, id)
-}
-
-// Deprecated: This service doesnt support this
-// TODO: Maybe implement this in the future
-func (p *PermissionService) GetTenant(ctx context.Context, tenantId uint) (tenantstructs.Tenant, error) {
-	return tenantstructs.Tenant{}, errors.ErrUnsupported
 }
 
 // Deprecated: This service doesnt support this

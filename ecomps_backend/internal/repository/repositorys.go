@@ -11,7 +11,6 @@ import (
 
 type Repository[T any] interface {
 	GetById(ctx context.Context, id uint) (T, error)
-	GetTenant(ctx context.Context, tenantId uint) (tenantstructs.Tenant, error)
 	GetAllByTenantId(ctx context.Context, tenantId uint) ([]T, error)
 	Create(ctx context.Context, item T) (uint, error)
 	Update(ctx context.Context, item T, filterName string) error

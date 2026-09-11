@@ -6,7 +6,6 @@ import (
 	"errors"
 
 	"ecomps.boobles.cloud/backend/database"
-	tenantstructs "ecomps.boobles.cloud/backend/internal/tenant/tenant_structs"
 )
 
 // This gets used by our services
@@ -51,18 +50,6 @@ func (d *DatabaseRepository[T]) GetAllByTenantId(ctx context.Context, tenantId u
 	}
 
 	return items, nil
-}
-
-// Gets a tenant by id
-func (d *DatabaseRepository[T]) GetTenant(ctx context.Context, tenantId uint) (tenantstructs.Tenant, error) {
-
-	tenant, ok := database.QueryOne[tenantstructs.Tenant](ctx, d.db, "SelectTenantById", tenantId)
-
-	if !ok {
-		return tenantstructs.Tenant{}, sql.ErrNoRows
-	}
-
-	return tenant, nil
 }
 
 func (d *DatabaseRepository[T]) Create(ctx context.Context, item T) (uint, error) {
