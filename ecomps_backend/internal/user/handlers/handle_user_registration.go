@@ -47,7 +47,7 @@ func (hu *UserHandler) HandleRegistration(w http.ResponseWriter, r *http.Request
 	tmpUserStruct.UserId = id
 
 	// Creates a token for the user
-	cookie, err := httputils.CreateAuthCookie(tmpUserStruct.UserId, tmpUserStruct.TenantId, hu.Dh)
+	cookie, err := hu.authService.CreateAuthCookie(ctx, tmpUserStruct.UserId, tmpUserStruct.TenantId)
 
 	if err != nil {
 		fail(http.StatusInternalServerError, err)
