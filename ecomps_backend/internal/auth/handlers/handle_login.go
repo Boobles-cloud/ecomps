@@ -1,19 +1,23 @@
 package handlers
 
 import (
+	"context"
 	"encoding/base64"
 	"errors"
 	"net/http"
 	"strings"
+	"time"
 
-	"ecomps.boobles.cloud/backend/database"
-	userstructs "ecomps.boobles.cloud/backend/internal/user/user_structs"
 	httputils "ecomps.boobles.cloud/backend/utils/http_utils"
 )
 
 // Creates a new JWT for the given user.
 // The pw from the user, is encrypted via the frontend.
-func (ha *AuthHandler) HandleLogin(w http.ResponseWriter, r *http.Request) {
+func (a *AuthHandler) HandleLogin(w http.ResponseWriter, r *http.Request) {
+
+	ctx, cancel := context.WithTimeout(r.Context(), 2*time.Second)
+
+	defer cancel()
 
 	fail := httputils.NewFailHandler(w, "Auth | HandleLogin")
 
@@ -40,14 +44,14 @@ func (ha *AuthHandler) HandleLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userFromDB, ok := database.QueryOne[userstructs.UserStruct](r.Context(), ha.Dh, "SelectUserByUserNameAndPW", authSplitet[0], authSplitet[1])
+	user, err := a.userService.GetUserByUserNameAndPw(ctx, authSplitet[0], authSplitet[1])
 
-	if !ok {
-		w.WriteHeader(http.StatusUnauthorized)
+	if err != nil {
+		fail(http.StatusInternalServerError, err)
 		return
 	}
 
-	cookie, err := httputils.CreateAuthCookie(userFromDB.UserId, userFromDB.TenantId, ha.Dh)
+	cookie, err := a.authService.CreateAuthCookie(ctx, user.UserId, user.TenantId)
 
 	if err != nil {
 		fail(http.StatusInternalServerError, err)

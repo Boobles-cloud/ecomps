@@ -1,14 +1,19 @@
 package handlers
 
-import "ecomps.boobles.cloud/backend/database"
+import (
+	"ecomps.boobles.cloud/backend/internal/auth/services"
+	userService "ecomps.boobles.cloud/backend/internal/user/services"
+)
 
 type AuthHandler struct {
-	Dh *database.DbHandler
+	authService *services.AuthService
+	userService *userService.UserService
 }
 
 // Creates a new auth handler
-func CreateAuthHandler(dh *database.DbHandler) *AuthHandler {
+func CreateAuthHandler(a *services.AuthService, u *userService.UserService) *AuthHandler {
 	return &AuthHandler{
-		Dh: dh,
+		authService: a,
+		userService: u,
 	}
 }

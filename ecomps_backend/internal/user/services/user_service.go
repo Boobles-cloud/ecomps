@@ -17,6 +17,19 @@ func (s *UserService) GetUserById(ctx context.Context, userId uint) (userstructs
 	return s.userRepo.GetById(ctx, userId)
 }
 
+func (s *UserService) GetUserByUserNameAndPw(ctx context.Context, userName, pw string) (userstructs.UserStruct, error) {
+
+	if userName == "" {
+		return userstructs.UserStruct{}, errors.New("UserName cant be empty")
+	}
+
+	if pw == "" {
+		return userstructs.UserStruct{}, errors.New("Pw cant be empty")
+	}
+
+	return s.userRepo.GetUserByUserNameAndPw(ctx, userName, pw)
+}
+
 func (s *UserService) GetAllByTenantId(ctx context.Context, tenantId uint) ([]userstructs.UserStruct, error) {
 
 	users := make([]userstructs.UserStruct, 0, 100)

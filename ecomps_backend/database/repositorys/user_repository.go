@@ -34,6 +34,17 @@ func (r *UserRepository) GetUserByEmail(ctx context.Context, email string) (user
 	return user, nil
 }
 
+func (r *UserRepository) GetUserByUserNameAndPw(ctx context.Context, userName, pw string) (userstructs.UserStruct, error) {
+
+	user, ok := database.QueryOne[userstructs.UserStruct](ctx, r.db, "SelectUserByUserNameAndPW", []any{userName, pw})
+
+	if !ok {
+		return user, sql.ErrNoRows
+	}
+
+	return user, nil
+}
+
 // Creates a user deletion date in the database
 // Our background worker will then get those and delete them
 func (r *UserRepository) CreateUserDeletionDate(ctx context.Context, userId uint) error {

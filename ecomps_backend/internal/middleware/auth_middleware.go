@@ -7,7 +7,7 @@ import (
 
 	"ecomps.boobles.cloud/backend/database"
 	authstructs "ecomps.boobles.cloud/backend/internal/auth/auth_structs"
-	httputils "ecomps.boobles.cloud/backend/utils/http_utils"
+	"ecomps.boobles.cloud/backend/internal/auth/services"
 	"ecomps.boobles.cloud/backend/utils/logging"
 	"github.com/golang-jwt/jwt/v4"
 )
@@ -28,7 +28,7 @@ func AuthMiddleware(dh *database.DbHandler) Middleware {
 				return
 			}
 
-			cookie, err := r.Cookie(httputils.AuthTokenCookieName)
+			cookie, err := r.Cookie(services.AuthTokenCookieName)
 
 			if err != nil {
 				logging.Log(logging.Error, "[Middleware | AuthMiddleware] "+err.Error())

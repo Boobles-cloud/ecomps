@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 
+	authstructs "ecomps.boobles.cloud/backend/internal/auth/auth_structs"
 	permssionstructs "ecomps.boobles.cloud/backend/internal/permission/permission_structs"
 	productpicturetructs "ecomps.boobles.cloud/backend/internal/product_pictures/product_pictures_structs"
 	tenantstructs "ecomps.boobles.cloud/backend/internal/tenant/tenant_structs"
@@ -27,6 +28,7 @@ type TenantRepository interface {
 
 type UserRepository interface {
 	Repository[userstructs.UserStruct]
+	GetUserByUserNameAndPw(ctx context.Context, userName, pw string) (userstructs.UserStruct, error)
 	GetUserByEmail(ctx context.Context, email string) (userstructs.UserStruct, error)
 	CreateUserDeletionDate(ctx context.Context, userId uint) error
 }
@@ -45,4 +47,9 @@ type ProductPictureRepository interface {
 	GetById(ctx context.Context, id uint) (productpicturetructs.ProductPictures, error)
 	Create(ctx context.Context, item productpicturetructs.ProductPictures) (uint, error)
 	Delete(ctx context.Context, id uint) error
+}
+
+type AuthRepository interface {
+	CreateAccessTokenInDatabase(ctx context.Context, item authstructs.JWTDatabaseStruct) error
+	DeleteAccessTokenByValue(ctx context.Context, cookieVal string) error
 }
