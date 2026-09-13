@@ -67,6 +67,7 @@ type OrderProductRepository interface {
 	GetAllProductsByOrderId(ctx context.Context, orderId uint) ([]orderstructs.OrderProduct, error)
 	CreateOrderProduct(ctx context.Context, product orderstructs.OrderProduct) error
 	UpdateOrderProduct(ctx context.Context, product orderstructs.OrderProduct) error
+	DeleteOrderProductsByOrderId(ctx context.Context, orderId uint) error
 	DeleteOrderProduct(ctx context.Context, productId uint) error
 }
 

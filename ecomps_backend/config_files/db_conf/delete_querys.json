@@ -30,6 +30,11 @@
     "QueryType": 1
   },
   {
+    "QueryName": "DeleteOrderProductsById",
+    "QueryVal": "DELETE FROM OrderProduct WHERE OPId = ?;",
+    "QueryType": 1
+  },
+  {
     "QueryName": "DeleteTenantById",
     "QueryVal": "DELETE FROM Tenant WHERE TenantId = ?;",
     "QueryType": 1
