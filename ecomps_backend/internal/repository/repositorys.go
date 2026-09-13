@@ -4,6 +4,7 @@ import (
 	"context"
 
 	authstructs "ecomps.boobles.cloud/backend/internal/auth/auth_structs"
+	orderstructs "ecomps.boobles.cloud/backend/internal/order/order_structs"
 	permssionstructs "ecomps.boobles.cloud/backend/internal/permission/permission_structs"
 	productpicturetructs "ecomps.boobles.cloud/backend/internal/product_pictures/product_pictures_structs"
 	tenantstructs "ecomps.boobles.cloud/backend/internal/tenant/tenant_structs"
@@ -52,4 +53,24 @@ type ProductPictureRepository interface {
 type AuthRepository interface {
 	CreateAccessTokenInDatabase(ctx context.Context, item authstructs.JWTDatabaseStruct) error
 	DeleteAccessTokenByValue(ctx context.Context, cookieVal string) error
+}
+
+type OrderRepository interface {
+	GetOrderById(ctx context.Context, id uint) (orderstructs.Order, error)
+	GetAllOrdersByTenantId(ctx context.Context, tenantId uint) ([]orderstructs.Order, error)
+	CreateOrder(ctx context.Context, order orderstructs.Order) error
+	UpdateOrder(ctx context.Context, order orderstructs.Order) error
+	DeleteOrder(ctx context.Context, orderId uint) error
+}
+
+type OrderProductRepository interface {
+	GetAllProductsByOrderId(ctx context.Context, orderId uint) ([]orderstructs.OrderProduct, error)
+	CreateOrderProduct(ctx context.Context, product orderstructs.OrderProduct) error
+	UpdateOrderProduct(ctx context.Context, product orderstructs.OrderProduct) error
+	DeleteOrderProduct(ctx context.Context, productId uint) error
+}
+
+type OrderStatusRepostiory interface {
+	GetById(ctx context.Context, id, langId uint) (orderstructs.OrderStatus, error)
+	GetAllByLangId(ctx context.Context, langId uint) ([]orderstructs.OrderStatus, error)
 }
