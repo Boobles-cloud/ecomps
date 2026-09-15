@@ -3,8 +3,8 @@ package handlers
 import (
 	"strconv"
 
-	"ecomps.boobles.cloud/backend/database"
 	orderstructs "ecomps.boobles.cloud/backend/internal/order/order_structs"
+	"ecomps.boobles.cloud/backend/internal/order/services"
 	"ecomps.boobles.cloud/backend/utils/caching"
 )
 
@@ -13,14 +13,16 @@ const (
 )
 
 type OrderHandler struct {
-	OrderCache *caching.CacheManager[orderstructs.Order]
-	Dh         *database.DbHandler
+	orderCache    *caching.CacheManager[orderstructs.Order]
+	orderService  *services.OrderService
+	statusService *services.StatusService
 }
 
-func CreateNewOrderHandler(o *caching.CacheManager[orderstructs.Order], d *database.DbHandler) *OrderHandler {
+func CreateNewOrderHandler(oc *caching.CacheManager[orderstructs.Order], o *services.OrderService, s *services.StatusService) *OrderHandler {
 	return &OrderHandler{
-		OrderCache: o,
-		Dh:         d,
+		orderCache:    oc,
+		orderService:  o,
+		statusService: s,
 	}
 }
 
@@ -32,14 +34,14 @@ func (o *OrderHandler) insertItems(t []orderstructs.Order, tenantId uint) {
 	for i := range t {
 
 		key := OrderCacheKey + strconv.Itoa(int(t[i].OrderId))
-		o.OrderCache.SetOrUpdateItem(key, t[i], tenantId)
+		o.orderCache.SetOrUpdateItem(key, t[i], tenantId)
 	}
 }
 
 // Use this func to set all cache items
 // This func is used in a seperate go routine
 // We just fire and forgett about it, because we can live without a cache
-func (oh *OrderHandler) insertItem(order orderstructs.Order, tenantId uint) {
+func (o *OrderHandler) insertItem(order orderstructs.Order, tenantId uint) {
 	key := OrderCacheKey + strconv.Itoa(int(order.OrderId))
-	oh.OrderCache.SetOrUpdateItem(key, order, tenantId)
+	o.orderCache.SetOrUpdateItem(key, order, tenantId)
 }

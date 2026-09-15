@@ -58,7 +58,7 @@ type AuthRepository interface {
 type OrderRepository interface {
 	GetOrderById(ctx context.Context, id uint) (orderstructs.Order, error)
 	GetAllOrdersByTenantId(ctx context.Context, tenantId uint) ([]orderstructs.Order, error)
-	CreateOrder(ctx context.Context, order orderstructs.Order) error
+	CreateOrder(ctx context.Context, order orderstructs.Order) (uint, error)
 	UpdateOrder(ctx context.Context, order orderstructs.Order) error
 	DeleteOrder(ctx context.Context, orderId uint) error
 }

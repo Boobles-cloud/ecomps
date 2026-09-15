@@ -1,15 +1,20 @@
 package handlers
 
 import (
-	"errors"
+	"context"
 	"net/http"
 	"strconv"
+	"time"
 
 	httputils "ecomps.boobles.cloud/backend/utils/http_utils"
 )
 
 // Handles deleting a order
-func (ho OrderHandler) HandleOrderDeletion(w http.ResponseWriter, r *http.Request) {
+func (o OrderHandler) HandleOrderDeletion(w http.ResponseWriter, r *http.Request) {
+
+	ctx, cancel := context.WithTimeout(r.Context(), 2*time.Second)
+
+	defer cancel()
 
 	fail := httputils.NewFailHandler(w, "Order | HandleOrderDeletion")
 
@@ -20,15 +25,13 @@ func (ho OrderHandler) HandleOrderDeletion(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	if result := ho.Dh.ExecuteSQLStatement("DeleteOrderById", []any{orderId}); !result.Ok {
-		fail(http.StatusInternalServerError, errors.New("Failed to delete order"))
+	if err := o.orderService.DeleteOrder(ctx, uint(orderId)); err != nil {
+		fail(http.StatusInternalServerError, err)
 		return
 	}
 
-	ho.Dh.ExecuteSQLStatement("DeleteOrderProductsByOrderId", []any{orderId})
-
 	key := OrderCacheKey + strconv.Itoa(orderId)
-	ho.OrderCache.RemoveItem(key)
+	o.orderCache.RemoveItem(key)
 
 	w.WriteHeader(http.StatusOK)
 }

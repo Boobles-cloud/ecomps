@@ -41,13 +41,15 @@ func (o *OrderRepository) GetAllOrdersByTenantId(ctx context.Context, tenantId u
 	return orders, nil
 }
 
-func (o *OrderRepository) CreateOrder(ctx context.Context, order orderstructs.Order) error {
+func (o *OrderRepository) CreateOrder(ctx context.Context, order orderstructs.Order) (uint, error) {
 
-	if result := o.db.ExecuteSQLStatement(ctx, "InsertOrder", o.toArgs(order)); !result.Ok {
-		return errors.New("Failed to insert item")
+	result := o.db.ExecuteSQLStatement(ctx, "InsertOrder", o.toArgs(order))
+
+	if !result.Ok {
+		return 0, errors.New("Failed to insert item")
 	}
 
-	return nil
+	return result.LastId, nil
 }
 
 func (o *OrderRepository) UpdateOrder(ctx context.Context, order orderstructs.Order) error {

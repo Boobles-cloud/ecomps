@@ -10,16 +10,24 @@ import (
 type OrderService struct {
 	orderRepository    repository.OrderRepository
 	productRespository repository.OrderProductRepository
-	statusRepository   repository.OrderStatusRepostiory
 	tenantService      *services.TenantService
 }
 
-func CreateNewOrderService(o repository.OrderRepository, os repository.OrderStatusRepostiory, op repository.OrderProductRepository, t *services.TenantService) *OrderService {
+type StatusService struct {
+	statusRepository repository.OrderStatusRepostiory
+}
+
+func CreateNewOrderService(o repository.OrderRepository, op repository.OrderProductRepository, t *services.TenantService) *OrderService {
 	return &OrderService{
 		orderRepository:    o,
 		productRespository: op,
-		statusRepository:   os,
 		tenantService:      t,
+	}
+}
+
+func CreateNewStatusService(s repository.OrderStatusRepostiory) *StatusService {
+	return &StatusService{
+		statusRepository: s,
 	}
 }
 
