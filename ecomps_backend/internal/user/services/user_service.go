@@ -34,7 +34,7 @@ func (s *UserService) GetAllByTenantId(ctx context.Context, tenantId uint) ([]us
 
 	users := make([]userstructs.UserStruct, 0, 100)
 
-	if tenantId == 0 || tenantId == 1 {
+	if tenantId == 0 {
 		return users, errors.New("Tenant Id cant be 0 or 1")
 	}
 

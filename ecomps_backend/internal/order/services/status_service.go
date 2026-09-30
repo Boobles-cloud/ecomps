@@ -26,5 +26,5 @@ func (s *StatusService) GetAllByLangId(ctx context.Context, langId uint) ([]orde
 		return []orderstructs.OrderStatus{}, errors.New("LanguageId cant be 0")
 	}
 
-	return s.GetAllByLangId(ctx, langId)
+	return s.statusRepository.GetAllByLangId(ctx, langId)
 }

@@ -12,16 +12,16 @@ import (
 )
 
 func (a *AuthService) CreateAccessTokenInDatabase(ctx context.Context, item authstructs.JWTDatabaseStruct) error {
-	return a.CreateAccessTokenInDatabase(ctx, item)
+	return a.authRepository.CreateAccessTokenInDatabase(ctx, item)
 }
 
 func (a *AuthService) DeleteAccessTokenByValue(ctx context.Context, cookieVal string) error {
-	return a.DeleteAccessTokenByValue(ctx, cookieVal)
+	return a.authRepository.DeleteAccessTokenByValue(ctx, cookieVal)
 }
 
 func (a *AuthService) CreateAuthCookie(ctx context.Context, userId, tenantId uint) (http.Cookie, error) {
 
-	if userId == 0 {
+	if userId == 0 || userId == 1 {
 		return http.Cookie{}, errors.New("UserId cant be 0")
 	}
 

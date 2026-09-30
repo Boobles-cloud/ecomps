@@ -28,6 +28,7 @@ func (a *AuthRepository) CreateAccessTokenInDatabase(ctx context.Context, item a
 	if result := a.db.ExecuteSQLStatement(ctx, "InsertUserAccessToken", args); !result.Ok {
 		return errors.New("Failed to insert access token")
 	}
+
 	return nil
 }
 
