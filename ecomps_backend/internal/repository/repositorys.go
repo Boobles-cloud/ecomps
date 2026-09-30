@@ -5,7 +5,7 @@ import (
 
 	authstructs "ecomps.boobles.cloud/backend/internal/auth/auth_structs"
 	orderstructs "ecomps.boobles.cloud/backend/internal/order/order_structs"
-	permssionstructs "ecomps.boobles.cloud/backend/internal/permission/permission_structs"
+	permissionstructs "ecomps.boobles.cloud/backend/internal/permission/permission_structs"
 	productpicturetructs "ecomps.boobles.cloud/backend/internal/product_pictures/product_pictures_structs"
 	tenantstructs "ecomps.boobles.cloud/backend/internal/tenant/tenant_structs"
 	userstructs "ecomps.boobles.cloud/backend/internal/user/user_structs"
@@ -35,10 +35,10 @@ type UserRepository interface {
 }
 
 type PermissionRepository interface {
-	Repository[permssionstructs.Permission]
+	Repository[permissionstructs.Permission]
 	AsingUserPermission(ctx context.Context, userId, permissionId uint) error
-	GetAllPermissionsByLanguageId(ctx context.Context, langId uint) ([]permssionstructs.Permission, error)
-	GetAllPermissionsForUserId(ctx context.Context, userId uint) ([]permssionstructs.Permission, error)
+	GetAllPermissionsByLanguageId(ctx context.Context, langId uint) ([]permissionstructs.Permission, error)
+	GetAllPermissionsForUserId(ctx context.Context, userId uint) ([]permissionstructs.Permission, error)
 	RemoveUserPermission(ctx context.Context, userId, permissionId uint) error
 }
 

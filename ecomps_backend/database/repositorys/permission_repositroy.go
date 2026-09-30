@@ -6,15 +6,15 @@ import (
 	"errors"
 
 	"ecomps.boobles.cloud/backend/database"
-	permssionstructs "ecomps.boobles.cloud/backend/internal/permission/permission_structs"
+	permissionstructs "ecomps.boobles.cloud/backend/internal/permission/permission_structs"
 )
 
 type PermissionRepository struct {
-	*DatabaseRepository[permssionstructs.Permission]
+	*DatabaseRepository[permissionstructs.Permission]
 }
 
 // Creates a new user permission repository
-func NewPermissionRepository(db *database.DbHandler, entityName string, toArgs ToArgsFunc[permssionstructs.Permission]) *PermissionRepository {
+func NewPermissionRepository(db *database.DbHandler, entityName string, toArgs ToArgsFunc[permissionstructs.Permission]) *PermissionRepository {
 	return &PermissionRepository{
 		DatabaseRepository: NewDatabaseRepository(db, entityName, toArgs),
 	}
@@ -29,23 +29,23 @@ func (p *PermissionRepository) AsingUserPermission(ctx context.Context, userId, 
 	return nil
 }
 
-func (p *PermissionRepository) GetAllPermissionsByLanguageId(ctx context.Context, langId uint) ([]permssionstructs.Permission, error) {
+func (p *PermissionRepository) GetAllPermissionsByLanguageId(ctx context.Context, langId uint) ([]permissionstructs.Permission, error) {
 
-	results, ok := database.QueryMany[permssionstructs.Permission](ctx, p.db, "SelectPermissionsByLanguageId", []any{langId})
+	results, ok := database.QueryMany[permissionstructs.Permission](ctx, p.db, "SelectPermissionsByLanguageId", []any{langId})
 
 	if !ok {
-		return []permssionstructs.Permission{}, sql.ErrNoRows
+		return []permissionstructs.Permission{}, sql.ErrNoRows
 	}
 
 	return results, nil
 }
 
-func (p *PermissionRepository) GetAllPermissionsForUserId(ctx context.Context, userId uint) ([]permssionstructs.Permission, error) {
+func (p *PermissionRepository) GetAllPermissionsForUserId(ctx context.Context, userId uint) ([]permissionstructs.Permission, error) {
 
-	results, ok := database.QueryMany[permssionstructs.Permission](ctx, p.db, "SelectPermissionsByUserId", []any{userId})
+	results, ok := database.QueryMany[permissionstructs.Permission](ctx, p.db, "SelectPermissionsByUserId", []any{userId})
 
 	if !ok {
-		return []permssionstructs.Permission{}, sql.ErrNoRows
+		return []permissionstructs.Permission{}, sql.ErrNoRows
 	}
 
 	return results, nil

@@ -25,7 +25,7 @@ func NewUserRepository(db *database.DbHandler, entityName string, toArgs ToArgsF
 // Gets a user by the given email
 func (r *UserRepository) GetUserByEmail(ctx context.Context, email string) (userstructs.UserStruct, error) {
 
-	user, ok := database.QueryOne[userstructs.UserStruct](ctx, r.db, "Select"+r.entityName+"ByEmail", email)
+	user, ok := database.QueryOne[userstructs.UserStruct](ctx, r.db, "SelectUserByEmail", email)
 
 	if !ok {
 		return user, sql.ErrNoRows

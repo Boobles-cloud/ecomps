@@ -30,7 +30,7 @@ func (p *ProductPictureRepository) GetByIdAndPosition(ctx context.Context, produ
 	return product, nil
 }
 
-func (p *PermissionRepository) GetById(ctx context.Context, id uint) (productpicturetructs.ProductPictures, error) {
+func (p *ProductPictureRepository) GetById(ctx context.Context, id uint) (productpicturetructs.ProductPictures, error) {
 
 	product, ok := database.QueryOne[productpicturetructs.ProductPictures](ctx, p.db, "SelectProductPictureById", []any{id})
 

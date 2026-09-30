@@ -45,7 +45,7 @@ func OrderToArgs(o orderstructs.Order) []any {
 	}
 }
 
-func OrderProductsToArgs(o *orderstructs.OrderProduct) []any {
+func OrderProductsToArgs(o orderstructs.OrderProduct) []any {
 	return []any{
 		o.OPId,
 		o.ProductId,
@@ -54,7 +54,7 @@ func OrderProductsToArgs(o *orderstructs.OrderProduct) []any {
 	}
 }
 
-func OrderStatusToArgs(o *orderstructs.OrderStatus) []any {
+func OrderStatusToArgs(o orderstructs.OrderStatus) []any {
 	return []any{
 		o.StatusId,
 		o.StatusName,
