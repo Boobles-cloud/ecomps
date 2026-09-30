@@ -20,7 +20,12 @@ func NewAuthRepository(db *database.DbHandler, entityName string, toArgs ToArgsF
 
 func (a *AuthRepository) CreateAccessTokenInDatabase(ctx context.Context, item authstructs.JWTDatabaseStruct) error {
 
-	if result := a.db.ExecuteSQLStatement(ctx, "InsertUserAccessToken", a.toArgs(item)); !result.Ok {
+	args := a.toArgs(item)
+
+	// We always remove the first index because otherwise it will throw an error
+	args = args[1:]
+
+	if result := a.db.ExecuteSQLStatement(ctx, "InsertUserAccessToken", args); !result.Ok {
 		return errors.New("Failed to insert access token")
 	}
 	return nil

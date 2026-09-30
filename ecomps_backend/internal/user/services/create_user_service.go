@@ -12,9 +12,6 @@ type UserService struct {
 	tenantService *services.TenantService
 }
 
-// TODO: We need the tenant service here -> for user deletion!!
-// -> Also get the auth package here!
-
 func CreateNewUserService(r repository.UserRepository, t *services.TenantService) *UserService {
 	return &UserService{
 		userRepo:      r,

@@ -32,7 +32,12 @@ func (o *OrderProductRepository) GetAllProductsByOrderId(ctx context.Context, or
 
 func (o *OrderProductRepository) CreateOrderProduct(ctx context.Context, product orderstructs.OrderProduct) error {
 
-	if result := o.db.ExecuteSQLStatement(ctx, "InsertOrderProduct", o.toArgs(product)); !result.Ok {
+	args := o.toArgs(product)
+
+	// We always remove the first index because otherwise it will throw an error
+	args = args[1:]
+
+	if result := o.db.ExecuteSQLStatement(ctx, "InsertOrderProduct", args); !result.Ok {
 		return errors.New("Failed to inerst item")
 	}
 

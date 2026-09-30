@@ -43,7 +43,12 @@ func (o *OrderRepository) GetAllOrdersByTenantId(ctx context.Context, tenantId u
 
 func (o *OrderRepository) CreateOrder(ctx context.Context, order orderstructs.Order) (uint, error) {
 
-	result := o.db.ExecuteSQLStatement(ctx, "InsertOrder", o.toArgs(order))
+	args := o.toArgs(order)
+
+	// We always remove the first index because otherwise it will throw an error
+	args = args[1:]
+
+	result := o.db.ExecuteSQLStatement(ctx, "InsertOrder", args)
 
 	if !result.Ok {
 		return 0, errors.New("Failed to insert item")

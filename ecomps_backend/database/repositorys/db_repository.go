@@ -56,6 +56,9 @@ func (d *DatabaseRepository[T]) Create(ctx context.Context, item T) (uint, error
 
 	args := d.toArgs(item)
 
+	// We always remove the first index because otherwise it will throw an error
+	args = args[1:]
+
 	result := d.db.ExecuteSQLStatement(ctx, "Insert"+d.entityName, args)
 
 	if !result.Ok {

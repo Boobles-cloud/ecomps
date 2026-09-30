@@ -54,7 +54,12 @@ func (p *ProductPictureRepository) GetByProductId(ctx context.Context, id uint) 
 
 func (p *ProductPictureRepository) Create(ctx context.Context, item productpicturetructs.ProductPictures) (uint, error) {
 
-	result := p.db.ExecuteSQLStatement(ctx, "InsertProductPicture", p.toArgs(item))
+	args := p.toArgs(item)
+
+	// We always remove the first index because otherwise it will throw an error
+	args = args[1:]
+
+	result := p.db.ExecuteSQLStatement(ctx, "InsertProductPicture", args)
 
 	if !result.Ok {
 		return 0, sql.ErrNoRows
