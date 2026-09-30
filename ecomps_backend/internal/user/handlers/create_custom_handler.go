@@ -1,23 +1,24 @@
 package handlers
 
 import (
-	"ecomps.boobles.cloud/backend/database"
+	authService "ecomps.boobles.cloud/backend/internal/auth/services"
+	"ecomps.boobles.cloud/backend/internal/user/services"
 	userstructs "ecomps.boobles.cloud/backend/internal/user/user_structs"
 	"ecomps.boobles.cloud/backend/utils/caching"
 )
 
 type UserHandler struct {
-	UserCache       *caching.CacheManager[userstructs.UserStruct]
-	PermissionCache *caching.CacheManager[userstructs.UserPermission]
-	Dh              *database.DbHandler
+	UserCache   *caching.CacheManager[userstructs.UserStruct]
+	userService *services.UserService
+	authService *authService.AuthService
 }
 
 // Creates a new UserHandler
 // NOTE: We dont use the cache here, but for future stuff its already there
-func CreateNewUserHander(uc *caching.CacheManager[userstructs.UserStruct], pc *caching.CacheManager[userstructs.UserPermission], d *database.DbHandler) *UserHandler {
+func CreateNewUserHander(uc *caching.CacheManager[userstructs.UserStruct], us *services.UserService, a *authService.AuthService) *UserHandler {
 	return &UserHandler{
-		UserCache:       uc,
-		PermissionCache: pc,
-		Dh:              d,
+		UserCache:   uc,
+		userService: us,
+		authService: a,
 	}
 }

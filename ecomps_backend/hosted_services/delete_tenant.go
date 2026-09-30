@@ -34,13 +34,13 @@ func DeleteTenants(ctx context.Context, dh *database.DbHandler) {
 			for i := range tenantDeletions {
 
 				if tenantDeletions[i].IsDeletionToday() {
-					dh.ExecuteSQLStatement("DeleteTenantById", []any{tenantDeletions[i].TenantId})
-					dh.ExecuteSQLStatement("DeleteOrderByTenantId", []any{tenantDeletions[i].TenantId})
-					dh.ExecuteSQLStatement("DeleteCustomerByTenantId", []any{tenantDeletions[i].TenantId})
-					dh.ExecuteSQLStatement("DeleteTenantPwByTenantId", []any{tenantDeletions[i].TenantId})
-					dh.ExecuteSQLStatement("DeleteTenantOAuthTokensByTenantId", []any{tenantDeletions[i].TenantId})
-					dh.ExecuteSQLStatement("DeleteTenantOAuthApplicationsByTenantId", []any{tenantDeletions[i].TenantId})
-					dh.ExecuteSQLStatement("DeleteWarehouseByTenantId", []any{tenantDeletions[i].TenantId})
+					dh.ExecuteSQLStatement(ctx, "DeleteTenantById", []any{tenantDeletions[i].TenantId})
+					dh.ExecuteSQLStatement(ctx, "DeleteOrderByTenantId", []any{tenantDeletions[i].TenantId})
+					dh.ExecuteSQLStatement(ctx, "DeleteCustomerByTenantId", []any{tenantDeletions[i].TenantId})
+					dh.ExecuteSQLStatement(ctx, "DeleteTenantPwByTenantId", []any{tenantDeletions[i].TenantId})
+					dh.ExecuteSQLStatement(ctx, "DeleteTenantOAuthTokensByTenantId", []any{tenantDeletions[i].TenantId})
+					dh.ExecuteSQLStatement(ctx, "DeleteTenantOAuthApplicationsByTenantId", []any{tenantDeletions[i].TenantId})
+					dh.ExecuteSQLStatement(ctx, "DeleteWarehouseByTenantId", []any{tenantDeletions[i].TenantId})
 				}
 			}
 

@@ -1,50 +1,36 @@
 package handlers
 
 import (
-	"errors"
+	"context"
 	"net/http"
+	"time"
 
-	"ecomps.boobles.cloud/backend/database"
 	customerstructs "ecomps.boobles.cloud/backend/internal/customer/customer_structs"
-	"ecomps.boobles.cloud/backend/internal/middleware"
-	tenantstructs "ecomps.boobles.cloud/backend/internal/tenant/tenant_structs"
-	"ecomps.boobles.cloud/backend/utils/crypto"
 	httputils "ecomps.boobles.cloud/backend/utils/http_utils"
 	jsonutils "ecomps.boobles.cloud/backend/utils/http_utils/json_utils"
 )
 
 // Handels changing a customer
-func (ch *CustomerHandler) HandleCustomerChange(w http.ResponseWriter, r *http.Request) {
+func (c *CustomerHandler) HandleCustomerChange(w http.ResponseWriter, r *http.Request) {
+
+	ctx, cancel := context.WithTimeout(r.Context(), 2*time.Second)
+
+	defer cancel()
 
 	fail := httputils.NewFailHandler(w, "Customer | HandleCustomerChange")
 
-	tmpCustomer, err := jsonutils.JsonDeserilizeHttpRequestBody[customerstructs.Customer](r)
+	customer, err := jsonutils.JsonDeserilizeHttpRequestBody[customerstructs.Customer](r)
 
 	if err != nil {
 		fail(http.StatusBadRequest, err)
 		return
 	}
 
-	tenantId := r.Context().Value(middleware.TenantIdContextKey).(int)
-	tenant, ok := database.QueryOne[tenantstructs.Tenant](r.Context(), ch.Dh, "SelectTenantById", tenantId)
-
-	if !ok {
-		fail(http.StatusInternalServerError, errors.New("Failed getting tenant"))
+	if err := c.customerService.Update(ctx, customer); err != nil {
+		fail(http.StatusInternalServerError, err)
 		return
 	}
 
-	encryptedCustomer, ok := crypto.Encrypt(tmpCustomer, tenant.GetPw(ch.Dh, r.Context()))
-
-	if !ok {
-		fail(http.StatusInternalServerError, errors.New("Failed encrypting customer"))
-		return
-	}
-
-	if !database.UpdateDatabaseEntry[customerstructs.Customer](ch.Dh, "UpdateCustomer", "CustomerId", encryptedCustomer) {
-		fail(http.StatusInternalServerError, errors.New("Failed updating customer"))
-		return
-	}
-
-	go ch.insertItem(tmpCustomer)
+	go c.insertItem(customer)
 	w.WriteHeader(http.StatusOK)
 }

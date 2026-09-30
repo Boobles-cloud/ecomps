@@ -3,8 +3,8 @@ package handlers
 import (
 	"strconv"
 
-	"ecomps.boobles.cloud/backend/database"
 	productstructs "ecomps.boobles.cloud/backend/internal/product/product_structs"
+	"ecomps.boobles.cloud/backend/internal/product/services"
 	"ecomps.boobles.cloud/backend/utils/caching"
 )
 
@@ -13,15 +13,25 @@ const (
 )
 
 type ProductHandler struct {
-	ProductCache *caching.CacheManager[productstructs.Product]
-	Dh           *database.DbHandler
+	productCache   *caching.CacheManager[productstructs.Product]
+	productService *services.ProductService
 }
 
 // Creates a new handler for products
-func CreateNewProductHandler(c *caching.CacheManager[productstructs.Product], d *database.DbHandler) *ProductHandler {
+func CreateNewProductHandler(c *caching.CacheManager[productstructs.Product], p *services.ProductService) *ProductHandler {
 	return &ProductHandler{
-		ProductCache: c,
-		Dh:           d,
+		productCache:   c,
+		productService: p,
+	}
+}
+
+func ProductToArgs(p productstructs.Product) []any {
+	return []any{
+		p.ProductId,
+		p.ProductName,
+		p.ProductPrice,
+		p.ProductDescription,
+		p.TenantId,
 	}
 }
 
@@ -31,9 +41,8 @@ func CreateNewProductHandler(c *caching.CacheManager[productstructs.Product], d 
 func (p *ProductHandler) insertItems(t []productstructs.Product) {
 
 	for i := range t {
-
 		key := ProductCacheKey + strconv.Itoa(int(t[i].ProductId))
-		p.ProductCache.SetOrUpdateItem(key, t[i], t[i].TenantId)
+		p.productCache.SetOrUpdateItem(key, t[i], t[i].TenantId)
 	}
 }
 
@@ -42,5 +51,5 @@ func (p *ProductHandler) insertItems(t []productstructs.Product) {
 // We just fire and forgett about it, because we can live without a cache
 func (p *ProductHandler) insertItem(t productstructs.Product) {
 	key := ProductCacheKey + strconv.Itoa(int(t.ProductId))
-	p.ProductCache.SetOrUpdateItem(key, t, t.TenantId)
+	p.productCache.SetOrUpdateItem(key, t, t.TenantId)
 }

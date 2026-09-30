@@ -1,20 +1,22 @@
 package handlers
 
 import (
-	"errors"
+	"context"
 	"net/http"
 	"strconv"
+	"time"
 
-	"ecomps.boobles.cloud/backend/database"
-	"ecomps.boobles.cloud/backend/internal/customer/helper"
 	"ecomps.boobles.cloud/backend/internal/middleware"
-	tenantstructs "ecomps.boobles.cloud/backend/internal/tenant/tenant_structs"
 	httputils "ecomps.boobles.cloud/backend/utils/http_utils"
 	jsonutils "ecomps.boobles.cloud/backend/utils/http_utils/json_utils"
 )
 
 // Handels getting a customer by id
-func (ch *CustomerHandler) HandleGettingCustomerById(w http.ResponseWriter, r *http.Request) {
+func (c *CustomerHandler) HandleGettingCustomerById(w http.ResponseWriter, r *http.Request) {
+
+	ctx, cancel := context.WithTimeout(r.Context(), 2*time.Second)
+
+	defer cancel()
 
 	fail := httputils.NewFailHandler(w, "Customer | HandleGettingCustomerById")
 
@@ -25,10 +27,8 @@ func (ch *CustomerHandler) HandleGettingCustomerById(w http.ResponseWriter, r *h
 		return
 	}
 
-	tenantId := r.Context().Value(middleware.TenantIdContextKey).(int)
-
 	key := CustomerCacheKey + strconv.Itoa(customerId)
-	cacheItem, ok := ch.CustomerCache.GetItem(key)
+	cacheItem, ok := c.customerCache.GetItem(key)
 
 	if ok {
 		if jsonutils.RespondWithJson(w, http.StatusOK, cacheItem) {
@@ -36,17 +36,10 @@ func (ch *CustomerHandler) HandleGettingCustomerById(w http.ResponseWriter, r *h
 		}
 	}
 
-	tenant, ok := database.QueryOne[tenantstructs.Tenant](r.Context(), ch.Dh, "SelectTenantById", tenantId)
+	customer, err := c.customerService.GetById(ctx, uint(customerId))
 
-	if !ok {
-		fail(http.StatusBadRequest, errors.New("Failed getting tenant"))
-		return
-	}
-
-	customer, ok := helper.GetCustomer(uint(customerId), tenant.GetPw(ch.Dh, r.Context()), r.Context(), ch.Dh)
-
-	if !ok {
-		fail(http.StatusInternalServerError, errors.New("Failed getting customer"))
+	if err != nil {
+		fail(http.StatusInternalServerError, err)
 		return
 	}
 
@@ -55,13 +48,17 @@ func (ch *CustomerHandler) HandleGettingCustomerById(w http.ResponseWriter, r *h
 	}
 }
 
-func (ch *CustomerHandler) HandleGettingAllCustomerByTenantId(w http.ResponseWriter, r *http.Request) {
+func (c *CustomerHandler) HandleGettingAllCustomerByTenantId(w http.ResponseWriter, r *http.Request) {
+
+	ctx, cancel := context.WithTimeout(r.Context(), 2*time.Second)
+
+	defer cancel()
 
 	fail := httputils.NewFailHandler(w, "Customer | HandleGettingAllCustomerByTenantId")
 
-	tenantId := r.Context().Value(middleware.TenantIdContextKey).(int)
+	tenantId := ctx.Value(middleware.TenantIdContextKey).(int)
 
-	cacheItems, ok := ch.CustomerCache.GetItems(uint(tenantId))
+	cacheItems, ok := c.customerCache.GetItems(uint(tenantId))
 
 	if ok {
 		if jsonutils.RespondWithJson(w, http.StatusOK, cacheItems) {
@@ -69,21 +66,14 @@ func (ch *CustomerHandler) HandleGettingAllCustomerByTenantId(w http.ResponseWri
 		}
 	}
 
-	tenant, ok := database.QueryOne[tenantstructs.Tenant](r.Context(), ch.Dh, "SelectTenantById", tenantId)
+	allCustomer, err := c.customerService.GetAllByTenantId(ctx, uint(tenantId))
 
-	if !ok {
-		fail(http.StatusBadRequest, errors.New("Failed getting tenant"))
+	if err != nil {
+		fail(http.StatusInternalServerError, err)
 		return
 	}
 
-	allCustomer, ok := helper.GetAllCustomerForTenant(uint(tenantId), tenant.GetPw(ch.Dh, r.Context()), r.Context(), ch.Dh)
-
-	if !ok {
-		fail(http.StatusInternalServerError, errors.New("Failed getting customer"))
-		return
-	}
-
-	go ch.insertItems(allCustomer)
+	go c.insertItems(allCustomer)
 
 	if !jsonutils.RespondWithJson(w, http.StatusOK, allCustomer) {
 		w.WriteHeader(http.StatusInternalServerError)

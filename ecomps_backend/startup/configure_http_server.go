@@ -2,54 +2,95 @@ package startup
 
 import (
 	"net/http"
+	"time"
 
 	"ecomps.boobles.cloud/backend/database"
+	"ecomps.boobles.cloud/backend/database/repositorys"
 	authHandlers "ecomps.boobles.cloud/backend/internal/auth/handlers"
+	authservice "ecomps.boobles.cloud/backend/internal/auth/services"
 	customerstructs "ecomps.boobles.cloud/backend/internal/customer/customer_structs"
 	customerhandlers "ecomps.boobles.cloud/backend/internal/customer/handlers"
+	customerservice "ecomps.boobles.cloud/backend/internal/customer/services"
 	"ecomps.boobles.cloud/backend/internal/middleware"
 	orderhandlers "ecomps.boobles.cloud/backend/internal/order/handlers"
 	orderstructs "ecomps.boobles.cloud/backend/internal/order/order_structs"
+	orderservice "ecomps.boobles.cloud/backend/internal/order/services"
+	permissionhandler "ecomps.boobles.cloud/backend/internal/permission/handler"
+	permissionservice "ecomps.boobles.cloud/backend/internal/permission/services"
 	producthandlers "ecomps.boobles.cloud/backend/internal/product/handlers"
 	productstructs "ecomps.boobles.cloud/backend/internal/product/product_structs"
+	productservice "ecomps.boobles.cloud/backend/internal/product/services"
 	productpicturehandler "ecomps.boobles.cloud/backend/internal/product_pictures/handler"
+	productpictureservice "ecomps.boobles.cloud/backend/internal/product_pictures/services"
 	tenanthandlers "ecomps.boobles.cloud/backend/internal/tenant/handlers"
+	tenantservice "ecomps.boobles.cloud/backend/internal/tenant/services"
 	tenantstructs "ecomps.boobles.cloud/backend/internal/tenant/tenant_structs"
 	userHandlers "ecomps.boobles.cloud/backend/internal/user/handlers"
+	userservice "ecomps.boobles.cloud/backend/internal/user/services"
 	userstructs "ecomps.boobles.cloud/backend/internal/user/user_structs"
 	"ecomps.boobles.cloud/backend/utils/caching"
 )
 
 // Creates and configures the rest api
-func ConfigureHTTPServer(dh *database.DbHandler) http.Server {
+func ConfigureHTTPServer(dh *database.DbHandler) *http.Server {
 
-	// ============ Cache config stuff ============
+	// ========= Configure our repositorys =======
 
-	// Auth handler stuff
-	authHandler := authHandlers.CreateAuthHandler(dh)
+	authRepo := repositorys.NewAuthRepository(dh, "UserAccestoken", authservice.JwtToArgs)
+	tenantRepo := repositorys.NewTenantRepository(dh, "Tenant", tenantservice.TenantToArgs)
+	userRepo := repositorys.NewUserRepository(dh, "User", userservice.UserToArgs)
+	permissionRepo := repositorys.NewPermissionRepository(dh, "UserPermission", permissionservice.PermissionToArgs)
+
+	orderRepo := repositorys.NewOrderRepository(dh, "Order", orderservice.OrderToArgs)
+	orderProductRepo := repositorys.NewOrderProductRepository(dh, "OrderProduct", orderservice.OrderProductsToArgs)
+	orderStatusRepo := repositorys.NewOrderStatusRepostiory(dh, "OrderStatus", orderservice.OrderStatusToArgs)
+
+	productRepo := repositorys.NewDatabaseRepository(dh, "Product", productservice.ProductToArgs)
+	productPictureRepo := repositorys.NewProductPictureRepository(dh, "ProductPictures", productpictureservice.ProductPictureToArgs)
+
+	customerRepo := repositorys.NewDatabaseRepository(dh, "Customer", customerservice.CustomerToArgs)
+
+	// ========= Configure our services =========
+
+	authService := authservice.CreateNewAuthService(authRepo)
+	tenantService := tenantservice.CreateNewTenantService(tenantRepo)
+	userService := userservice.CreateNewUserService(userRepo, tenantService)
+	permissionService := permissionservice.CreateNewPermissionService(permissionRepo)
+
+	orderService := orderservice.CreateNewOrderService(orderRepo, orderProductRepo, tenantService)
+	orderStatusService := orderservice.CreateNewStatusService(orderStatusRepo)
+
+	productService := productservice.CreateNewProductService(productRepo, tenantService)
+	productPictureService := productpictureservice.CreateNewProductPictureService(productPictureRepo)
+
+	customerService := customerservice.CreateNewCustomerService(customerRepo, tenantService)
+
+	authHandler := authHandlers.CreateAuthHandler(authService, userService)
 
 	// User cache config
 	userCache := caching.CreateNewCacheManager[userstructs.UserStruct]()
-	permissionCache := caching.CreateNewCacheManager[userstructs.UserPermission]()
-	userHandler := userHandlers.CreateNewUserHander(userCache, permissionCache, dh)
+	userHandler := userHandlers.CreateNewUserHander(userCache, userService, authService)
+
+	// Permission config
+	permissionHandler := permissionhandler.CreateNewPermissionHandler(permissionService)
 
 	// Tenant cache config
 	tenantCache := caching.CreateNewCacheManager[tenantstructs.Tenant]()
-	tenantHandler := tenanthandlers.CreateNewUserHander(tenantCache, dh)
+	tenantHandler := tenanthandlers.CreateNewUserHander(tenantCache, tenantService, authService)
 
 	// Product cache config
 	productCache := caching.CreateNewCacheManager[productstructs.Product]()
-	productHandler := producthandlers.CreateNewProductHandler(productCache, dh)
+	productHandler := producthandlers.CreateNewProductHandler(productCache, productService)
 
-	productPictureHandler := productpicturehandler.CreateNewProductHandler(dh)
+	productPictureHandler := productpicturehandler.CreateNewProductHandler(productPictureService)
 
 	// Order cache config
 	orderCache := caching.CreateNewCacheManager[orderstructs.Order]()
-	orderHandler := orderhandlers.CreateNewOrderHandler(orderCache, dh)
+	orderHandler := orderhandlers.CreateNewOrderHandler(orderCache, orderService, orderStatusService)
 
 	// Customer cache config
 	customerCache := caching.CreateNewCacheManager[customerstructs.Customer]()
-	customerHandler := customerhandlers.CreateNewCustomerHandler(customerCache, dh)
+	customerHandler := customerhandlers.CreateNewCustomerHandler(customerCache, customerService)
 
 	// ============ Middleware config stuff ============
 
@@ -65,7 +106,7 @@ func ConfigureHTTPServer(dh *database.DbHandler) http.Server {
 	)
 
 	// Tenant permission changes -> this can only be done by the admin
-	tenantPermissionMiddleware := middleware.CreateNewMiddlewareStack(
+	permissionMiddleware := middleware.CreateNewMiddlewareStack(
 		middleware.AuthMiddleware(dh),
 		middleware.CheckAdminMiddleware(dh),
 	)
@@ -105,7 +146,7 @@ func ConfigureHTTPServer(dh *database.DbHandler) http.Server {
 	// ============ Auth stuff ============
 	muxMainRouter.HandleFunc("GET /authwall/login", authHandler.HandleLogin)
 	muxMainRouter.HandleFunc("GET /authwall/logout", authHandler.HandleLogout)
-	muxMainRouter.HandleFunc("POST /authwall/register", authHandler.HandleRegistration)
+	muxMainRouter.HandleFunc("POST /authwall/register", userHandler.HandleRegistration)
 
 	// ============ Tenant stuff ============
 
@@ -114,14 +155,14 @@ func ConfigureHTTPServer(dh *database.DbHandler) http.Server {
 
 	// GET Requests
 	muxMainRouter.Handle("GET /tenant/{tenant_id}", tenantMiddleware(http.HandlerFunc(tenantHandler.HandleGetTenantByTenantId)))
-	muxMainRouter.Handle("GET /tenant/by/{user_id}", tenantMiddleware(http.HandlerFunc(tenantHandler.HandleGetTenantByUserId)))
-	muxMainRouter.Handle("GET /tenant/all/users", tenantMiddleware(http.HandlerFunc(tenantHandler.HandleGettingAllUsersByUserTenantId)))
+	muxMainRouter.Handle("GET /tenant/by/{user_id}", tenantMiddleware(http.HandlerFunc(userHandler.HandleGettingUserById)))
+	muxMainRouter.Handle("GET /tenant/all/users", tenantMiddleware(http.HandlerFunc(userHandler.HandleGettingAllUsersByUserTenantId)))
 
 	// ==== Changing permission on tenant ====
-	muxMainRouter.Handle("POST /tenant/change", tenantPermissionMiddleware(http.HandlerFunc(tenantHandler.HandleTenantChange)))
-	muxMainRouter.Handle("POST /tenant/delete", tenantPermissionMiddleware(http.HandlerFunc(tenantHandler.HandleTenantDeletion)))
-	muxMainRouter.Handle("POST /user/permissions/add", tenantPermissionMiddleware(http.HandlerFunc(userHandler.HandleAddingNewUserPermission)))
-	muxMainRouter.Handle("POST /user/permissions/remove", tenantPermissionMiddleware(http.HandlerFunc(userHandler.HandleRemovingUserPermission)))
+	muxMainRouter.Handle("POST /tenant/change", permissionMiddleware(http.HandlerFunc(tenantHandler.HandleTenantChange)))
+	muxMainRouter.Handle("POST /tenant/delete", permissionMiddleware(http.HandlerFunc(tenantHandler.HandleTenantDeletion)))
+	muxMainRouter.Handle("POST /user/permissions/add", permissionMiddleware(http.HandlerFunc(permissionHandler.HandleAddingNewUserPermission)))
+	muxMainRouter.Handle("DELETE /user/permissions/remove/{permission_id}/for/{user_id}", permissionMiddleware(http.HandlerFunc(permissionHandler.HandleRemovingUserPermission)))
 
 	// ============ User stuff ============
 
@@ -133,15 +174,13 @@ func ConfigureHTTPServer(dh *database.DbHandler) http.Server {
 	// ==== User frontend stuff ====
 
 	// Normal user querys
-	muxMainRouter.Handle("GET /user/frontend/by/token/{authtoken}", userFrontendMiddleware(http.HandlerFunc(userHandler.HandleGettingUserByAuthTokenVal)))
 	muxMainRouter.Handle("GET /user/frontend/by/id/{user_id}", userFrontendMiddleware(http.HandlerFunc(userHandler.HandleGettingUserById)))
-	muxMainRouter.Handle("GET /user/frontend/by/{tenant_id}/{user_name}", userFrontendMiddleware(http.HandlerFunc(userHandler.HandleGettingUserByTenantIdAndUserName)))
 	muxMainRouter.Handle("GET /user/frontend/has-tenant/{user_id}", userFrontendMiddleware(http.HandlerFunc(userHandler.HandleHasUserATenant)))
-	muxMainRouter.Handle("GET /user/frontend/permission/all/{language_id}", userFrontendMiddleware(http.HandlerFunc(userHandler.HandleGettingAllPermissionsByLanguageId)))
+	muxMainRouter.Handle("GET /user/frontend/permission/all/{language_id}", userFrontendMiddleware(http.HandlerFunc(permissionHandler.HandleGettingAllPermissionsByLanguageId)))
 
 	// User permission stuff
-	muxMainRouter.Handle("GET /user/frontend/permission/all/by/{user_id}", userFrontendMiddleware(http.HandlerFunc(userHandler.HandleGettingUserPermissions)))
-	muxMainRouter.Handle("GET /user/frontend/permission/by/{permission_id}", userFrontendMiddleware(http.HandlerFunc(userHandler.HandleGettingPermissionById)))
+	muxMainRouter.Handle("GET /user/frontend/permission/all/by/{user_id}", userFrontendMiddleware(http.HandlerFunc(permissionHandler.HandleGettingUserPermissions)))
+	muxMainRouter.Handle("GET /user/frontend/permission/by/{permission_id}", userFrontendMiddleware(http.HandlerFunc(permissionHandler.HandleGettingPermissionById)))
 
 	// ============ Product stuff ============
 
@@ -187,8 +226,12 @@ func ConfigureHTTPServer(dh *database.DbHandler) http.Server {
 	// DELETE Requests
 	muxMainRouter.Handle("DELETE /customer/delete/by/{customer_id}", customerMiddleware(http.HandlerFunc(customerHandler.HandleCustomerDeletion)))
 
-	return http.Server{
-		Addr:    ":8080",
-		Handler: globalMiddlewareConfig(muxMainRouter),
+	return &http.Server{
+		Addr:              ":8080",
+		Handler:           globalMiddlewareConfig(muxMainRouter),
+		ReadHeaderTimeout: 5 * time.Second,
+		ReadTimeout:       1 * time.Second,
+		WriteTimeout:      1 * time.Second,
+		IdleTimeout:       30 * time.Second,
 	}
 }

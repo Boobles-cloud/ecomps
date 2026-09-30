@@ -1,19 +1,22 @@
 package handlers
 
 import (
-	"errors"
+	"context"
 	"net/http"
+	"time"
 
-	"ecomps.boobles.cloud/backend/database"
 	"ecomps.boobles.cloud/backend/internal/middleware"
 	orderstructs "ecomps.boobles.cloud/backend/internal/order/order_structs"
-	tenantstructs "ecomps.boobles.cloud/backend/internal/tenant/tenant_structs"
 	httputils "ecomps.boobles.cloud/backend/utils/http_utils"
 	jsonutils "ecomps.boobles.cloud/backend/utils/http_utils/json_utils"
 )
 
 // Handels creating a order and all its order products in database
-func (ho *OrderHandler) HandleCreatingOrder(w http.ResponseWriter, r *http.Request) {
+func (o *OrderHandler) HandleCreatingOrder(w http.ResponseWriter, r *http.Request) {
+
+	ctx, cancel := context.WithTimeout(r.Context(), 2*time.Second)
+
+	defer cancel()
 
 	fail := httputils.NewFailHandler(w, "Order | HandleCreatingOrder")
 
@@ -27,35 +30,18 @@ func (ho *OrderHandler) HandleCreatingOrder(w http.ResponseWriter, r *http.Reque
 	// Get the tenant id so we can get the tenant and the password
 	tenantId := r.Context().Value(middleware.TenantIdContextKey).(int)
 
-	tenant, ok := database.QueryOne[tenantstructs.Tenant](r.Context(), ho.Dh, "SelectTenantById", tenantId)
+	order.TenantId = uint(tenantId)
 
-	if !ok {
-		fail(http.StatusInternalServerError, errors.New("Failed getting tenant"))
+	id, err := o.orderService.CreateOrder(ctx, order)
+
+	if err != nil {
+		fail(http.StatusInternalServerError, err)
 		return
 	}
 
-	copyOfOrder := order
-	order.TenantId = tenant.TenantId
+	order.OrderId = id
 
-	// Create the order
-	id, ok := order.CreateOrderInDatabase(tenant.GetPw(ho.Dh, r.Context()), ho.Dh)
-
-	if !ok {
-		fail(http.StatusInternalServerError, errors.New("Failed to create order"))
-		return
-	}
-
-	// Loop over the tmp product struct and insert it
-	for i := range order.Products {
-		if !order.Products[i].InsertIntoDatabase(id, ho.Dh) {
-			fail(http.StatusInternalServerError, errors.New("Failed to create product order"))
-			return
-		}
-	}
-
-	copyOfOrder.OrderId = id
-
-	go ho.insertItem(copyOfOrder, uint(tenantId))
+	go o.insertItem(order, uint(tenantId))
 
 	w.WriteHeader(http.StatusOK)
 }

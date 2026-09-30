@@ -20,6 +20,11 @@
     "QueryType": 2
   },
   {
+    "QueryName": "SelectPermissionsByLanguageId",
+    "QueryVal": "SELECT * FROM TenantActions WHERE LanguageId = ?;",
+    "QueryType": 2
+  },
+  {
     "QueryName": "SelectUserById",
     "QueryVal": "SELECT * FROM Users WHERE UserId = ?;",
     "QueryType": 2
@@ -30,8 +35,8 @@
     "QueryType": 2
   },
   {
-    "QueryName": "SelectUserByTenantIdAndUserName",
-    "QueryVal": "SELECT * FROM Users WHERE TenantId = ? AND UserName = ?;",
+    "QueryName": "SelectUserByTenantId",
+    "QueryVal": "SELECT * FROM Users WHERE TenantId = ?;",
     "QueryType": 2
   },
   {
@@ -56,11 +61,11 @@
   },
   {
     "QueryName": "SelectTenantPwByTenantId",
-    "QueryVal": "SELECT * FROM TenantPw WHERE TenantPwId = ?;",
+    "QueryVal": "SELECT * FROM TenantPw WHERE TenantId = ?;",
     "QueryType": 2
   },
   {
-    "QueryName": "SelectTenantActionById",
+    "QueryName": "SelectPermissionById",
     "QueryVal": "SELECT * FROM TenantActions WHERE ActionId = ?;",
     "QueryType": 2
   },
@@ -80,7 +85,7 @@
     "QueryType": 2
   },
   {
-    "QueryName": "SelectOrdersByTenantId",
+    "QueryName": "SelectOrderByTenantId",
     "QueryVal": "SELECT * FROM Orders WHERE TenantId = ?;",
     "QueryType": 2
   },

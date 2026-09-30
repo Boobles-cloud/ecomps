@@ -1,7 +1,8 @@
 package handler // Handles the upload of a picture for a product
 import (
-	"errors"
+	"context"
 	"net/http"
+	"time"
 
 	"ecomps.boobles.cloud/backend/internal/middleware"
 	productstructs "ecomps.boobles.cloud/backend/internal/product_pictures/product_pictures_structs"
@@ -9,6 +10,10 @@ import (
 )
 
 func (p *ProductPictureHandler) HandleCreatingProductPicture(w http.ResponseWriter, r *http.Request) {
+
+	ctx, cancel := context.WithTimeout(r.Context(), 2*time.Second)
+
+	defer cancel()
 
 	fail := httputils.NewFailHandler(w, "Product | HandleCreatingProductPicture")
 
@@ -21,10 +26,10 @@ func (p *ProductPictureHandler) HandleCreatingProductPicture(w http.ResponseWrit
 	}
 
 	tenantId := r.Context().Value(middleware.TenantIdContextKey).(int)
+	picture.TenantId = uint(tenantId)
 
-	if result := p.Dh.ExecuteSQLStatement("InsertProductPicture", []any{picture.PictureName, picture.PicturePath, picture.PicturePosition,
-		picture.ProductId, tenantId}); !result.Ok {
-		fail(http.StatusInternalServerError, errors.New("Failed inserting item in database"))
+	if _, err := p.pictureService.Create(ctx, picture); err != nil {
+		fail(http.StatusInternalServerError, err)
 		return
 	}
 

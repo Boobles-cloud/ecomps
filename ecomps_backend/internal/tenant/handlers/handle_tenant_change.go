@@ -1,10 +1,10 @@
 package handlers
 
 import (
-	"errors"
+	"context"
 	"net/http"
+	"time"
 
-	"ecomps.boobles.cloud/backend/database"
 	tenantstructs "ecomps.boobles.cloud/backend/internal/tenant/tenant_structs"
 	httputils "ecomps.boobles.cloud/backend/utils/http_utils"
 	jsonutils "ecomps.boobles.cloud/backend/utils/http_utils/json_utils"
@@ -13,15 +13,11 @@ import (
 // Handels a tenant change
 func (t *TenantHandler) HandleTenantChange(w http.ResponseWriter, r *http.Request) {
 
+	ctx, cancel := context.WithTimeout(r.Context(), 2*time.Second)
+
+	defer cancel()
+
 	fail := httputils.NewFailHandler(w, "Tenant | HandleTenantChange")
-
-	// TODO: Check why we need this here?
-	wantedUpdateType := r.URL.Query().Get("type")
-
-	if wantedUpdateType == "" {
-		fail(http.StatusBadRequest, errors.New("Failed getting update type"))
-		return
-	}
 
 	tenant, err := jsonutils.JsonDeserilizeHttpRequestBody[tenantstructs.Tenant](r)
 
@@ -30,8 +26,8 @@ func (t *TenantHandler) HandleTenantChange(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	if !database.UpdateDatabaseEntry[tenantstructs.Tenant](t.Dh, "UpdateTenant", "TenantId", tenant) {
-		fail(http.StatusInternalServerError, errors.New("Failed updating tenant"))
+	if err := t.tenantService.UpdateTenant(ctx, tenant); err != nil {
+		fail(http.StatusInternalServerError, err)
 		return
 	}
 

@@ -15,6 +15,11 @@
     "QueryType": 1
   },
   {
+    "QueryName": "DeleteProductPictureById",
+    "QueryVal": "DELETE FROM ProductPictures WHERE PictureId = ?;",
+    "QueryType": 1
+  },
+  {
     "QueryName": "DeleteOrderById",
     "QueryVal": "DELETE FROM Orders WHERE OrderId = ?;",
     "QueryType": 1
@@ -22,6 +27,11 @@
   {
     "QueryName": "DeleteOrderProductsByOrderId",
     "QueryVal": "DELETE FROM OrderProduct WHERE OrderId = ?;",
+    "QueryType": 1
+  },
+  {
+    "QueryName": "DeleteOrderProductsById",
+    "QueryVal": "DELETE FROM OrderProduct WHERE OPId = ?;",
     "QueryType": 1
   },
   {
@@ -67,6 +77,11 @@
   {
     "QueryName": "DeleteUserDeletionById",
     "QueryVal": "DELETE FROM UserDeletion WHERE DeletionId = ?;",
+    "QueryType": 1
+  },
+  {
+    "QueryName": "DeletePermissionFromUserByUserIdAndPermissionId",
+    "QueryVal": "DELETE FROM Permissions WHERE UserId = ? AND TenantActionId = ?;",
     "QueryType": 1
   }
 ]

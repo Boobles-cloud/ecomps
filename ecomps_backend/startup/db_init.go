@@ -2,6 +2,7 @@ package startup
 
 import (
 	"os"
+	"path"
 	"strings"
 
 	"ecomps.boobles.cloud/backend/database"
@@ -13,7 +14,7 @@ import (
 // Reads the included .sql file and excecute it, to setup all our tables
 func SetupTabels(dh *database.DbHandler) bool {
 
-	data, err := os.ReadFile(os.Getenv("tables_path"))
+	data, err := os.ReadFile(path.Join(os.Getenv("db_conffiles"), "tables.sql"))
 
 	if err != nil {
 		logging.Log(logging.Error, "[Startup | SetupTabels] "+err.Error())

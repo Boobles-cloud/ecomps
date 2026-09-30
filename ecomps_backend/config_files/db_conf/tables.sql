@@ -81,7 +81,7 @@ CREATE TABLE TenantActions(
 -- Here are all tenants storred that are free for deletion
 CREATE TABLE TenantDeletions(
     TenantDelitionId int unsigned NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    IssuedFrom varchar(250) NOT NULL,
+    IssuedFrom int unsigned NOT NULL,
     IssuedOn DATETIME,
     WhenToComplete DATETIME,
     Deleted bool,

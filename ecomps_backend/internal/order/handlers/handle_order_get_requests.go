@@ -1,21 +1,22 @@
 package handlers
 
 import (
-	"errors"
+	"context"
 	"net/http"
 	"strconv"
+	"time"
 
-	"ecomps.boobles.cloud/backend/database"
 	"ecomps.boobles.cloud/backend/internal/middleware"
-	"ecomps.boobles.cloud/backend/internal/order/helper"
-	orderstructs "ecomps.boobles.cloud/backend/internal/order/order_structs"
-	tenantstructs "ecomps.boobles.cloud/backend/internal/tenant/tenant_structs"
 	httputils "ecomps.boobles.cloud/backend/utils/http_utils"
 	jsonutils "ecomps.boobles.cloud/backend/utils/http_utils/json_utils"
 )
 
 // Handles getting a order by Id and all its products
-func (ho *OrderHandler) HandleGettingOrderById(w http.ResponseWriter, r *http.Request) {
+func (o *OrderHandler) HandleGettingOrderById(w http.ResponseWriter, r *http.Request) {
+
+	ctx, cancel := context.WithTimeout(r.Context(), 2*time.Second)
+
+	defer cancel()
 
 	fail := httputils.NewFailHandler(w, "Order | HandleGettingOrderById")
 
@@ -28,34 +29,20 @@ func (ho *OrderHandler) HandleGettingOrderById(w http.ResponseWriter, r *http.Re
 
 	// Check if the item is in cache
 	key := OrderCacheKey + strconv.Itoa(orderId)
-	cacheItem, ok := ho.OrderCache.GetItem(key)
+	cacheItem, ok := o.orderCache.GetItem(key)
 
 	if ok {
-
 		if jsonutils.RespondWithJson(w, http.StatusOK, cacheItem) {
 			return
 		}
 	}
 
-	tenantId := r.Context().Value(middleware.TenantIdContextKey).(int)
+	order, err := o.orderService.GetOrderById(ctx, uint(orderId))
 
-	tenant, ok := database.QueryOne[tenantstructs.Tenant](r.Context(), ho.Dh, "SelectTenantById", tenantId)
-
-	if !ok {
-		fail(http.StatusInternalServerError, errors.New("Failed getting tenant"))
+	if err != nil {
+		fail(http.StatusInternalServerError, err)
 		return
 	}
-
-	// Gets the encrypted order
-	order, ok := helper.GetOrder(uint(orderId), tenant.GetPw(ho.Dh, r.Context()), ho.Dh, r.Context())
-
-	if !ok {
-		fail(http.StatusInternalServerError, errors.New("Failed getting order"))
-		return
-	}
-
-	// Get all products for this order
-	order.GetAllProducts(r.Context(), ho.Dh)
 
 	if !jsonutils.RespondWithJson(w, http.StatusOK, order) {
 		w.WriteHeader(http.StatusInternalServerError)
@@ -63,13 +50,17 @@ func (ho *OrderHandler) HandleGettingOrderById(w http.ResponseWriter, r *http.Re
 }
 
 // Handels getting all orders for a tenant
-func (ho *OrderHandler) HandleGettingAllOrdersByTenantId(w http.ResponseWriter, r *http.Request) {
+func (o *OrderHandler) HandleGettingAllOrdersByTenantId(w http.ResponseWriter, r *http.Request) {
+
+	ctx, cancel := context.WithTimeout(r.Context(), 2*time.Second)
+
+	defer cancel()
 
 	fail := httputils.NewFailHandler(w, "Order | HandleGettingAllOrdersByTenantId")
 
-	tenantId := r.Context().Value(middleware.TenantIdContextKey).(int)
+	tenantId := ctx.Value(middleware.TenantIdContextKey).(int)
 
-	cacheItems, ok := ho.OrderCache.GetItems(uint(tenantId))
+	cacheItems, ok := o.orderCache.GetItems(uint(tenantId))
 
 	if ok {
 		if jsonutils.RespondWithJson(w, http.StatusOK, cacheItems) {
@@ -77,17 +68,10 @@ func (ho *OrderHandler) HandleGettingAllOrdersByTenantId(w http.ResponseWriter, 
 		}
 	}
 
-	tenant, ok := database.QueryOne[tenantstructs.Tenant](r.Context(), ho.Dh, "SelectTenantById", tenantId)
+	allOrders, err := o.orderService.GetAllOrdersByTenantId(ctx, uint(tenantId))
 
-	if !ok {
-		fail(http.StatusInternalServerError, errors.New("Failed getting tenant"))
-		return
-	}
-
-	allOrders, ok := helper.GetAllOrders(uint(tenantId), tenant.GetPw(ho.Dh, r.Context()), ho.Dh, r.Context())
-
-	if !ok {
-		fail(http.StatusInternalServerError, errors.New("Failed getting orders"))
+	if err != nil {
+		fail(http.StatusInternalServerError, err)
 		return
 	}
 
@@ -97,7 +81,11 @@ func (ho *OrderHandler) HandleGettingAllOrdersByTenantId(w http.ResponseWriter, 
 }
 
 // Handles getting the order status by status_id and language_id
-func (ho *OrderHandler) HandleGettingStatusById(w http.ResponseWriter, r *http.Request) {
+func (o *OrderHandler) HandleGettingStatusById(w http.ResponseWriter, r *http.Request) {
+
+	ctx, cancel := context.WithTimeout(r.Context(), 2*time.Second)
+
+	defer cancel()
 
 	fail := httputils.NewFailHandler(w, "Order | HandleGettingStatusById")
 
@@ -115,10 +103,10 @@ func (ho *OrderHandler) HandleGettingStatusById(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	status, ok := database.QueryOne[orderstructs.OrderStatus](r.Context(), ho.Dh, "SelectOrderStatusByIdAndLanguageId", statusId, langId)
+	status, err := o.statusService.GetById(ctx, uint(statusId), uint(langId))
 
-	if !ok {
-		fail(http.StatusInternalServerError, errors.New("Failed getting status"))
+	if err != nil {
+		fail(http.StatusInternalServerError, err)
 		return
 	}
 
@@ -128,7 +116,11 @@ func (ho *OrderHandler) HandleGettingStatusById(w http.ResponseWriter, r *http.R
 }
 
 // Handles getting all order status by language id
-func (ho *OrderHandler) HandleGettingAllStatusByLangId(w http.ResponseWriter, r *http.Request) {
+func (o *OrderHandler) HandleGettingAllStatusByLangId(w http.ResponseWriter, r *http.Request) {
+
+	ctx, cancel := context.WithTimeout(r.Context(), 2*time.Second)
+
+	defer cancel()
 
 	fail := httputils.NewFailHandler(w, "Order | HandleGettingAllStatusByLangId")
 
@@ -139,10 +131,10 @@ func (ho *OrderHandler) HandleGettingAllStatusByLangId(w http.ResponseWriter, r 
 		return
 	}
 
-	orderStatus, ok := database.QueryMany[orderstructs.OrderStatus](r.Context(), ho.Dh, "SelectAllStatusByLanguageId", langId)
+	orderStatus, err := o.statusService.GetAllByLangId(ctx, uint(langId))
 
-	if !ok {
-		fail(http.StatusInternalServerError, errors.New("Failed getting all order status"))
+	if err != nil {
+		fail(http.StatusInternalServerError, err)
 		return
 	}
 

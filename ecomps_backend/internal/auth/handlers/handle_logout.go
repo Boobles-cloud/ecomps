@@ -1,33 +1,38 @@
 package handlers
 
 import (
-	"errors"
+	"context"
 	"net/http"
 	"time"
 
+	"ecomps.boobles.cloud/backend/internal/auth/services"
 	httputils "ecomps.boobles.cloud/backend/utils/http_utils"
 )
 
 // Handels the user logout
-func (ha *AuthHandler) HandleLogout(w http.ResponseWriter, r *http.Request) {
+func (a *AuthHandler) HandleLogout(w http.ResponseWriter, r *http.Request) {
+
+	ctx, cancel := context.WithTimeout(r.Context(), 2*time.Second)
+
+	defer cancel()
 
 	fail := httputils.NewFailHandler(w, "Auth | HandleLogout")
 
-	rqCookie, err := r.Cookie(httputils.AuthTokenCookieName)
+	rqCookie, err := r.Cookie(services.AuthTokenCookieName)
 
 	if err != nil {
 		fail(http.StatusBadRequest, err)
 		return
 	}
 
-	if result := ha.Dh.ExecuteSQLStatement("DeleteUserAccestokenByValue", []any{rqCookie.Value}); !result.Ok {
-		fail(http.StatusInternalServerError, errors.New("Failed deleting authtoken"))
+	if err := a.authService.DeleteAccessTokenByValue(ctx, rqCookie.Value); err != nil {
+		fail(http.StatusInternalServerError, err)
 		return
 	}
 
 	// Send a new cookie so the old one gets deleted
 	cookie := http.Cookie{
-		Name:     httputils.AuthTokenCookieName,
+		Name:     services.AuthTokenCookieName,
 		Value:    "",
 		Path:     "/",
 		HttpOnly: true,

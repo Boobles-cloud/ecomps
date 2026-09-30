@@ -6,7 +6,7 @@
   },
   {
     "QueryName": "InsertUserPermission",
-    "QueryVal": "INSERT INTO Permissions() Values(DEFAULT, ?, ?, ?)",
+    "QueryVal": "INSERT INTO Permissions() Values(DEFAULT, ?, ?)",
     "QueryType": 0
   },
   {

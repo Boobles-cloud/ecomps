@@ -1,15 +1,21 @@
 package handlers
 
 import (
-	"errors"
+	"context"
 	"net/http"
 	"strconv"
+	"time"
 
+	"ecomps.boobles.cloud/backend/internal/middleware"
 	httputils "ecomps.boobles.cloud/backend/utils/http_utils"
 )
 
 // Handles the deletion of a customer
-func (ch *CustomerHandler) HandleCustomerDeletion(w http.ResponseWriter, r *http.Request) {
+func (c *CustomerHandler) HandleCustomerDeletion(w http.ResponseWriter, r *http.Request) {
+
+	ctx, cancel := context.WithTimeout(r.Context(), 2*time.Second)
+
+	defer cancel()
 
 	fail := httputils.NewFailHandler(w, "Customer | HandleCustomerDeletion")
 
@@ -20,12 +26,12 @@ func (ch *CustomerHandler) HandleCustomerDeletion(w http.ResponseWriter, r *http
 		return
 	}
 
-	if result := ch.Dh.ExecuteSQLStatement("DeleteCustomerById", []any{customerId}); !result.Ok {
-		fail(http.StatusInternalServerError, errors.New("Failed to delete database"))
+	if err := c.customerService.Delete(ctx, uint(customerId), uint(ctx.Value(middleware.TenantIdContextKey).(int))); err != nil {
+		fail(http.StatusInternalServerError, err)
 		return
 	}
 
 	key := CustomerCacheKey + strconv.Itoa(customerId)
-	ch.CustomerCache.RemoveItem(key)
+	c.customerCache.RemoveItem(key)
 	w.WriteHeader(http.StatusOK)
 }

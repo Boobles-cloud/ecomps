@@ -1,7 +1,7 @@
 package handler
 
 import (
-	"ecomps.boobles.cloud/backend/database"
+	"ecomps.boobles.cloud/backend/internal/product_pictures/services"
 )
 
 const (
@@ -10,12 +10,12 @@ const (
 )
 
 type ProductPictureHandler struct {
-	Dh *database.DbHandler
+	pictureService *services.ProductPictureService
 }
 
 // Creates a new handler for products
-func CreateNewProductHandler(d *database.DbHandler) *ProductPictureHandler {
+func CreateNewProductHandler(p *services.ProductPictureService) *ProductPictureHandler {
 	return &ProductPictureHandler{
-		Dh: d,
+		pictureService: p,
 	}
 }
