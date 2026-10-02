@@ -13,7 +13,7 @@ func (p *PermissionService) GetPermissionById(ctx context.Context, id uint) (per
 
 // Deprecated: This service doesnt support this
 // TODO: Maybe implement this in the future
-func (p *PermissionService) GetAllByTenantIdctx(ctx context.Context, tenantId uint) ([]permissionstructs.Permission, error) {
+func (p *PermissionService) GetAllByTenantId(ctx context.Context, tenantId uint) ([]permissionstructs.Permission, error) {
 	return []permissionstructs.Permission{}, errors.ErrUnsupported
 }
 

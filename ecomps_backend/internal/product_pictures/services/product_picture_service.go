@@ -6,6 +6,7 @@ import (
 	"os"
 
 	productpicturetructs "ecomps.boobles.cloud/backend/internal/product_pictures/product_pictures_structs"
+	"ecomps.boobles.cloud/backend/utils/logging"
 )
 
 func (p *ProductPictureService) GetByIdAndPosition(ctx context.Context, productId, position uint) (productpicturetructs.ProductPictures, error) {
@@ -70,4 +71,26 @@ func (p *ProductPictureService) Delete(ctx context.Context, id uint) error {
 	}
 
 	return p.productPictureRepo.Delete(ctx, id)
+}
+
+func (p *ProductPictureService) DeleteByProductId(ctx context.Context, productId uint) error {
+
+	if productId == 0 || productId == 1 {
+		return errors.New("Product Id cant be 0 or 1")
+	}
+
+	pictures, err := p.GetByProductId(ctx, productId)
+
+	if err != nil {
+		return err
+	}
+
+	for i := range pictures {
+		if err := os.Remove(pictures[i].PicturePath); err != nil {
+			logging.Log(logging.Error, "[PictureService | DeleteByProductId] "+err.Error())
+			continue
+		}
+	}
+
+	return p.productPictureRepo.DeleteByProductId(ctx, productId)
 }

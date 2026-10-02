@@ -48,6 +48,7 @@ type ProductPictureRepository interface {
 	GetById(ctx context.Context, id uint) (productpicturetructs.ProductPictures, error)
 	Create(ctx context.Context, item productpicturetructs.ProductPictures) (uint, error)
 	Delete(ctx context.Context, id uint) error
+	DeleteByProductId(ctx context.Context, productId uint) error
 }
 
 type AuthRepository interface {

@@ -115,5 +115,9 @@ func (p *ProductService) Delete(ctx context.Context, id uint, tenantId uint) err
 		return errors.New("Product Id cant be 0")
 	}
 
+	if err := p.pictureService.DeleteByProductId(ctx, id); err != nil {
+		return err
+	}
+
 	return p.productRepo.Delete(ctx, id, tenantId)
 }

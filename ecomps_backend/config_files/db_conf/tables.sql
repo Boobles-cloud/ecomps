@@ -170,7 +170,6 @@ CREATE TABLE Product(
     ProductName varchar(250) NOT NULL,
     ProductPrice varchar(250) NOT NULL,
     ProductDescription varchar(250) NOT NULL,
-    ProductPicturePath varchar(100),
     TenantId int unsigned NOT NULL
 );
 
@@ -277,10 +276,19 @@ INSERT INTO TenantPw(TenantPwId, TenantPwVal) VALUES(1, "123");
 INSERT INTO Users (UserId, UserName, UserPW, UserMail, UserTel, UserHas2Fa, UserHasTenant, TenantId) VALUES (1, "Test", "Test", "Test@test.test", NULL, FALSE, TRUE, 1);
 INSERT INTO Tenant(TenantId, TenantName, TenantCreation, TenantAdminUserId, TenantPwId) VALUES(1, "USER_HAS_NO_TENANT", NOW(), 1, 1);
 
+INSERT INTO Customer() VALUES(1, "Dieter", "12345", "You are very beautiful, 69", "Du är väldigt vacker", NOW(), 1);
+INSERT INTO Orders() VALUES(1, "This is a test", NOW(), 9, "12345", "I just wanna go home", "This is a very nice town", NOW(), 1);
+INSERT INTO OrderProducts() VALUES(1, 1, 2, 1);
+INSERT INTO Product() VALUES(1, "Test", "12,99", "This is a nice test", 1);
+INSERT INTO Warehouse() VALUES(1, "Test", 1);
+
+
+
 SET FOREIGN_KEY_CHECKS = 1;
 
 -- Status stuff
 INSERT INTO OrderStatus(StatusId, StatusName, LanguageId) VALUES
+
 -- -------------------------------------------------------------
 -- Deutsch (LanguageId: 1)
 -- -------------------------------------------------------------

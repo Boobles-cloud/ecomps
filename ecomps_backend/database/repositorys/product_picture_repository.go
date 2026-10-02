@@ -76,3 +76,12 @@ func (p *ProductPictureRepository) Delete(ctx context.Context, id uint) error {
 
 	return nil
 }
+
+func (p *ProductPictureRepository) DeleteByProductId(ctx context.Context, productId uint) error {
+
+	if result := p.db.ExecuteSQLStatement(ctx, "DeleteProductPictureByProductId", []any{productId}); !result.Ok {
+		return errors.New("Failed to delete item")
+	}
+
+	return nil
+}

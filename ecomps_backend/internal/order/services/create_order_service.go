@@ -6,7 +6,6 @@ import (
 	"ecomps.boobles.cloud/backend/internal/tenant/services"
 )
 
-// TODO: Maybe split this into multiple services
 type OrderService struct {
 	orderRepository    repository.OrderRepository
 	productRespository repository.OrderProductRepository
