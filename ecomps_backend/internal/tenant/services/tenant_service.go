@@ -10,8 +10,8 @@ import (
 
 func (t *TenantService) GetTenantById(ctx context.Context, id uint) (tenantstructs.Tenant, error) {
 
-	if id == 0 {
-		return tenantstructs.Tenant{}, errors.New("TenantId cant be 0")
+	if id <= 1 {
+		return tenantstructs.Tenant{}, errors.New("TenantId cant be 0 or 1")
 	}
 
 	return t.tenantRepo.GetById(ctx, id)
@@ -19,8 +19,8 @@ func (t *TenantService) GetTenantById(ctx context.Context, id uint) (tenantstruc
 
 func (t *TenantService) GetPw(ctx context.Context, id uint) (string, error) {
 
-	if id == 0 {
-		return "", errors.New("TenantId cant be 0")
+	if id <= 1 {
+		return "", errors.New("TenantId cant be 0 or 1")
 	}
 
 	return t.tenantRepo.GetPw(ctx, id)
@@ -54,12 +54,12 @@ func (t *TenantService) UpdateTenant(ctx context.Context, tenant tenantstructs.T
 
 func (t *TenantService) Delete(ctx context.Context, userId, tenantId uint) error {
 
-	if userId == 0 {
-		return errors.New("UserId cant be 0")
+	if userId <= 1 {
+		return errors.New("UserId cant be 0 or 1")
 	}
 
-	if tenantId == 0 {
-		return errors.New("TenantId cant be 0")
+	if tenantId <= 1 {
+		return errors.New("TenantId cant be 0 or 1")
 	}
 
 	tenant, err := t.GetTenantById(ctx, tenantId)

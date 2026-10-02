@@ -11,8 +11,8 @@ import (
 
 func (p *ProductPictureService) GetByIdAndPosition(ctx context.Context, productId, position uint) (productpicturetructs.ProductPictures, error) {
 
-	if productId == 0 {
-		return productpicturetructs.ProductPictures{}, errors.New("Product Id cant be 0")
+	if productId <= 1 {
+		return productpicturetructs.ProductPictures{}, errors.New("Product Id cant be 0 or 1")
 	}
 
 	return p.productPictureRepo.GetByIdAndPosition(ctx, productId, position)
@@ -20,8 +20,8 @@ func (p *ProductPictureService) GetByIdAndPosition(ctx context.Context, productI
 
 func (p *ProductPictureService) GetByProductId(ctx context.Context, id uint) ([]productpicturetructs.ProductPictures, error) {
 
-	if id == 0 {
-		return []productpicturetructs.ProductPictures{}, errors.New("Product id cant be 0")
+	if id <= 1 {
+		return []productpicturetructs.ProductPictures{}, errors.New("Product id cant be 0 or 1")
 	}
 
 	return p.productPictureRepo.GetByProductId(ctx, id)
@@ -29,8 +29,8 @@ func (p *ProductPictureService) GetByProductId(ctx context.Context, id uint) ([]
 
 func (p *ProductPictureService) GetById(ctx context.Context, id uint) (productpicturetructs.ProductPictures, error) {
 
-	if id == 0 {
-		return productpicturetructs.ProductPictures{}, errors.New("Picture id cant be 0")
+	if id <= 1 {
+		return productpicturetructs.ProductPictures{}, errors.New("Picture id cant be 0 or 1")
 	}
 
 	return p.productPictureRepo.GetById(ctx, id)
@@ -43,12 +43,12 @@ func (p *ProductPictureService) Create(ctx context.Context, item productpicturet
 		return 0, errors.New("Picture path cant be empty")
 	}
 
-	if item.ProductId == 0 {
-		return 0, errors.New("Product Id cant be 0")
+	if item.ProductId <= 1 {
+		return 0, errors.New("Product Id cant be 0 or 1")
 	}
 
-	if item.TenantId == 0 {
-		return 0, errors.New("Tenant Id cant be 0")
+	if item.TenantId <= 1 {
+		return 0, errors.New("Tenant Id cant be 0 or 1")
 	}
 
 	return p.productPictureRepo.Create(ctx, item)
@@ -56,8 +56,8 @@ func (p *ProductPictureService) Create(ctx context.Context, item productpicturet
 
 func (p *ProductPictureService) Delete(ctx context.Context, id uint) error {
 
-	if id == 0 {
-		return errors.New("Product Picture Id cant be 0")
+	if id <= 1 {
+		return errors.New("Product Picture Id cant be 0 or 1")
 	}
 
 	picture, err := p.GetById(ctx, id)
@@ -75,7 +75,7 @@ func (p *ProductPictureService) Delete(ctx context.Context, id uint) error {
 
 func (p *ProductPictureService) DeleteByProductId(ctx context.Context, productId uint) error {
 
-	if productId == 0 || productId == 1 {
+	if productId <= 1 {
 		return errors.New("Product Id cant be 0 or 1")
 	}
 

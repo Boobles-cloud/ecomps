@@ -37,8 +37,8 @@ func (p *PermissionService) DeletePermission(ctx context.Context, id, tenanId ui
 
 func (p *PermissionService) AsignUserPermssion(ctx context.Context, userId, permissionId uint) error {
 
-	if userId == 0 {
-		return errors.New("UserId cant be 0")
+	if userId <= 1 {
+		return errors.New("UserId cant be 0 or 1")
 	}
 
 	allPermissions, err := p.permissionRepo.GetAllPermissionsForUserId(ctx, userId)
@@ -67,8 +67,8 @@ func (p *PermissionService) GetAllPermissionsByLanguageId(ctx context.Context, l
 
 func (p *PermissionService) GetAllPermissionsForUserId(ctx context.Context, userId uint) ([]permissionstructs.Permission, error) {
 
-	if userId == 0 {
-		return []permissionstructs.Permission{}, errors.New("UserId cant be 0")
+	if userId <= 1 {
+		return []permissionstructs.Permission{}, errors.New("UserId cant be 0 or 1")
 	}
 	return p.permissionRepo.GetAllPermissionsForUserId(ctx, userId)
 }

@@ -21,8 +21,8 @@ func (a *AuthService) DeleteAccessTokenByValue(ctx context.Context, cookieVal st
 
 func (a *AuthService) CreateAuthCookie(ctx context.Context, userId, tenantId uint) (http.Cookie, error) {
 
-	if userId == 0 || userId == 1 {
-		return http.Cookie{}, errors.New("UserId cant be 0")
+	if userId <= 1 {
+		return http.Cookie{}, errors.New("UserId cant be 0 or 1")
 	}
 
 	if tenantId == 0 {

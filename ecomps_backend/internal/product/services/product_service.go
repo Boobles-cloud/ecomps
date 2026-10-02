@@ -10,8 +10,8 @@ import (
 
 func (p *ProductService) GetById(ctx context.Context, id uint) (productstructs.Product, error) {
 
-	if id == 0 {
-		return productstructs.Product{}, errors.New("Product Id cant be 0")
+	if id == 0 || id == 1 {
+		return productstructs.Product{}, errors.New("Product Id cant be 0 or 1")
 	}
 
 	encryptedProduct, err := p.productRepo.GetById(ctx, id)
@@ -37,8 +37,8 @@ func (p *ProductService) GetById(ctx context.Context, id uint) (productstructs.P
 
 func (p *ProductService) GetAllByTenantId(ctx context.Context, tenantId uint) ([]productstructs.Product, error) {
 
-	if tenantId == 0 {
-		return []productstructs.Product{}, errors.New("Tenant Id cant be 0")
+	if tenantId <= 1 {
+		return []productstructs.Product{}, errors.New("Tenant Id cant be 0 or 1")
 	}
 
 	encryptedProduct, err := p.productRepo.GetAllByTenantId(ctx, tenantId)
@@ -69,8 +69,8 @@ func (p *ProductService) GetAllByTenantId(ctx context.Context, tenantId uint) ([
 
 func (p *ProductService) Create(ctx context.Context, item productstructs.Product) (uint, error) {
 
-	if item.TenantId == 0 {
-		return 0, errors.New("Tenant Id cant be 0")
+	if item.TenantId <= 1 {
+		return 0, errors.New("Tenant Id cant be 0 or 1")
 	}
 
 	if item.ProductName == "" {
@@ -94,6 +94,10 @@ func (p *ProductService) Create(ctx context.Context, item productstructs.Product
 
 func (p *ProductService) Update(ctx context.Context, item productstructs.Product, filterName string) error {
 
+	if item.ProductId <= 1 {
+		return errors.New("Product id cant be 0 or 1")
+	}
+
 	pw, err := p.tenantService.GetPw(ctx, item.TenantId)
 
 	if err != nil {
@@ -111,8 +115,8 @@ func (p *ProductService) Update(ctx context.Context, item productstructs.Product
 
 func (p *ProductService) Delete(ctx context.Context, id uint, tenantId uint) error {
 
-	if id == 0 {
-		return errors.New("Product Id cant be 0")
+	if id <= 1 {
+		return errors.New("Product Id cant be 0 or 1")
 	}
 
 	if err := p.pictureService.DeleteByProductId(ctx, id); err != nil {
