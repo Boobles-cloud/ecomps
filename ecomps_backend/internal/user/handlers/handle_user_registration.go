@@ -9,6 +9,7 @@ import (
 
 	userstructs "ecomps.boobles.cloud/backend/internal/user/user_structs"
 	httputils "ecomps.boobles.cloud/backend/utils/http_utils"
+	jsonutils "ecomps.boobles.cloud/backend/utils/http_utils/json_utils"
 )
 
 // Handels the registration of a user.
@@ -55,5 +56,8 @@ func (hu *UserHandler) HandleRegistration(w http.ResponseWriter, r *http.Request
 	}
 
 	http.SetCookie(w, &cookie)
-	w.WriteHeader(http.StatusOK)
+
+	if ok := jsonutils.RespondWithJson(w, http.StatusOK, tmpUserStruct); !ok {
+		w.WriteHeader(http.StatusInternalServerError)
+	}
 }

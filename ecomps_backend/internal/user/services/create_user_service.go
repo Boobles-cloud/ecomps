@@ -28,6 +28,7 @@ func UserToArgs(u userstructs.UserStruct) []any {
 		u.UserTel,
 		u.UserHas2FA,
 		u.UserHasTenant,
+		u.UserDisabled,
 		u.TenantId,
 	}
 }

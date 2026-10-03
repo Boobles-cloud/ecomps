@@ -8,8 +8,8 @@ import (
 )
 
 type internalError struct {
-	status int
-	err    error
+	Status int    `json:"Status"`
+	Err    string `json:"Error"`
 }
 
 // Returns a new fail handler
@@ -18,11 +18,11 @@ func NewFailHandler(w http.ResponseWriter, funcName string) func(int, error) {
 	return func(status int, err error) {
 		logging.Log(logging.Error, "["+funcName+"] "+err.Error())
 
-		errStruct := internalError{err: err, status: status}
+		errStruct := internalError{Err: err.Error(), Status: status}
 
 		jsonData, jsonErr := json.Marshal(errStruct)
 
-		if err != nil {
+		if jsonErr != nil {
 			logging.Log(logging.Error, "["+funcName+"] "+jsonErr.Error())
 			w.WriteHeader(status)
 			return

@@ -55,6 +55,9 @@ func (s *UserService) CreateUser(ctx context.Context, user userstructs.UserStruc
 		return 0, errors.New("User pw is empty")
 	}
 
+	// Always set this to false
+	user.UserDisabled = false
+
 	tmp, err := s.userRepo.GetUserByEmail(ctx, user.UserMail)
 
 	if err == nil && tmp.UserMail == user.UserMail {

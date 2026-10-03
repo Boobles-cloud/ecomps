@@ -23,6 +23,7 @@ CREATE TABLE Users(
     UserTel varchar(50),
     UserHas2Fa bool,
     UserHasTenant bool,
+    UserDisabled bool,
     TenantId int unsigned NOT NULL
 );
 
@@ -273,14 +274,14 @@ SET FOREIGN_KEY_CHECKS = 0;
 -- We set the tenant default
 -- We do this, so we can filter if the user has a tenant or not :)
 INSERT INTO TenantPw(TenantPwId, TenantPwVal) VALUES(1, "123");
-INSERT INTO Users (UserId, UserName, UserPW, UserMail, UserTel, UserHas2Fa, UserHasTenant, TenantId) VALUES (1, "Test", "Test", "Test@test.test", NULL, FALSE, TRUE, 1);
+INSERT INTO Users (UserId, UserName, UserPW, UserMail, UserTel, UserHas2Fa, UserHasTenant, UserDisabled, TenantId) VALUES (1, "Test", "Test", "Test@test.test", NULL, FALSE, TRUE, TRUE, 1);
 INSERT INTO Tenant(TenantId, TenantName, TenantCreation, TenantAdminUserId, TenantPwId) VALUES(1, "USER_HAS_NO_TENANT", NOW(), 1, 1);
 
 INSERT INTO Customer() VALUES(1, "Dieter", "12345", "You are very beautiful, 69", "Du är väldigt vacker", NOW(), 1);
 INSERT INTO Orders() VALUES(1, "This is a test", NOW(), 9, "12345", "I just wanna go home", "This is a very nice town", NOW(), 1);
 INSERT INTO OrderProducts() VALUES(1, 1, 2, 1);
 INSERT INTO Product() VALUES(1, "Test", "12,99", "This is a nice test", 1);
-INSERT INTO Warehouse() VALUES(1, "Test", 1);
+INSERT INTO Warehouse(WarehousId, WarehousName, TenantId) VALUES(1, "Test", 1);
 
 
 

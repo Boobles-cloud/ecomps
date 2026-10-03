@@ -57,11 +57,11 @@ func (t *TenantRepository) Create(ctx context.Context, tenant tenantstructs.Tena
 
 	defer tx.Rollback()
 
-	var userHasTenant bool
+	var userHasTenant, userDisabled bool
 
 	err = tx.QueryRowContext(ctx,
-		"SELECT UserHasTenant FROM Users WHERE UserId = ? FOR UPDATE", userId,
-	).Scan(&userHasTenant)
+		"SELECT UserHasTenant, UserDisabled FROM Users WHERE UserId = ? FOR UPDATE", userId,
+	).Scan(&userHasTenant, &userDisabled)
 
 	if err != nil && errors.Is(err, sql.ErrNoRows) {
 		return errors.New("User has no tenant")
@@ -71,6 +71,10 @@ func (t *TenantRepository) Create(ctx context.Context, tenant tenantstructs.Tena
 
 	if userHasTenant {
 		return errors.New("User already has a tenant")
+	}
+
+	if userDisabled {
+		return errors.New("User is disabled")
 	}
 
 	masterKeyId, ok := createMasterKey(ctx, tx, t.DatabaseRepository.db)
