@@ -60,8 +60,8 @@ func ConfigureHTTPServer(dh *database.DbHandler) *http.Server {
 	orderService := orderservice.CreateNewOrderService(orderRepo, orderProductRepo, tenantService)
 	orderStatusService := orderservice.CreateNewStatusService(orderStatusRepo)
 
-	productService := productservice.CreateNewProductService(productRepo, tenantService)
 	productPictureService := productpictureservice.CreateNewProductPictureService(productPictureRepo)
+	productService := productservice.CreateNewProductService(productRepo, tenantService, productPictureService)
 
 	customerService := customerservice.CreateNewCustomerService(customerRepo, tenantService)
 

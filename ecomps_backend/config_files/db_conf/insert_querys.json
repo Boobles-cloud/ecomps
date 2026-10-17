@@ -11,7 +11,7 @@
   },
   {
     "QueryName": "InsertUser",
-    "QueryVal": "INSERT INTO Users() VALUES(DEFAULT, ?, ?, ?, ?, ?, ?, ?);",
+    "QueryVal": "INSERT INTO Users() VALUES(DEFAULT, ?, ?, ?, ?, ?, ?, ?, ?);",
     "QueryType": 0
   },
   {

@@ -17,8 +17,6 @@ func (p *ProductHandler) HandleDeletingProduct(w http.ResponseWriter, r *http.Re
 
 	defer cancel()
 
-	// TODO: also delete all product pictures
-
 	fail := httputils.NewFailHandler(w, "Product | HandleDeletingProduct")
 
 	productId, err := httputils.IntPathParam(r, "product_id")

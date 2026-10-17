@@ -21,6 +21,7 @@ type Repository[T any] interface {
 
 type TenantRepository interface {
 	GetById(ctx context.Context, id uint) (tenantstructs.Tenant, error)
+	GetTenantDeletion(ctx context.Context, id uint) (tenantstructs.TenantDeletionStruct, error)
 	GetPw(ctx context.Context, tenantId uint) (string, error)
 	Create(ctx context.Context, tenant tenantstructs.Tenant, userId uint) error
 	Update(ctx context.Context, tenant tenantstructs.Tenant) error
@@ -48,6 +49,7 @@ type ProductPictureRepository interface {
 	GetById(ctx context.Context, id uint) (productpicturetructs.ProductPictures, error)
 	Create(ctx context.Context, item productpicturetructs.ProductPictures) (uint, error)
 	Delete(ctx context.Context, id uint) error
+	DeleteByProductId(ctx context.Context, productId uint) error
 }
 
 type AuthRepository interface {

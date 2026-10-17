@@ -8,7 +8,6 @@ import (
 )
 
 // Returns the int path value
-// TODO: maybe convert this to a generic func?
 func IntPathParam(r *http.Request, paramName string) (int, error) {
 	p, err := strconv.Atoi(r.PathValue(paramName))
 

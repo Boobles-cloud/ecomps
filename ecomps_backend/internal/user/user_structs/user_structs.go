@@ -8,5 +8,6 @@ type UserStruct struct {
 	UserTel       string `json:"UserTel"`
 	UserHas2FA    bool   `json:"UserHas2Fa"`
 	UserHasTenant bool   `json:"UserHasTenant"`
+	UserDisabled  bool   `json:"UserDisabled,omitempty"`
 	TenantId      uint   `json:"TenantId"`
 }

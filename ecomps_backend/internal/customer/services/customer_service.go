@@ -10,8 +10,8 @@ import (
 
 func (c *CustomerService) GetById(ctx context.Context, id uint) (customerstructs.Customer, error) {
 
-	if id == 0 {
-		return customerstructs.Customer{}, errors.New("Customer Id cant be 0")
+	if id <= 1 {
+		return customerstructs.Customer{}, errors.New("Customer Id cant be 0 or 1")
 	}
 
 	encryptedCustomer, err := c.customerRepo.GetById(ctx, id)
@@ -37,8 +37,8 @@ func (c *CustomerService) GetById(ctx context.Context, id uint) (customerstructs
 
 func (c *CustomerService) GetAllByTenantId(ctx context.Context, tenantId uint) ([]customerstructs.Customer, error) {
 
-	if tenantId == 0 {
-		return []customerstructs.Customer{}, errors.New("TenantId cant be 0")
+	if tenantId <= 1 {
+		return []customerstructs.Customer{}, errors.New("TenantId cant be 0 or 1")
 	}
 
 	encryptedCustomer, err := c.customerRepo.GetAllByTenantId(ctx, tenantId)
@@ -69,8 +69,8 @@ func (c *CustomerService) GetAllByTenantId(ctx context.Context, tenantId uint) (
 
 func (c *CustomerService) Create(ctx context.Context, item customerstructs.Customer) (uint, error) {
 
-	if item.TenantId == 0 {
-		return 0, errors.New("Tenant Id cant be 0")
+	if item.TenantId <= 1 {
+		return 0, errors.New("Tenant Id cant be 0 or 1")
 	}
 
 	if item.CustomerName == "" {
@@ -94,12 +94,12 @@ func (c *CustomerService) Create(ctx context.Context, item customerstructs.Custo
 
 func (c *CustomerService) Update(ctx context.Context, item customerstructs.Customer) error {
 
-	if item.TenantId == 0 {
-		return errors.New("Tenant Id cant be 0")
+	if item.TenantId <= 1 {
+		return errors.New("Tenant Id cant be 0 or 1")
 	}
 
-	if item.CustomerId == 0 {
-		return errors.New("Customer Id cant be 0")
+	if item.CustomerId <= 1 {
+		return errors.New("Customer Id cant be 0 or 1")
 	}
 
 	pw, err := c.tenantService.GetPw(ctx, item.TenantId)
@@ -119,12 +119,12 @@ func (c *CustomerService) Update(ctx context.Context, item customerstructs.Custo
 
 func (c *CustomerService) Delete(ctx context.Context, id uint, tenantId uint) error {
 
-	if tenantId == 0 {
-		return errors.New("Tenant Id cant be 0")
+	if tenantId <= 1 {
+		return errors.New("Tenant Id cant be 0 or 1")
 	}
 
-	if id == 0 {
-		return errors.New("Customer Id cant be 0")
+	if id <= 1 {
+		return errors.New("Customer Id cant be 0 or 1")
 	}
 
 	return c.customerRepo.Delete(ctx, id, tenantId)

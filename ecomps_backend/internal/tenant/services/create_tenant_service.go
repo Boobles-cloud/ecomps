@@ -5,8 +5,6 @@ import (
 	tenantstructs "ecomps.boobles.cloud/backend/internal/tenant/tenant_structs"
 )
 
-// TODO: Create own TenantRepository!!!
-
 type TenantService struct {
 	tenantRepo repository.TenantRepository
 }

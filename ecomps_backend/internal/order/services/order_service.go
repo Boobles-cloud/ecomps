@@ -10,8 +10,8 @@ import (
 
 func (o *OrderService) GetOrderById(ctx context.Context, id uint) (orderstructs.Order, error) {
 
-	if id == 0 {
-		return orderstructs.Order{}, errors.New("Id cant be 0")
+	if id == 0 || id == 1 {
+		return orderstructs.Order{}, errors.New("Id cant be 0 or 1")
 	}
 
 	encryptedOrder, err := o.orderRepository.GetOrderById(ctx, id)
@@ -45,8 +45,8 @@ func (o *OrderService) GetOrderById(ctx context.Context, id uint) (orderstructs.
 
 func (o *OrderService) GetAllOrdersByTenantId(ctx context.Context, tenantId uint) ([]orderstructs.Order, error) {
 
-	if tenantId == 0 {
-		return []orderstructs.Order{}, errors.New("TenantId cant be 0")
+	if tenantId == 0 || tenantId == 1 {
+		return []orderstructs.Order{}, errors.New("TenantId cant be 0 or 1")
 	}
 
 	encryptedOrder, err := o.orderRepository.GetAllOrdersByTenantId(ctx, tenantId)
@@ -74,8 +74,8 @@ func (o *OrderService) GetAllOrdersByTenantId(ctx context.Context, tenantId uint
 
 func (o *OrderService) CreateOrder(ctx context.Context, order orderstructs.Order) (uint, error) {
 
-	if order.TenantId == 0 {
-		return 0, errors.New("TenantId cant be 0")
+	if order.TenantId == 0 || order.TenantId == 1 {
+		return 0, errors.New("TenantId cant be 0 or 1")
 	}
 
 	pw, err := o.tenantService.GetPw(ctx, order.TenantId)
@@ -101,12 +101,12 @@ func (o *OrderService) CreateOrder(ctx context.Context, order orderstructs.Order
 
 func (o *OrderService) UpdateOrder(ctx context.Context, order orderstructs.Order) error {
 
-	if order.OrderId == 0 {
-		return errors.New("OrderId cant be 0")
+	if order.OrderId == 0 || order.OrderId == 1 {
+		return errors.New("OrderId cant be 0 or 1")
 	}
 
-	if order.TenantId == 0 {
-		return errors.New("TenantId cant be 0")
+	if order.TenantId == 0 || order.TenantId == 1 {
+		return errors.New("TenantId cant be 0 or 1")
 	}
 
 	pw, err := o.tenantService.GetPw(ctx, order.TenantId)
@@ -132,8 +132,8 @@ func (o *OrderService) UpdateOrder(ctx context.Context, order orderstructs.Order
 
 func (o *OrderService) DeleteOrder(ctx context.Context, orderId uint) error {
 
-	if orderId == 0 {
-		return errors.New("OrderId cant be 0")
+	if orderId == 0 || orderId == 1 {
+		return errors.New("OrderId cant be 0 or 1")
 	}
 
 	if err := o.productRespository.DeleteOrderProductsByOrderId(ctx, orderId); err != nil {

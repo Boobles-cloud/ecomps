@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 
 	userstructs "ecomps.boobles.cloud/backend/internal/user/user_structs"
@@ -10,7 +11,7 @@ import (
 // Gets a user by the given id
 func (s *UserService) GetUserById(ctx context.Context, userId uint) (userstructs.UserStruct, error) {
 
-	if userId == 0 || userId == 1 {
+	if userId <= 1 {
 		return userstructs.UserStruct{}, errors.New("User Id cant be 0 or 1")
 	}
 
@@ -34,7 +35,7 @@ func (s *UserService) GetAllByTenantId(ctx context.Context, tenantId uint) ([]us
 
 	users := make([]userstructs.UserStruct, 0, 100)
 
-	if tenantId == 0 {
+	if tenantId <= 1 {
 		return users, errors.New("Tenant Id cant be 0 or 1")
 	}
 
@@ -55,6 +56,9 @@ func (s *UserService) CreateUser(ctx context.Context, user userstructs.UserStruc
 		return 0, errors.New("User pw is empty")
 	}
 
+	// Always set this to false
+	user.UserDisabled = false
+
 	tmp, err := s.userRepo.GetUserByEmail(ctx, user.UserMail)
 
 	if err == nil && tmp.UserMail == user.UserMail {
@@ -66,13 +70,18 @@ func (s *UserService) CreateUser(ctx context.Context, user userstructs.UserStruc
 
 // Updates a user
 func (s *UserService) UpdateUser(ctx context.Context, user userstructs.UserStruct, filterName string) error {
+
+	if user.UserId <= 1 {
+		return errors.New("UserId cannot be 0 or 1")
+	}
+
 	return s.userRepo.Update(ctx, user, "UserId")
 }
 
 // Deletes a user
 func (s *UserService) DeleteUser(ctx context.Context, userId, tenantId uint) error {
 
-	if userId == 0 || userId == 1 {
+	if userId <= 1 {
 		return errors.New("UserId cannot be 0 or 1")
 	}
 
@@ -82,18 +91,17 @@ func (s *UserService) DeleteUser(ctx context.Context, userId, tenantId uint) err
 		return err
 	}
 
-	// TODO: insert Tenant service
-	// isThere := s.tenantService.CheckTenantDeletion()
+	_, errTenantDeletion := s.tenantService.GetTenantDeletion(ctx, tenantId)
 
 	// If the user isnt a admin user we can just delete him
 	// If he is a admin user and the tenant is in deletion we set the date of deletion to 2 Months
-	if tenant.IsUserAdmin(userId) {
+	if tenant.IsUserAdmin(userId) && errTenantDeletion == nil {
 		return s.userRepo.CreateUserDeletionDate(ctx, userId)
 	} else if !tenant.IsUserAdmin(userId) {
-		s.DeleteUser(ctx, userId, tenantId)
+		return s.DeleteUser(ctx, userId, tenantId)
+	} else if errors.Is(errTenantDeletion, sql.ErrNoRows) {
+		return errors.New("Tenant musst be deleted first")
 	} else {
 		return errors.New("User is still admin!")
 	}
-
-	return nil
 }
