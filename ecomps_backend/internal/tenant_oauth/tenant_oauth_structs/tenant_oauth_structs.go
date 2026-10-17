@@ -7,13 +7,14 @@ import "time"
 type OAuthApps struct {
 	AppId   uint   `json:"AppId"`
 	AppName string `json:"AppName"`
+	AppLink string `json:"AppLink"`
 }
 
 // This holds all token data
 type TenantOAuthTokens struct {
 	TokenId         uint
 	TokenVal        string
-	RefreshTokenval string
+	RefreshTokenVal string
 	LastChanged     time.Time
 	AppId           uint
 	TenantId        uint
@@ -41,7 +42,7 @@ type TenantSyncSettings struct {
 }
 
 // All settings
-type AllSettings struct {
+type AllOAuthSettings struct {
 	SettingId          uint   `json:"SettingId"`
 	SettingName        string `json:"SettingName"`
 	SettingDescription string `json:"SettingDescription"`

@@ -89,26 +89,62 @@ CREATE TABLE TenantDeletions(
     TenantId int unsigned NOT NULL
 );
 
--- All tokens for applications like: Ebay, Amazon, etc.
+
+
+
+-- ############################################################
+--                         Tenant OAuth stuff
+--
+-- ############################################################
+
+-- All oauth apps we support
+-- TODO: Add them
+CREATE TABLE OAuthApps(
+    AppId int unsigned NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    AppName varchar(250) NOT NULL,
+    AppLink varchar(250)
+);
+
+-- TODO: Add them
+CREATE TABLE AllOAuthSettings(
+    SettingId int unsigned NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    SettingName varchar(100) NOT NULL,
+    SettingsDescription varchar(250) NOT NULL,
+    LangId int unsigned NOT NULL
+);
+
+
+-- All tokens for a tenant
 CREATE TABLE TenantOAuthTokens(
     TokenId int unsigned NOT NULL AUTO_INCREMENT PRIMARY KEY,
     TokenVal varchar(250) NOT NULL,
-    LasChanget DATETIME,
+    RefreshTokenVal varchar(255),
+    LastChanged DATETIME,
     AppId int unsigned NOT NULL,
     TenantId int unsigned NOT NULL
 );
 
--- All capable oauth applications
--- Also all metadata for syncs -> We sync all data
-CREATE TABLE OAuthApplications(
-    AppId int unsigned NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    AppName varchar(150) NOT NULL,
-    AppStruct varchar(150) NOT NULL,
-    AppSyncActivated DATETIME NOT NULL,
-    AppSync BOOL,
-    AppSyncInterval int unsigned,
+-- This is used to store information about what apps we need to sync from
+CREATE TABLE TenantOAuthApps(
+    TenantAppId int unsigned NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    SyncInterval int NOT NULL,
+    SyncActivated DATETIME,
+    SyncSuccessfull bool,
+    SyncErrorMsg varchar(255),
+    UserId int unsigned NOT NULL, -- This is used to show which user has activated that
+    AppId int unsigned NOT NULL,
     TenantId int unsigned NOT NULL
 );
+
+
+CREATE TABLE TenantSyncSettings(
+    TenantSettingId int unsigned NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    LastChanged DATETIME,
+    SettingId int unsigned NOT NULL,
+    UserId int unsigned NOT NULL,
+    TenantId int unsigned NOT NULL
+);
+
 
 
 -- ############################################################
@@ -219,12 +255,24 @@ ALTER TABLE TenantActions
 ALTER TABLE TenantDeletions
     ADD CONSTRAINT FK_TenantDeletions_Tenant FOREIGN KEY (TenantId) REFERENCES Tenant(TenantId);
 
+
 ALTER TABLE TenantOAuthTokens
-    ADD CONSTRAINT FK_TenantOAuthTokens_OAuthApplications FOREIGN KEY (AppId) REFERENCES OAuthApplications(AppId),
+    ADD CONSTRAINT FK_TenantOAuthTokens_OAuthApps FOREIGN KEY (AppId) REFERENCES OAuthApps(AppId),
     ADD CONSTRAINT FK_TenantOAuthTokens_Tenant FOREIGN KEY (TenantId) REFERENCES Tenant(TenantId);
 
-ALTER TABLE OAuthApplications
-    ADD CONSTRAINT FK_OAuthApplications_Tenant FOREIGN KEY (TenantId) REFERENCES Tenant(TenantId);
+ALTER TABLE TenantOAuthApps
+    ADD CONSTRAINT FK_TenantOAuthApps_User FOREIGN KEY (UserId) REFERENCES Users(UserId),
+    ADD CONSTRAINT FK_TenantOAuthApps_OAuthApps FOREIGN KEY (AppId) REFERENCES OAuthApps(AppId),
+    ADD CONSTRAINT FK_TenantOAuthApps_Tenant FOREIGN KEY (TenantId) REFERENCES Tenant(TenantId);
+
+ALTER TABLE AllOAuthSettings
+    ADD CONSTRAINT FK_AllOAuthSettings_Language FOREIGN KEY (LangId) REFERENCES Languages(LangId);
+
+ALTER TABLE TenantSyncSettings
+    ADD CONSTRAINT FK_TenantSyncSettings_Setting FOREIGN KEY (SettingId) REFERENCES AllOAuthSettings(SettingId),
+    ADD CONSTRAINT FK_TenantSyncSettings_User FOREIGN KEY (UserId) REFERENCES Users(UserId),
+    ADD CONSTRAINT FK_TenantSyncSettings_Tenant FOREIGN KEY (TenantId) REFERENCES Tenant(TenantId);
+
 
 ALTER TABLE Customer
     ADD CONSTRAINT FK_Customer_Tenant FOREIGN KEY (TenantId) REFERENCES Tenant(TenantId);
