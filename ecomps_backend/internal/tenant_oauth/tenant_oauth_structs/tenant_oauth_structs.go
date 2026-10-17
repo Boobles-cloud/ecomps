@@ -11,7 +11,7 @@ type OAuthApps struct {
 }
 
 // This holds all token data
-type TenantOAuthTokens struct {
+type TenantOAuthToken struct {
 	TokenId         uint
 	TokenVal        string
 	RefreshTokenVal string

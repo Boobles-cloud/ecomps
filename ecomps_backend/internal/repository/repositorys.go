@@ -54,7 +54,9 @@ type OAuthTenantSettingsRepository interface {
 }
 
 type OAuthTenantTokenRepository interface {
-	// TODO
+	GetTokenForTenantApp(ctx context.Context, tenantId, appId uint) (tenantoauthstructs.TenantOAuthToken, error)
+	AddToken(ctx context.Context, token tenantoauthstructs.TenantOAuthToken) error
+	DeleteToken(ctx context.Context, tokenId uint) error
 }
 
 type UserRepository interface {
