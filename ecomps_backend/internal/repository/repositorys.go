@@ -21,6 +21,7 @@ type Repository[T any] interface {
 
 type TenantRepository interface {
 	GetById(ctx context.Context, id uint) (tenantstructs.Tenant, error)
+	GetTenantDeletion(ctx context.Context, id uint) (tenantstructs.TenantDeletionStruct, error)
 	GetPw(ctx context.Context, tenantId uint) (string, error)
 	Create(ctx context.Context, tenant tenantstructs.Tenant, userId uint) error
 	Update(ctx context.Context, tenant tenantstructs.Tenant) error

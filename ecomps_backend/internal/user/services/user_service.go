@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 
 	userstructs "ecomps.boobles.cloud/backend/internal/user/user_structs"
@@ -90,18 +91,17 @@ func (s *UserService) DeleteUser(ctx context.Context, userId, tenantId uint) err
 		return err
 	}
 
-	// TODO: insert Tenant service
-	// isThere := s.tenantService.CheckTenantDeletion()
+	_, errTenantDeletion := s.tenantService.GetTenantDeletion(ctx, tenantId)
 
 	// If the user isnt a admin user we can just delete him
 	// If he is a admin user and the tenant is in deletion we set the date of deletion to 2 Months
-	if tenant.IsUserAdmin(userId) {
+	if tenant.IsUserAdmin(userId) && errTenantDeletion == nil {
 		return s.userRepo.CreateUserDeletionDate(ctx, userId)
 	} else if !tenant.IsUserAdmin(userId) {
-		s.DeleteUser(ctx, userId, tenantId)
+		return s.DeleteUser(ctx, userId, tenantId)
+	} else if errors.Is(errTenantDeletion, sql.ErrNoRows) {
+		return errors.New("Tenant musst be deleted first")
 	} else {
 		return errors.New("User is still admin!")
 	}
-
-	return nil
 }

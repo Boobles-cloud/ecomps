@@ -74,3 +74,12 @@ func (t *TenantService) Delete(ctx context.Context, userId, tenantId uint) error
 
 	return t.tenantRepo.Delete(ctx, userId, tenantId)
 }
+
+func (t *TenantService) GetTenantDeletion(ctx context.Context, tenantId uint) (tenantstructs.TenantDeletionStruct, error) {
+
+	if tenantId <= 1 {
+		return tenantstructs.TenantDeletionStruct{}, errors.New("TenantId cant be 0")
+	}
+
+	return t.tenantRepo.GetTenantDeletion(ctx, tenantId)
+}

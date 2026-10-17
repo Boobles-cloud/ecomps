@@ -140,6 +140,18 @@ func (t *TenantRepository) Delete(ctx context.Context, userId, tenantId uint) er
 	return nil
 }
 
+// Gets a deletion struct
+func (t *TenantRepository) GetTenantDeletion(ctx context.Context, id uint) (tenantstructs.TenantDeletionStruct, error) {
+
+	deletion, ok := database.QueryOne[tenantstructs.TenantDeletionStruct](ctx, t.db, "SelectTenantDeletionFromTenantId", []any{id})
+
+	if !ok {
+		return deletion, sql.ErrNoRows
+	}
+
+	return deletion, nil
+}
+
 // Creates the master key for the given tenant, inside the given transaction.
 func createMasterKey(ctx context.Context, tx *sql.Tx, dh *database.DbHandler) (uint, bool) {
 	tenantPw := createRandomString(maxLengthOfKey)
