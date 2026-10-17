@@ -153,5 +153,15 @@
     "QueryName": "SelectProductPictureById",
     "QueryVal": "SELECT * FROM ProductPictures WHERE PictureId = ?;",
     "QueryType": 2
+  },
+  {
+    "QueryName": "SelectAllOAuthApps",
+    "QueryVal": "SELECT * FROM OAuthApps;",
+    "QueryType": 2
+  },
+  {
+    "QueryName": "SelectAllOAuthSettings",
+    "QueryVal": "SELECT * FROM OAuthSettings;",
+    "QueryType": 2
   }
 ]

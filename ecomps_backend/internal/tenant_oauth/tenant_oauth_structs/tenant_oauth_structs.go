@@ -42,7 +42,7 @@ type TenantSyncSettings struct {
 }
 
 // All settings
-type AllOAuthSettings struct {
+type OAuthSettings struct {
 	SettingId          uint   `json:"SettingId"`
 	SettingName        string `json:"SettingName"`
 	SettingDescription string `json:"SettingDescription"`

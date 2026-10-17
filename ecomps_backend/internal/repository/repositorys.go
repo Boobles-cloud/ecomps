@@ -8,6 +8,7 @@ import (
 	permissionstructs "ecomps.boobles.cloud/backend/internal/permission/permission_structs"
 	productpicturetructs "ecomps.boobles.cloud/backend/internal/product_pictures/product_pictures_structs"
 	tenantstructs "ecomps.boobles.cloud/backend/internal/tenant/tenant_structs"
+	tenantoauthstructs "ecomps.boobles.cloud/backend/internal/tenant_oauth/tenant_oauth_structs"
 	userstructs "ecomps.boobles.cloud/backend/internal/user/user_structs"
 )
 
@@ -26,6 +27,34 @@ type TenantRepository interface {
 	Create(ctx context.Context, tenant tenantstructs.Tenant, userId uint) error
 	Update(ctx context.Context, tenant tenantstructs.Tenant) error
 	Delete(ctx context.Context, userId, tenantId uint) error
+}
+
+// Just for all application that we support
+type OAuthAppRepository interface {
+	GetAllOAuthApps(ctx context.Context) ([]tenantoauthstructs.OAuthApps, error)
+}
+
+// All settings a user can chose from
+type OAuthSettingsRepository interface {
+	GetAllSettings(ctx context.Context) ([]tenantoauthstructs.OAuthSettings, error)
+}
+
+// All apps a tenant has active
+type OAuthTenantAppRepository interface {
+	GetAllOAuthAppsForTenant(ctx context.Context, tenantId uint) ([]tenantoauthstructs.TenantOAuthApps, error)
+	AddOAuthApplicationForTenant(ctx context.Context, app tenantoauthstructs.TenantOAuthApps) error
+	DeleteApplicationForTenant(ctx context.Context, tenantId, appId uint) error
+}
+
+// All settings for the tenant apps
+type OAuthTenantSettingsRepository interface {
+	GetSettingsForApplication(ctx context.Context, tenantId, appId uint) ([]tenantoauthstructs.TenantSyncSettings, error)
+	AddSettingForTenantApplication(ctx context.Context, setting tenantoauthstructs.TenantSyncSettings) error
+	ChangeSettingForTenantApplication(ctx context.Context, setting tenantoauthstructs.TenantSyncSettings) error
+}
+
+type OAuthTenantTokenRepository interface {
+	// TODO
 }
 
 type UserRepository interface {
