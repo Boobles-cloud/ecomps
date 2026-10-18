@@ -107,7 +107,7 @@ CREATE TABLE OAuthApps(
 
 -- TODO: Add them
 CREATE TABLE OAuthSettings(
-    SettingId int unsigned NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    SettingId int unsigned NOT NULL,
     SettingName varchar(100) NOT NULL,
     SettingsDescription varchar(250) NOT NULL,
     LangId int unsigned NOT NULL

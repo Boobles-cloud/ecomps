@@ -53,5 +53,20 @@
     "QueryName": "InsertProductPicture",
     "QueryVal": "INSERT INTO ProductPictures() VALUES(DEFAULT, ?, ?, ?, ?, ?);",
     "QueryType": 0
+  },
+  {
+    "QueryName": "InsertOAuthAppForTenant",
+    "QueryVal": "INSERT INTO TenantOAuthApps() VALUES(DEFAULT, ?, ?, ?, ?, ?, ?, ?);",
+    "QueryType": 0
+  },
+  {
+    "QueryName": "InsertSettingForTenantApplication",
+    "QueryVal": "INSERT INTO TenantSyncSettings() VALUES(DEFAULT, ?, ?, ?, ?);",
+    "QueryType": 0
+  },
+  {
+    "QueryName": "InsertOAuthToken",
+    "QueryVal": "INSERT INTO TenantOAuthTokens() VALUES(DEFAULT, ?, ?, ?, ?, ?, ?);",
+    "QueryType": 0
   }
 ]
