@@ -47,9 +47,9 @@ func (o *OAuthAppRepository) GetAllOAuthApps(ctx context.Context) ([]tenantoauth
 // 							All OAuhtSettings funcs
 // ======================================================================
 
-func (o *OAuthSettingsRepository) GetAllSettings(ctx context.Context) ([]tenantoauthstructs.OAuthSettings, error) {
+func (o *OAuthSettingsRepository) GetAllSettings(ctx context.Context, langId uint) ([]tenantoauthstructs.OAuthSettings, error) {
 
-	allSettings, ok := database.QueryMany[tenantoauthstructs.OAuthSettings](ctx, o.db, "SelectAllOAuthSettings", []any{})
+	allSettings, ok := database.QueryMany[tenantoauthstructs.OAuthSettings](ctx, o.db, "SelectAllOAuthSettingsByLangId", []any{langId})
 
 	if !ok {
 		return allSettings, sql.ErrNoRows

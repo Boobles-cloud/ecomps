@@ -36,7 +36,7 @@ type OAuthAppRepository interface {
 
 // All settings a user can chose from
 type OAuthSettingsRepository interface {
-	GetAllSettings(ctx context.Context) ([]tenantoauthstructs.OAuthSettings, error)
+	GetAllSettings(ctx context.Context, langId uint) ([]tenantoauthstructs.OAuthSettings, error)
 }
 
 // All apps a tenant has active

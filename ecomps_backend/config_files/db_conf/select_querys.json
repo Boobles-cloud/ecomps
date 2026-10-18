@@ -160,8 +160,8 @@
     "QueryType": 2
   },
   {
-    "QueryName": "SelectAllOAuthSettings",
-    "QueryVal": "SELECT * FROM OAuthSettings;",
+    "QueryName": "SelectAllOAuthSettingsByLangId",
+    "QueryVal": "SELECT * FROM OAuthSettings WHERE LangId = ?;",
     "QueryType": 2
   },
   {
