@@ -10,6 +10,14 @@ type OAuthApps struct {
 	AppLink string `json:"AppLink"`
 }
 
+// All settings
+type OAuthSettings struct {
+	SettingId          uint   `json:"SettingId"`
+	SettingName        string `json:"SettingName"`
+	SettingDescription string `json:"SettingDescription"`
+	LangId             uint   `json:"LanguageId"`
+}
+
 // This holds all token data
 type TenantOAuthToken struct {
 	TokenId         uint
@@ -39,12 +47,4 @@ type TenantSyncSettings struct {
 	SettingId       uint      `json:"SettingId"`
 	UserId          uint      `json:"UserId"`
 	TenantId        uint      `json:"TenantId"`
-}
-
-// All settings
-type OAuthSettings struct {
-	SettingId          uint   `json:"SettingId"`
-	SettingName        string `json:"SettingName"`
-	SettingDescription string `json:"SettingDescription"`
-	LangId             uint   `json:"LanguageId"`
 }
