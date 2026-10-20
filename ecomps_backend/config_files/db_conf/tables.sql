@@ -265,11 +265,10 @@ ALTER TABLE TenantOAuthApps
     ADD CONSTRAINT FK_TenantOAuthApps_OAuthApps FOREIGN KEY (AppId) REFERENCES OAuthApps(AppId),
     ADD CONSTRAINT FK_TenantOAuthApps_Tenant FOREIGN KEY (TenantId) REFERENCES Tenant(TenantId);
 
-ALTER TABLE AllOAuthSettings
-    ADD CONSTRAINT FK_AllOAuthSettings_Language FOREIGN KEY (LangId) REFERENCES Languages(LangId);
+ALTER TABLE OAuthSettings
+    ADD CONSTRAINT FK_OAuthSettings_Language FOREIGN KEY (LangId) REFERENCES Languages(LangId);
 
 ALTER TABLE TenantSyncSettings
-    ADD CONSTRAINT FK_TenantSyncSettings_Setting FOREIGN KEY (SettingId) REFERENCES AllOAuthSettings(SettingId),
     ADD CONSTRAINT FK_TenantSyncSettings_User FOREIGN KEY (UserId) REFERENCES Users(UserId),
     ADD CONSTRAINT FK_TenantSyncSettings_Tenant FOREIGN KEY (TenantId) REFERENCES Tenant(TenantId);
 

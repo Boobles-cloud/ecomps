@@ -74,7 +74,7 @@ func firstInit() bool {
 	content, err := os.ReadFile(os.Getenv("env_path"))
 
 	if err != nil {
-		logging.Log(logging.Error, "[Main | firstInit]"+err.Error())
+		logging.Log(logging.Error, "[Main | firstInit] "+err.Error())
 	}
 
 	if strings.Contains(string(content), "first-init") {

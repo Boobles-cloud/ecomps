@@ -15,3 +15,5 @@ func (t *TenantOAuthService) GetAllOAuthApps(ctx context.Context) ([]tenantoauth
 func (t *TenantOAuthService) GetAllOAuthSettings(ctx context.Context, langId uint) ([]tenantoauthstructs.OAuthSettings, error) {
 	return t.oauthSettingsRepository.GetAllSettings(ctx, langId)
 }
+
+// ===========================

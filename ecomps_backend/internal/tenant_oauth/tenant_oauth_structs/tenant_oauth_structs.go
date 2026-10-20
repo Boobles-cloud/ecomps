@@ -30,14 +30,16 @@ type TenantOAuthToken struct {
 
 // This holds all information for the specific tenant
 type TenantOAuthApps struct {
-	TenantAppId     uint          `json:"TenantAppId"`
-	SyncInterval    time.Duration `json:"Interval"`
-	SyncActivated   time.Time     `json:"SyncActivated"`
-	SyncSuccessfull bool          `json:"SyncSuccess"`
-	SyncErrorMsg    string        `json:"SyncErrorMsg,omitempty"`
-	UserId          uint          `json:"UserId"`
-	AppId           uint          `json:"AppId"`
-	TenantId        uint          `json:"TenantId"`
+	TenantAppId   uint          `json:"TenantAppId"`
+	SyncInterval  time.Duration `json:"Interval"`
+	SyncActivated time.Time     `json:"SyncActivated"`
+
+	// TODO: move this to another struct
+	// SyncSuccessfull bool          `json:"SyncSuccess"`
+	// SyncErrorMsg    string        `json:"SyncErrorMsg,omitempty"`
+	UserId   uint `json:"UserId"`
+	AppId    uint `json:"AppId"`
+	TenantId uint `json:"TenantId"`
 }
 
 // This holds all settings of that tenant
