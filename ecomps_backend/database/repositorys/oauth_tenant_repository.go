@@ -118,6 +118,8 @@ func (t *OAuthTenantSettingsRepository) ChangeSettingForTenantApplication(ctx co
 // 							All Tenant-Token funcs
 // ======================================================================
 
+// TODO: Move this to our key-management-provider
+
 func (t *OAuthTenantTokenRepository) GetTokenForTenantApp(ctx context.Context, tenantId, appId uint) (tenantoauthstructs.TenantOAuthToken, error) {
 
 	token, ok := database.QueryOne[tenantoauthstructs.TenantOAuthToken](ctx, t.db, "SelectOAuthTokenByTenantAndAppId", []any{})

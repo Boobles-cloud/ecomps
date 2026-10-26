@@ -16,4 +16,4 @@ func (t *TenantOAuthService) GetAllOAuthSettings(ctx context.Context, langId uin
 	return t.oauthSettingsRepository.GetAllSettings(ctx, langId)
 }
 
-// ===========================
+// =========================== OAuthStuff ===========================

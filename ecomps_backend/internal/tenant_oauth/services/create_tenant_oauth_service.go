@@ -61,8 +61,6 @@ func OAuthTenantApps(item tenantoauthstructs.TenantOAuthApps) []any {
 		item.TenantAppId,
 		item.SyncInterval,
 		item.SyncActivated,
-		item.SyncSuccessfull,
-		item.SyncErrorMsg,
 		item.UserId,
 		item.AppId,
 		item.TenantId,
