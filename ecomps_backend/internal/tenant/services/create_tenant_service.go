@@ -21,6 +21,5 @@ func TenantToArgs(t tenantstructs.Tenant) []any {
 		t.TenantName,
 		t.TenantCreation,
 		t.TenantAdminUserId,
-		t.TenantPwId,
 	}
 }

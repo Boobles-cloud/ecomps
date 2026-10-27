@@ -1,6 +1,9 @@
 package tenantstructs
 
-import "time"
+import (
+	"time"
+	"uuid"
+)
 
 type TenantDeletionStruct struct {
 	TenantDeletionId uint      `json:"-"`
@@ -8,7 +11,7 @@ type TenantDeletionStruct struct {
 	IssuedOn         time.Time `json:"-"`
 	WhenToComplete   time.Time `json:"-"`
 	Deleted          bool      `json:"-"`
-	TenantId         uint      `json:"TenantId"`
+	TenantId         uuid.UUID `json:"TenantId"`
 }
 
 // Checks if a tenant has its deletion date today

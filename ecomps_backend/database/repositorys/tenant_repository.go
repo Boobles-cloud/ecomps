@@ -37,6 +37,7 @@ func (t *TenantRepository) GetById(ctx context.Context, id uint) (tenantstructs.
 	return tenant, nil
 }
 
+// TODO: dont forget me!
 func (t *TenantRepository) GetPw(ctx context.Context, tenantId uint) (string, error) {
 
 	tenant, ok := database.QueryOne[tenantstructs.TenantPwStruct](ctx, t.db, "SelectTenantPwByTenantId", []any{tenantId})

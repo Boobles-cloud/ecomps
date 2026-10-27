@@ -1,11 +1,10 @@
 module ecomps.boobles.cloud/backend
 
-go 1.25.8
+go 1.27.3
 
 require (
 	github.com/go-sql-driver/mysql v1.10.0
 	github.com/golang-jwt/jwt/v4 v4.5.2
-	github.com/google/uuid v1.6.0
 	github.com/wneessen/go-mail v0.8.1
 )
 

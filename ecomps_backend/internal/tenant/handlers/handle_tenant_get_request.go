@@ -18,6 +18,7 @@ func (t *TenantHandler) HandleGetTenantByTenantId(w http.ResponseWriter, r *http
 
 	fail := httputils.NewFailHandler(w, "Tenant | HandleGetTenantByTenantId")
 
+	// TODO: change mee!
 	tenantId, err := httputils.IntPathParam(r, "tenant_id")
 
 	if err != nil {
@@ -25,7 +26,7 @@ func (t *TenantHandler) HandleGetTenantByTenantId(w http.ResponseWriter, r *http
 		return
 	}
 
-	tenant, err := t.tenantService.GetTenantById(ctx, uint(tenantId))
+	tenant, err := t.tenantService.GetTenantById(ctx, tenantId)
 
 	if err != nil {
 		fail(http.StatusInternalServerError, err)

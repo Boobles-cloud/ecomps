@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/http"
 	"time"
+	"uuid"
 
 	"ecomps.boobles.cloud/backend/internal/middleware"
 	httputils "ecomps.boobles.cloud/backend/utils/http_utils"
@@ -60,7 +61,7 @@ func (hu *UserHandler) HandleHasUserATenant(w http.ResponseWriter, r *http.Reque
 
 	user, err := hu.userService.GetUserById(ctx, uint(userId))
 
-	if user.UserHasTenant && user.TenantId != 0 {
+	if user.UserHasTenant && user.TenantId.Compare(uuid.Nil()) != 0 {
 		if !jsonutils.RespondWithJson(w, http.StatusOK, "Tenant = true") {
 			w.WriteHeader(http.StatusInternalServerError)
 			return
@@ -83,9 +84,9 @@ func (hu *UserHandler) HandleGettingAllUsersByUserTenantId(w http.ResponseWriter
 
 	fail := httputils.NewFailHandler(w, "Tenant | HandleGettingAllUsersByUserTenantId")
 
-	tenantId := r.Context().Value(middleware.TenantIdContextKey).(int)
+	tenantId := r.Context().Value(middleware.TenantIdContextKey).(uuid.UUID)
 
-	users, err := hu.userService.GetAllByTenantId(ctx, uint(tenantId))
+	users, err := hu.userService.GetAllByTenantId(ctx, tenantId)
 
 	if err != nil {
 		fail(http.StatusInternalServerError, err)
