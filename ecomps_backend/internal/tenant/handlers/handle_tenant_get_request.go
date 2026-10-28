@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/http"
 	"time"
+	"uuid"
 
 	httputils "ecomps.boobles.cloud/backend/utils/http_utils"
 	jsonutils "ecomps.boobles.cloud/backend/utils/http_utils/json_utils"
@@ -18,8 +19,7 @@ func (t *TenantHandler) HandleGetTenantByTenantId(w http.ResponseWriter, r *http
 
 	fail := httputils.NewFailHandler(w, "Tenant | HandleGetTenantByTenantId")
 
-	// TODO: change mee!
-	tenantId, err := httputils.IntPathParam(r, "tenant_id")
+	tenantId, err := uuid.Parse(r.PathValue("tenant_id"))
 
 	if err != nil {
 		fail(http.StatusBadRequest, err)

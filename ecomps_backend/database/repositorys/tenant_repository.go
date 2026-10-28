@@ -4,8 +4,8 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"math/rand"
 	"time"
+	"uuid"
 
 	"ecomps.boobles.cloud/backend/database"
 	tenantstructs "ecomps.boobles.cloud/backend/internal/tenant/tenant_structs"
@@ -26,7 +26,7 @@ func NewTenantRepository(db *database.DbHandler, entityName string, toArgs ToArg
 	}
 }
 
-func (t *TenantRepository) GetById(ctx context.Context, id uint) (tenantstructs.Tenant, error) {
+func (t *TenantRepository) GetById(ctx context.Context, id uuid.UUID) (tenantstructs.Tenant, error) {
 
 	tenant, ok := database.QueryOne[tenantstructs.Tenant](ctx, t.db, "SelectTenantById", []any{id})
 
@@ -37,76 +37,28 @@ func (t *TenantRepository) GetById(ctx context.Context, id uint) (tenantstructs.
 	return tenant, nil
 }
 
-// TODO: dont forget me!
-func (t *TenantRepository) GetPw(ctx context.Context, tenantId uint) (string, error) {
-
-	tenant, ok := database.QueryOne[tenantstructs.TenantPwStruct](ctx, t.db, "SelectTenantPwByTenantId", []any{tenantId})
-
-	if !ok {
-		return "", sql.ErrNoRows
-	}
-
-	return tenant.TenantPwVal, nil
-}
-
-func (t *TenantRepository) Create(ctx context.Context, tenant tenantstructs.Tenant, userId uint) error {
-	tx, err := t.db.DbConnection.Begin()
-
-	if err != nil {
-		return err
-	}
-
-	defer tx.Rollback()
+func (t *TenantRepository) Create(ctx context.Context, tenant *tenantstructs.Tenant, userId uint) error {
 
 	var userHasTenant, userDisabled bool
 
-	err = tx.QueryRowContext(ctx,
+	err := t.db.DbConnection.QueryRowContext(ctx,
 		"SELECT UserHasTenant, UserDisabled FROM Users WHERE UserId = ? FOR UPDATE", userId,
 	).Scan(&userHasTenant, &userDisabled)
 
-	if err != nil && errors.Is(err, sql.ErrNoRows) {
-		return errors.New("User has no tenant")
-	} else if err != nil {
-		return err
-	}
-
-	if userHasTenant {
-		return errors.New("User already has a tenant")
-	}
-
-	if userDisabled {
-		return errors.New("User is disabled")
-	}
-
-	masterKeyId, ok := createMasterKey(ctx, tx, t.DatabaseRepository.db)
-
-	if !ok {
-		return errors.New("Failed to create tenant key")
-	}
-
-	tenant.TenantPwId = masterKeyId
-
-	insertQuery := "INSERT INTO Tenant (TenantName, TenantCreation, TenantAdminUserId, TenantPwId) VALUES (?, ?, ?, ?)"
-	result, err := tx.ExecContext(ctx, insertQuery, tenant.TenantName, tenant.TenantCreation, tenant.TenantAdminUserId, tenant.TenantPwId)
-
 	if err != nil {
 		return err
 	}
 
-	lastId, err := result.LastInsertId()
-
-	if err != nil {
-		return err
+	if userHasTenant || userDisabled {
+		return errors.New("User is disabled or has a tenant")
 	}
 
-	tenant.TenantId = uint(lastId)
-
-	updateQuery := "UPDATE Users SET TenantId = ?, UserHasTenant = TRUE WHERE UserId = ?"
-	if _, err := tx.ExecContext(ctx, updateQuery, lastId, userId); err != nil {
-		return err
+	if result := t.db.ExecuteSQLStatement(ctx, "InsertTenant", t.toArgs(*tenant)); !result.Ok {
+		return errors.New("Failed to insert tenant")
 	}
 
-	if err := tx.Commit(); err != nil {
+	// This is a bit messy, but who cares. Right?
+	if _, err := t.db.DbConnection.Exec("UPDATE Users SET TenantId = ?, UserHasTenant = TRUE WHERE UserId = ?", []any{tenant.TenantId, userId}); err != nil {
 		return err
 	}
 
@@ -123,7 +75,7 @@ func (t *TenantRepository) Update(ctx context.Context, tenant tenantstructs.Tena
 }
 
 // This func adds a tenant to the delete database
-func (t *TenantRepository) Delete(ctx context.Context, userId, tenantId uint) error {
+func (t *TenantRepository) Delete(ctx context.Context, userId uint, tenantId uuid.UUID) error {
 
 	tenantDelete := tenantstructs.TenantDeletionStruct{
 		IssuedFrom:     userId,
@@ -142,7 +94,7 @@ func (t *TenantRepository) Delete(ctx context.Context, userId, tenantId uint) er
 }
 
 // Gets a deletion struct
-func (t *TenantRepository) GetTenantDeletion(ctx context.Context, id uint) (tenantstructs.TenantDeletionStruct, error) {
+func (t *TenantRepository) GetTenantDeletion(ctx context.Context, id uuid.UUID) (tenantstructs.TenantDeletionStruct, error) {
 
 	deletion, ok := database.QueryOne[tenantstructs.TenantDeletionStruct](ctx, t.db, "SelectTenantDeletionFromTenantId", []any{id})
 
@@ -151,23 +103,4 @@ func (t *TenantRepository) GetTenantDeletion(ctx context.Context, id uint) (tena
 	}
 
 	return deletion, nil
-}
-
-// Creates the master key for the given tenant, inside the given transaction.
-func createMasterKey(ctx context.Context, tx *sql.Tx, dh *database.DbHandler) (uint, bool) {
-	tenantPw := createRandomString(maxLengthOfKey)
-	result := dh.ExecuteSQLStatementTx(ctx, tx, "InsertTenantPw", []any{tenantPw})
-	return result.LastId, result.Ok
-}
-
-// Create a random string of the given length.
-func createRandomString(length int) string {
-	randSource := rand.NewSource(time.Now().UnixNano())
-	random := rand.New(randSource)
-
-	result := make([]byte, length)
-	for i := range length {
-		result[i] = allCharacters[random.Intn(len(allCharacters))]
-	}
-	return string(result)
 }

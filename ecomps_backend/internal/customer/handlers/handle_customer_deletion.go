@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"strconv"
 	"time"
+	"uuid"
 
 	"ecomps.boobles.cloud/backend/internal/middleware"
 	httputils "ecomps.boobles.cloud/backend/utils/http_utils"
@@ -26,7 +27,7 @@ func (c *CustomerHandler) HandleCustomerDeletion(w http.ResponseWriter, r *http.
 		return
 	}
 
-	if err := c.customerService.Delete(ctx, uint(customerId), uint(ctx.Value(middleware.TenantIdContextKey).(int))); err != nil {
+	if err := c.customerService.Delete(ctx, uint(customerId), ctx.Value(middleware.TenantIdContextKey).(uuid.UUID)); err != nil {
 		fail(http.StatusInternalServerError, err)
 		return
 	}

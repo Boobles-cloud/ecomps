@@ -2,6 +2,7 @@ package orderstructs
 
 import (
 	"time"
+	"uuid"
 )
 
 type Order struct {
@@ -14,5 +15,5 @@ type Order struct {
 	OrderCity             string         `json:"OrderCity"`
 	OrderLastChanged      time.Time      `json:"OrderLastChanged"`
 	Products              []OrderProduct `json:"Products,omitempty"`
-	TenantId              uint           `json:"TenantId"`
+	TenantId              uuid.UUID      `json:"TenantId"`
 }

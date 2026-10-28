@@ -26,10 +26,10 @@ func (t *TenantService) GetPw(ctx context.Context, id uuid.UUID) (string, error)
 		return "", errors.New("TenantId isnt valid")
 	}
 
-	return t.tenantRepo.GetPw(ctx, id)
+	return "", errors.ErrUnsupported
 }
 
-func (t *TenantService) CreateTenant(ctx context.Context, tenant tenantstructs.Tenant, userId uint) error {
+func (t *TenantService) CreateTenant(ctx context.Context, tenant *tenantstructs.Tenant, userId uint) error {
 
 	if tenant.TenantName == "" {
 		return errors.New("Tenantname is empty")
@@ -37,7 +37,13 @@ func (t *TenantService) CreateTenant(ctx context.Context, tenant tenantstructs.T
 
 	tenant.TenantCreation = time.Now()
 
-	return t.tenantRepo.Create(ctx, tenant, userId)
+	if err := t.tenantRepo.Create(ctx, tenant, userId); err != nil {
+		return err
+	}
+
+	// TODO: dont forget mee
+	// return t.secerService.CreateTenantKey(ctx, tenant.TenantId)
+	return nil
 }
 
 func (t *TenantService) UpdateTenant(ctx context.Context, tenant tenantstructs.Tenant) error {

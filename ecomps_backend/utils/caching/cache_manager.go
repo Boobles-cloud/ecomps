@@ -2,6 +2,7 @@ package caching
 
 import (
 	"sync"
+	"uuid"
 )
 
 type CacheManager[T any] struct {
@@ -17,7 +18,7 @@ func CreateNewCacheManager[T any]() *CacheManager[T] {
 }
 
 // Sets or updates the wanted item
-func (c *CacheManager[T]) SetOrUpdateItem(key string, item T, tenantId uint) {
+func (c *CacheManager[T]) SetOrUpdateItem(key string, item T, tenantId uuid.UUID) {
 
 	c.Lock.Lock()
 	defer c.Lock.Unlock()
@@ -48,7 +49,7 @@ func (c *CacheManager[T]) GetItem(key string) (T, bool) {
 }
 
 // Gets all items for a tenantId
-func (c *CacheManager[T]) GetItems(tenantId uint) ([]T, bool) {
+func (c *CacheManager[T]) GetItems(tenantId uuid.UUID) ([]T, bool) {
 
 	c.Lock.Lock()
 	defer c.Lock.Unlock()

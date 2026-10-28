@@ -2,16 +2,17 @@ package caching
 
 import (
 	"time"
+	"uuid"
 )
 
 type CacheEntry[T any] struct {
-	TenantId       uint
+	TenantId       uuid.UUID
 	Item           T
 	ExpirationTime time.Time
 }
 
 // Creates a new cache entry
-func CreateNewCacheEntry[T any](item T, tenantId uint) CacheEntry[T] {
+func CreateNewCacheEntry[T any](item T, tenantId uuid.UUID) CacheEntry[T] {
 	return CacheEntry[T]{
 		TenantId:       tenantId,
 		Item:           item,
