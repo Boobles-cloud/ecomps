@@ -11,7 +11,7 @@ type SecretManagerRepository interface {
 	GetTenantPw(ctx context.Context, tenantId uuid.UUID) (smstructs.SecretEntry, error)
 	GetAllTenantPws(ctx context.Context) ([]smstructs.SecretEntry, error) // Only used for internal secrets cache
 	GetClientSecret(ctx context.Context, providerKey string) (smstructs.SecretEntry, error)
-	CreateTenantPw(ctx context.Context, tenantId uuid.UUID) error
+	CreateTenantPw(ctx context.Context, tenantId uuid.UUID, pw string) error
 	CheckProviderHealth(ctx context.Context) error
 	DeleteTenantPw(ctx context.Context, tenantId uuid.UUID) error
 }

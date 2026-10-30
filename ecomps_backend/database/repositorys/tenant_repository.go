@@ -11,11 +11,6 @@ import (
 	tenantstructs "ecomps.boobles.cloud/backend/internal/tenant/tenant_structs"
 )
 
-const (
-	allCharacters  = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-	maxLengthOfKey = 32
-)
-
 type TenantRepository struct {
 	*DatabaseRepository[tenantstructs.Tenant]
 }

@@ -53,12 +53,24 @@ func (s *StackitRepository) GetClientSecret(ctx context.Context, providerKey str
 	return smstructs.SecretEntry{}, errors.ErrUnsupported
 }
 
-func (s *StackitRepository) CreateTenantPw(ctx context.Context, tenantId uuid.UUID) error {
+func (s *StackitRepository) CreateTenantPw(ctx context.Context, tenantId uuid.UUID, pw string) error {
+
 	return errors.ErrUnsupported
 }
 
 func (s *StackitRepository) CheckProviderHealth(ctx context.Context) error {
-	return errors.ErrUnsupported
+
+	health, err := s.client.Sys().Health()
+
+	if err != nil {
+		return err
+	}
+
+	if !health.Initialized {
+		return errors.New("Client isnt initialized!")
+	}
+
+	return nil
 }
 
 func (s *StackitRepository) DeleteTenantPw(ctx context.Context, tenantId uuid.UUID) error {

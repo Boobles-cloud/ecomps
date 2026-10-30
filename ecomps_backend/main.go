@@ -66,6 +66,10 @@ func main() {
 		os.Exit(1)
 	}
 
+	if err := secretManagerService.SetupCache(ctx); err != nil {
+		logging.Log(logging.Error, "[Main] "+err.Error())
+	}
+
 	httpServer := startup.ConfigureHTTPServer(databaseConf, secretManagerService)
 
 	logging.Log(logging.Information, "Ecomps starting and listening on :8080")

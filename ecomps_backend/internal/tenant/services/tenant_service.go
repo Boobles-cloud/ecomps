@@ -42,7 +42,7 @@ func (t *TenantService) CreateTenant(ctx context.Context, tenant *tenantstructs.
 	}
 
 	// TODO: dont forget mee
-	// return t.secerService.CreateTenantKey(ctx, tenant.TenantId)
+	// return t.secretService.CreateTenantKey(ctx, tenant.TenantId)
 	return nil
 }
 
