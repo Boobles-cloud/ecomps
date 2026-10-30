@@ -1,6 +1,8 @@
 # TODO: redo this here!!
-# If you want to run this in prodcution, please create a custom mariadb server!!
+# If you want to run this in prodcution and for more than one person please create a custom mariadb server!!
 services:
+
+  # Comment this, if youre running in production:
   ecomps-frontend-dev:
     container_name: ecomps_dev_frontend
     image: nginx:alpine

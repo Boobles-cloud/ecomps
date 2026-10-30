@@ -82,11 +82,37 @@ CREATE TABLE TenantDeletions(
     TenantId UUID NOT NULL
 );
 
--- All tokens for applications like: Ebay, Amazon, etc.
+
+
+
+-- ############################################################
+--                         Tenant OAuth stuff
+--
+-- ############################################################
+
+-- All oauth apps we support
+-- TODO: Add them
+CREATE TABLE OAuthApps(
+    AppId int unsigned NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    AppName varchar(250) NOT NULL,
+    AppLink varchar(250)
+);
+
+-- TODO: Add them
+CREATE TABLE OAuthSettings(
+    SettingId int unsigned NOT NULL,
+    SettingName varchar(100) NOT NULL,
+    SettingsDescription varchar(250) NOT NULL,
+    LangId int unsigned NOT NULL
+);
+
+
+-- All tokens for a tenant
 CREATE TABLE TenantOAuthTokens(
     TokenId int unsigned NOT NULL AUTO_INCREMENT PRIMARY KEY,
     TokenVal varchar(250) NOT NULL,
-    LasChanget DATETIME,
+    RefreshTokenVal varchar(255),
+    LastChanged DATETIME,
     AppId int unsigned NOT NULL,
     TenantId UUID NOT NULL
 );
@@ -102,6 +128,7 @@ CREATE TABLE OAuthApplications(
     AppSyncInterval int unsigned,
     TenantId UUID NOT NULL
 );
+
 
 
 -- ############################################################
@@ -211,12 +238,23 @@ ALTER TABLE TenantActions
 ALTER TABLE TenantDeletions
     ADD CONSTRAINT FK_TenantDeletions_Tenant FOREIGN KEY (TenantId) REFERENCES Tenant(TenantId);
 
+
 ALTER TABLE TenantOAuthTokens
-    ADD CONSTRAINT FK_TenantOAuthTokens_OAuthApplications FOREIGN KEY (AppId) REFERENCES OAuthApplications(AppId),
+    ADD CONSTRAINT FK_TenantOAuthTokens_OAuthApps FOREIGN KEY (AppId) REFERENCES OAuthApps(AppId),
     ADD CONSTRAINT FK_TenantOAuthTokens_Tenant FOREIGN KEY (TenantId) REFERENCES Tenant(TenantId);
 
-ALTER TABLE OAuthApplications
-    ADD CONSTRAINT FK_OAuthApplications_Tenant FOREIGN KEY (TenantId) REFERENCES Tenant(TenantId);
+ALTER TABLE TenantOAuthApps
+    ADD CONSTRAINT FK_TenantOAuthApps_User FOREIGN KEY (UserId) REFERENCES Users(UserId),
+    ADD CONSTRAINT FK_TenantOAuthApps_OAuthApps FOREIGN KEY (AppId) REFERENCES OAuthApps(AppId),
+    ADD CONSTRAINT FK_TenantOAuthApps_Tenant FOREIGN KEY (TenantId) REFERENCES Tenant(TenantId);
+
+ALTER TABLE OAuthSettings
+    ADD CONSTRAINT FK_OAuthSettings_Language FOREIGN KEY (LangId) REFERENCES Languages(LangId);
+
+ALTER TABLE TenantSyncSettings
+    ADD CONSTRAINT FK_TenantSyncSettings_User FOREIGN KEY (UserId) REFERENCES Users(UserId),
+    ADD CONSTRAINT FK_TenantSyncSettings_Tenant FOREIGN KEY (TenantId) REFERENCES Tenant(TenantId);
+
 
 ALTER TABLE Customer
     ADD CONSTRAINT FK_Customer_Tenant FOREIGN KEY (TenantId) REFERENCES Tenant(TenantId);

@@ -153,5 +153,30 @@
     "QueryName": "SelectProductPictureById",
     "QueryVal": "SELECT * FROM ProductPictures WHERE PictureId = ?;",
     "QueryType": 2
+  },
+  {
+    "QueryName": "SelectAllOAuthApps",
+    "QueryVal": "SELECT * FROM OAuthApps;",
+    "QueryType": 2
+  },
+  {
+    "QueryName": "SelectAllOAuthSettingsByLangId",
+    "QueryVal": "SELECT * FROM OAuthSettings WHERE LangId = ?;",
+    "QueryType": 2
+  },
+  {
+    "QueryName": "SelectAllAppsByTenantId",
+    "QueryVal": "SELECT * FROM TenantOAuthApps WHERE TenantId = ?;",
+    "QueryType": 2
+  },
+  {
+    "QueryName": "SelectAllSettingsByTenantAndAppId",
+    "QueryVal": "SELECT * FROM TenantSyncSettings WHERE TenantId = ? AND AppId = ?;",
+    "QueryType": 2
+  },
+  {
+    "QueryName": "SelectOAuthTokenByTenantAndAppId",
+    "QueryVal": "SELECT * FROM TenantOAuthTokens WHERE TenantId = ? AND AppId = ?;",
+    "QueryType": 2
   }
 ]

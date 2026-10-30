@@ -88,5 +88,15 @@
     "QueryName": "DeletePermissionFromUserByUserIdAndPermissionId",
     "QueryVal": "DELETE FROM Permissions WHERE UserId = ? AND TenantActionId = ?;",
     "QueryType": 1
+  },
+  {
+    "QueryName": "DeleteTenantOAuthAppByTenantAndAppId",
+    "QueryVal": "DELETE FROM TenantOAuthApps WHERE TenantId = ? AND AppId = ?;",
+    "QueryType": 1
+  },
+  {
+    "QueryName": "DeleteOAuthTokenById",
+    "QueryVal": "DELETE FROM TenantOAuthTokens WHERE TokenId = ?;",
+    "QueryType": 1
   }
 ]
