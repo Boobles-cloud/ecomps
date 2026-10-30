@@ -14,6 +14,7 @@ type SecretManagerService struct {
 // IMPORTANT-NOTE:
 //
 // only call this func at the start of the server!!!!
+// This creates a new cache for the secret manager
 func CreateNewSecretManagerService(s secretmanager.SecretManagerRepository) *SecretManagerService {
 	return &SecretManagerService{
 		secretManagerRepo: s,

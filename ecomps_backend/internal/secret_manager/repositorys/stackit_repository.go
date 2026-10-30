@@ -15,9 +15,11 @@ type StackitRepository struct {
 	defaultClientSecretPath string
 }
 
-func CreateNewStackitRepository(client *vault.Client) *StackitRepository {
+func CreateNewStackitRepository(client *vault.Client, tenantPath string, clientSecretPath string) *StackitRepository {
 	return &StackitRepository{
-		client: client,
+		client:                  client,
+		defaultTenantPath:       tenantPath,
+		defaultClientSecretPath: clientSecretPath,
 	}
 }
 
@@ -46,14 +48,22 @@ func (s *StackitRepository) GetTenantPw(ctx context.Context, tenantId uuid.UUID)
 }
 
 func (s *StackitRepository) GetAllTenantPws(ctx context.Context) ([]smstructs.SecretEntry, error) {
+
+	// TODO: implement meeee!!
+
 	return []smstructs.SecretEntry{}, errors.ErrUnsupported
 }
 
 func (s *StackitRepository) GetClientSecret(ctx context.Context, providerKey string) (smstructs.SecretEntry, error) {
+
+	// TODO: implement mee!!
+
 	return smstructs.SecretEntry{}, errors.ErrUnsupported
 }
 
 func (s *StackitRepository) CreateTenantPw(ctx context.Context, tenantId uuid.UUID, pw string) error {
+
+	// TODO: implement mee!!
 
 	return errors.ErrUnsupported
 }
@@ -74,5 +84,8 @@ func (s *StackitRepository) CheckProviderHealth(ctx context.Context) error {
 }
 
 func (s *StackitRepository) DeleteTenantPw(ctx context.Context, tenantId uuid.UUID) error {
+
+	// TODO: implement mee!!
+
 	return errors.ErrUnsupported
 }

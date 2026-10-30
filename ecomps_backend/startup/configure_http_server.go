@@ -57,7 +57,7 @@ func ConfigureHTTPServer(dh *database.DbHandler, smManager *secretmanagerservice
 	// ========= Configure our services =========
 
 	authService := authservice.CreateNewAuthService(authRepo)
-	tenantService := tenantservice.CreateNewTenantService(tenantRepo)
+	tenantService := tenantservice.CreateNewTenantService(tenantRepo, smManager)
 	userService := userservice.CreateNewUserService(userRepo, tenantService)
 	permissionService := permissionservice.CreateNewPermissionService(permissionRepo)
 
@@ -236,6 +236,6 @@ func ConfigureHTTPServer(dh *database.DbHandler, smManager *secretmanagerservice
 		ReadHeaderTimeout: 5 * time.Second,
 		ReadTimeout:       1 * time.Second,
 		WriteTimeout:      1 * time.Second,
-		IdleTimeout:       30 * time.Second,
+		IdleTimeout:       15 * time.Second,
 	}
 }

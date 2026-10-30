@@ -52,6 +52,11 @@ services:
       email_pw: ""
       email_norepy_address: ""
       email_config_path: "/app/config_files/email_conf" # The path where the email templates are storred
+      secret_default_address: ""
+      secret_secretId: ""
+      secret_role_id: ""
+      secret_tenant_path: ""
+      secret_client_path: ""
     ports:
       - "8080:8080"
     volumes:

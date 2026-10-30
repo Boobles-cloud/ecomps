@@ -20,13 +20,17 @@ func (t *TenantService) GetTenantById(ctx context.Context, id uuid.UUID) (tenant
 
 func (t *TenantService) GetPw(ctx context.Context, id uuid.UUID) (string, error) {
 
-	// TODO: change me!
-
 	if id.Compare(uuid.Nil()) == 0 {
 		return "", errors.New("TenantId isnt valid")
 	}
 
-	return "", errors.ErrUnsupported
+	entry, err := t.smService.GetTenantPw(ctx, id)
+
+	if err != nil {
+		return "", err
+	}
+
+	return entry.Value, nil
 }
 
 func (t *TenantService) CreateTenant(ctx context.Context, tenant *tenantstructs.Tenant, userId uint) error {
@@ -41,12 +45,14 @@ func (t *TenantService) CreateTenant(ctx context.Context, tenant *tenantstructs.
 		return err
 	}
 
-	// TODO: dont forget mee
-	// return t.secretService.CreateTenantKey(ctx, tenant.TenantId)
-	return nil
+	return t.smService.CreateTenantPw(ctx, tenant.TenantId)
 }
 
 func (t *TenantService) UpdateTenant(ctx context.Context, tenant tenantstructs.Tenant) error {
+
+	if tenant.TenantId.Compare(uuid.Nil()) == 0 {
+		return errors.New("TenantId invalid")
+	}
 
 	// TODO: also get the user id and check both!
 

@@ -12,13 +12,11 @@ import (
 
 func ConfigureSecretManager(ctx context.Context) (*services.SecretManagerService, error) {
 
-	// TODO: Add env vars
-
 	conf := vault.DefaultConfig()
-	conf.Address = os.Getenv("")
+	conf.Address = os.Getenv("secret_default_address")
 
-	secretId := auth.SecretID{FromString: os.Getenv("")}
-	appRoleAuth, err := auth.NewAppRoleAuth(os.Getenv(""), &secretId)
+	secretId := auth.SecretID{FromString: os.Getenv("secret_secretId")}
+	appRoleAuth, err := auth.NewAppRoleAuth(os.Getenv("secret_role_id"), &secretId)
 
 	if err != nil {
 		return &services.SecretManagerService{}, err
@@ -36,7 +34,7 @@ func ConfigureSecretManager(ctx context.Context) (*services.SecretManagerService
 	}
 
 	// Our current provider
-	repository := repositorys.CreateNewStackitRepository(client)
+	repository := repositorys.CreateNewStackitRepository(client, os.Getenv("secret_tenant_path"), "secret_client_path")
 
 	return services.CreateNewSecretManagerService(repository), nil
 }
