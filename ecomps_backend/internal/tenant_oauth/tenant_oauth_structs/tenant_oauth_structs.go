@@ -1,6 +1,9 @@
 package tenantoauthstructs
 
-import "time"
+import (
+	"time"
+	"uuid"
+)
 
 // This is just used to display all apps
 // that we support
@@ -25,7 +28,7 @@ type TenantOAuthToken struct {
 	RefreshTokenVal string
 	LastChanged     time.Time
 	AppId           uint
-	TenantId        uint
+	TenantId        uuid.UUID
 }
 
 // This holds all information for the specific tenant
@@ -37,9 +40,9 @@ type TenantOAuthApps struct {
 	// TODO: move this to another struct
 	// SyncSuccessfull bool          `json:"SyncSuccess"`
 	// SyncErrorMsg    string        `json:"SyncErrorMsg,omitempty"`
-	UserId   uint `json:"UserId"`
-	AppId    uint `json:"AppId"`
-	TenantId uint `json:"TenantId"`
+	UserId   uint      `json:"UserId"`
+	AppId    uint      `json:"AppId"`
+	TenantId uuid.UUID `json:"TenantId"`
 }
 
 // This holds all settings of that tenant
@@ -47,6 +50,7 @@ type TenantSyncSettings struct {
 	TenantSettingId uint      `json:"TenantSettingId"`
 	LastChanged     time.Time `json:"LastChanged"`
 	SettingId       uint      `json:"SettingId"`
+	AppId           uint      `json:"AppId"`
 	UserId          uint      `json:"UserId"`
-	TenantId        uint      `json:"TenantId"`
+	TenantId        uuid.UUID `json:"TenantId"`
 }

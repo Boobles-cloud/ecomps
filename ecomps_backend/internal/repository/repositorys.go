@@ -41,20 +41,20 @@ type OAuthSettingsRepository interface {
 
 // All apps a tenant has active
 type OAuthTenantAppRepository interface {
-	GetAllOAuthAppsForTenant(ctx context.Context, tenantId uint) ([]tenantoauthstructs.TenantOAuthApps, error)
+	GetAllOAuthAppsForTenant(ctx context.Context, tenantId uuid.UUID) ([]tenantoauthstructs.TenantOAuthApps, error)
 	AddOAuthApplicationForTenant(ctx context.Context, app tenantoauthstructs.TenantOAuthApps) error
-	DeleteApplicationForTenant(ctx context.Context, tenantId, appId uint) error
+	DeleteApplicationForTenant(ctx context.Context, tenantId uuid.UUID, appId uint) error
 }
 
 // All settings for the tenant apps
 type OAuthTenantSettingsRepository interface {
-	GetSettingsForApplication(ctx context.Context, tenantId, appId uint) ([]tenantoauthstructs.TenantSyncSettings, error)
+	GetSettingsForApplication(ctx context.Context, tenantId uuid.UUID, appId uint) ([]tenantoauthstructs.TenantSyncSettings, error)
 	AddSettingForTenantApplication(ctx context.Context, setting tenantoauthstructs.TenantSyncSettings) error
 	ChangeSettingForTenantApplication(ctx context.Context, setting tenantoauthstructs.TenantSyncSettings) error
 }
 
 type OAuthTenantTokenRepository interface {
-	GetTokenForTenantApp(ctx context.Context, tenantId, appId uint) (tenantoauthstructs.TenantOAuthToken, error)
+	GetTokenForTenantApp(ctx context.Context, tenantId uuid.UUID, appId uint) (tenantoauthstructs.TenantOAuthToken, error)
 	AddToken(ctx context.Context, token tenantoauthstructs.TenantOAuthToken) error
 	DeleteToken(ctx context.Context, tokenId uint) error
 }

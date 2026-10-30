@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"uuid"
 
 	"ecomps.boobles.cloud/backend/database"
 	tenantoauthstructs "ecomps.boobles.cloud/backend/internal/tenant_oauth/tenant_oauth_structs"
@@ -43,7 +44,7 @@ func NewOAuthTenantTokenRepository(db *database.DbHandler, entityName string, to
 // 							All Tenant-App funcs
 // ======================================================================
 
-func (t *OAuthTenantAppRepository) GetAllOAuthAppsForTenant(ctx context.Context, tenantId uint) ([]tenantoauthstructs.TenantOAuthApps, error) {
+func (t *OAuthTenantAppRepository) GetAllOAuthAppsForTenant(ctx context.Context, tenantId uuid.UUID) ([]tenantoauthstructs.TenantOAuthApps, error) {
 
 	allApps, ok := database.QueryMany[tenantoauthstructs.TenantOAuthApps](ctx, t.db, "SelectAllAppsByTenantId", []any{tenantId})
 
@@ -67,7 +68,7 @@ func (t *OAuthTenantAppRepository) AddOAuthApplicationForTenant(ctx context.Cont
 	return nil
 }
 
-func (t *OAuthTenantAppRepository) DeleteApplicationForTenant(ctx context.Context, tenantId, appId uint) error {
+func (t *OAuthTenantAppRepository) DeleteApplicationForTenant(ctx context.Context, tenantId uuid.UUID, appId uint) error {
 
 	if result := t.db.ExecuteSQLStatement(ctx, "DeleteTenantOAuthAppByTenantAndAppId", []any{tenantId, appId}); !result.Ok {
 		return errors.New("Failed to delete item")
@@ -80,7 +81,7 @@ func (t *OAuthTenantAppRepository) DeleteApplicationForTenant(ctx context.Contex
 // 							All Tenant-Settings funcs
 // ======================================================================
 
-func (t *OAuthTenantSettingsRepository) GetSettingsForApplication(ctx context.Context, tenantId, appId uint) ([]tenantoauthstructs.TenantSyncSettings, error) {
+func (t *OAuthTenantSettingsRepository) GetSettingsForApplication(ctx context.Context, tenantId uuid.UUID, appId uint) ([]tenantoauthstructs.TenantSyncSettings, error) {
 
 	allSettings, ok := database.QueryMany[tenantoauthstructs.TenantSyncSettings](ctx, t.db, "SelectAllSettingsByTenantAndAppId", []any{tenantId, appId})
 
@@ -120,7 +121,7 @@ func (t *OAuthTenantSettingsRepository) ChangeSettingForTenantApplication(ctx co
 
 // TODO: Move this to our key-management-provider
 
-func (t *OAuthTenantTokenRepository) GetTokenForTenantApp(ctx context.Context, tenantId, appId uint) (tenantoauthstructs.TenantOAuthToken, error) {
+func (t *OAuthTenantTokenRepository) GetTokenForTenantApp(ctx context.Context, tenantId uuid.UUID, appId uint) (tenantoauthstructs.TenantOAuthToken, error) {
 
 	token, ok := database.QueryOne[tenantoauthstructs.TenantOAuthToken](ctx, t.db, "SelectOAuthTokenByTenantAndAppId", []any{})
 
@@ -143,7 +144,7 @@ func (t *OAuthTenantTokenRepository) AddToken(ctx context.Context, token tenanto
 	return nil
 }
 
-func (t *OAuthTenantTokenRepository) DeleteToken(ctx context.Context, tokenId uint) error {
+func (t *OAuthTenantTokenRepository) DeleteToken(ctx context.Context, tokenId uuid.UUID) error {
 
 	if result := t.db.ExecuteSQLStatement(ctx, "DeleteOAuthTokenById", []any{tokenId}); !result.Ok {
 		return errors.New("Failed to delete item")

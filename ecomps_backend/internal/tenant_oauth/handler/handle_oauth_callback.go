@@ -42,6 +42,5 @@ func (t *TenantOAuthHandler) HandleOAuthCallback(w http.ResponseWriter, r *http.
 		return
 	}
 
-	// TODO: add service here
-
+	ctx.Done()
 }

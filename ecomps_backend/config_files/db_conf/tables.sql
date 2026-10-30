@@ -134,6 +134,7 @@ CREATE TABLE TenantSyncSettings(
     TenantSettingId int unsigned NOT NULL AUTO_INCREMENT PRIMARY KEY,
     LastChanged DATETIME,
     SettingId int unsigned NOT NULL,
+    AppId int unsigned NOT NULL,
     UserId int unsigned NOT NULL,
     TenantId UUID NOT NULL
 );
@@ -260,6 +261,7 @@ ALTER TABLE OAuthSettings
     ADD CONSTRAINT FK_OAuthSettings_Language FOREIGN KEY (LangId) REFERENCES Languages(LangId);
 
 ALTER TABLE TenantSyncSettings
+    ADD CONSTRAINT FK_TenantSyncSettings_OAuthApps FOREIGN KEY (AppId) REFERENCES OAuthApps(AppId),
     ADD CONSTRAINT FK_TenantSyncSettings_User FOREIGN KEY (UserId) REFERENCES Users(UserId),
     ADD CONSTRAINT FK_TenantSyncSettings_Tenant FOREIGN KEY (TenantId) REFERENCES Tenant(TenantId);
 
