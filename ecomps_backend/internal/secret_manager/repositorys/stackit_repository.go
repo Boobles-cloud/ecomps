@@ -56,3 +56,11 @@ func (s *StackitRepository) GetClientSecret(ctx context.Context, providerKey str
 func (s *StackitRepository) CreateTenantPw(ctx context.Context, tenantId uuid.UUID) error {
 	return errors.ErrUnsupported
 }
+
+func (s *StackitRepository) CheckProviderHealth(ctx context.Context) error {
+	return errors.ErrUnsupported
+}
+
+func (s *StackitRepository) DeleteTenantPw(ctx context.Context, tenantId uuid.UUID) error {
+	return errors.ErrUnsupported
+}

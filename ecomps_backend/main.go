@@ -58,7 +58,15 @@ func main() {
 	go hostedServices.DeleteTenants(ctx, databaseConf)
 
 	// ============ REST-API config stuff ============
-	httpServer := startup.ConfigureHTTPServer(databaseConf)
+
+	secretManagerService, err := startup.ConfigureSecretManager(ctx)
+
+	if err != nil {
+		logging.Log(logging.Error, "[Main] "+err.Error())
+		os.Exit(1)
+	}
+
+	httpServer := startup.ConfigureHTTPServer(databaseConf, secretManagerService)
 
 	logging.Log(logging.Information, "Ecomps starting and listening on :8080")
 

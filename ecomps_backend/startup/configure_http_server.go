@@ -22,6 +22,7 @@ import (
 	productservice "ecomps.boobles.cloud/backend/internal/product/services"
 	productpicturehandler "ecomps.boobles.cloud/backend/internal/product_pictures/handler"
 	productpictureservice "ecomps.boobles.cloud/backend/internal/product_pictures/services"
+	secretmanagerservice "ecomps.boobles.cloud/backend/internal/secret_manager/services"
 	tenanthandlers "ecomps.boobles.cloud/backend/internal/tenant/handlers"
 	tenantservice "ecomps.boobles.cloud/backend/internal/tenant/services"
 	tenantstructs "ecomps.boobles.cloud/backend/internal/tenant/tenant_structs"
@@ -32,7 +33,10 @@ import (
 )
 
 // Creates and configures the rest api
-func ConfigureHTTPServer(dh *database.DbHandler) *http.Server {
+func ConfigureHTTPServer(dh *database.DbHandler, smManager *secretmanagerservice.SecretManagerService) *http.Server {
+
+	// TODO: Refactor this!!!
+	// Also add more comments, because what does this shit?
 
 	// ========= Configure our repositorys =======
 

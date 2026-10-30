@@ -6,6 +6,7 @@ require (
 	github.com/go-sql-driver/mysql v1.10.0
 	github.com/golang-jwt/jwt/v4 v4.5.2
 	github.com/hashicorp/vault/api v1.23.0
+	github.com/hashicorp/vault/api/auth/approle v0.12.0
 	github.com/wneessen/go-mail v0.8.1
 )
 
