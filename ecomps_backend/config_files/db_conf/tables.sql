@@ -119,16 +119,24 @@ CREATE TABLE TenantOAuthTokens(
 
 -- All capable oauth applications
 -- Also all metadata for syncs -> We sync all data
-CREATE TABLE OAuthApplications(
-    AppId int unsigned NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    AppName varchar(150) NOT NULL,
-    AppStruct varchar(150) NOT NULL,
-    AppSyncActivated DATETIME NOT NULL,
-    AppSync BOOL,
-    AppSyncInterval int unsigned,
+CREATE TABLE TenantOAuthApps(
+    TenantAppId int unsigned NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    SyncInterval int NOT NULL,
+    SyncActivated DATETIME,
+    SyncSuccessfull bool,
+    SyncErrorMsg varchar(255),
+    UserId int unsigned NOT NULL, -- This is used to show which user has activated that
+    AppId int unsigned NOT NULL,
     TenantId UUID NOT NULL
 );
 
+CREATE TABLE TenantSyncSettings(
+    TenantSettingId int unsigned NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    LastChanged DATETIME,
+    SettingId int unsigned NOT NULL,
+    UserId int unsigned NOT NULL,
+    TenantId UUID NOT NULL
+);
 
 
 -- ############################################################
