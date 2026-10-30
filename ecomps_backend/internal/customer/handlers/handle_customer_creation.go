@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/http"
 	"time"
+	"uuid"
 
 	customerstructs "ecomps.boobles.cloud/backend/internal/customer/customer_structs"
 	"ecomps.boobles.cloud/backend/internal/middleware"
@@ -27,9 +28,9 @@ func (c *CustomerHandler) HandleCustomerCreation(w http.ResponseWriter, r *http.
 		return
 	}
 
-	tenantId := ctx.Value(middleware.TenantIdContextKey).(int)
+	tenantId := ctx.Value(middleware.TenantIdContextKey).(uuid.UUID)
 
-	customer.TenantId = uint(tenantId)
+	customer.TenantId = tenantId
 
 	cId, err := c.customerService.Create(ctx, customer)
 

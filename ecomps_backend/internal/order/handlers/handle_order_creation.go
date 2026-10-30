@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/http"
 	"time"
+	"uuid"
 
 	"ecomps.boobles.cloud/backend/internal/middleware"
 	orderstructs "ecomps.boobles.cloud/backend/internal/order/order_structs"
@@ -28,9 +29,9 @@ func (o *OrderHandler) HandleCreatingOrder(w http.ResponseWriter, r *http.Reques
 	}
 
 	// Get the tenant id so we can get the tenant and the password
-	tenantId := r.Context().Value(middleware.TenantIdContextKey).(int)
+	tenantId := r.Context().Value(middleware.TenantIdContextKey).(uuid.UUID)
 
-	order.TenantId = uint(tenantId)
+	order.TenantId = tenantId
 
 	id, err := o.orderService.CreateOrder(ctx, order)
 
@@ -41,7 +42,7 @@ func (o *OrderHandler) HandleCreatingOrder(w http.ResponseWriter, r *http.Reques
 
 	order.OrderId = id
 
-	go o.insertItem(order, uint(tenantId))
+	go o.insertItem(order, tenantId)
 
 	w.WriteHeader(http.StatusOK)
 }

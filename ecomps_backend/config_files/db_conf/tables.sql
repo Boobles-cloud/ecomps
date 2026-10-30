@@ -24,7 +24,7 @@ CREATE TABLE Users(
     UserHas2Fa bool,
     UserHasTenant bool,
     UserDisabled bool,
-    TenantId int unsigned NOT NULL
+    TenantId UUID NOT NULL
 );
 
 -- To store all accesstokens for the users
@@ -55,19 +55,12 @@ CREATE TABLE UserDeletion(
 --                   Tenant Configuration Stuff
 -- ############################################################
 
--- For storring the tenant pw
-CREATE TABLE TenantPw(
-    TenantPwId int unsigned NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    TenantPwVal varchar(255)
-);
-
 -- The tenant all users are connected to
 CREATE TABLE Tenant(
-    TenantId int unsigned NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    TenantId UUID NOT NULL AUTO_INCREMENT PRIMARY KEY,
     TenantName varchar(100) NOT NULL,
     TenantCreation DATETIME NOT NULL,
     TenantAdminUserId int unsigned NOT NULL,
-    TenantPwId int unsigned NOT NULL
     -- TODO: Add more tenant data
 );
 
@@ -86,7 +79,7 @@ CREATE TABLE TenantDeletions(
     IssuedOn DATETIME,
     WhenToComplete DATETIME,
     Deleted bool,
-    TenantId int unsigned NOT NULL
+    TenantId UUID NOT NULL
 );
 
 
@@ -121,28 +114,19 @@ CREATE TABLE TenantOAuthTokens(
     RefreshTokenVal varchar(255),
     LastChanged DATETIME,
     AppId int unsigned NOT NULL,
-    TenantId int unsigned NOT NULL
+    TenantId UUID NOT NULL
 );
 
--- This is used to store information about what apps we need to sync from
-CREATE TABLE TenantOAuthApps(
-    TenantAppId int unsigned NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    SyncInterval int NOT NULL,
-    SyncActivated DATETIME,
-    SyncSuccessfull bool,
-    SyncErrorMsg varchar(255),
-    UserId int unsigned NOT NULL, -- This is used to show which user has activated that
-    AppId int unsigned NOT NULL,
-    TenantId int unsigned NOT NULL
-);
-
-
-CREATE TABLE TenantSyncSettings(
-    TenantSettingId int unsigned NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    LastChanged DATETIME,
-    SettingId int unsigned NOT NULL,
-    UserId int unsigned NOT NULL,
-    TenantId int unsigned NOT NULL
+-- All capable oauth applications
+-- Also all metadata for syncs -> We sync all data
+CREATE TABLE OAuthApplications(
+    AppId int unsigned NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    AppName varchar(150) NOT NULL,
+    AppStruct varchar(150) NOT NULL,
+    AppSyncActivated DATETIME NOT NULL,
+    AppSync BOOL,
+    AppSyncInterval int unsigned,
+    TenantId UUID NOT NULL
 );
 
 
@@ -160,7 +144,7 @@ CREATE TABLE Customer(
     CustomerStreetAndHouseNr varchar(200),
     CustomerCity varchar(100),
     CustomerLastChanged DATETIME,
-    TenantId int unsigned NOT NULL
+    TenantId UUID NOT NULL
 );
 
 -- To indicate which state an order has
@@ -180,7 +164,7 @@ CREATE TABLE Orders(
     OrderStreetAndHouseNr varchar(200),
     OrderCity varchar(200),
     OrderLastChanged DATETIME,
-    TenantId int unsigned NOT NULL
+    TenantId UUID NOT NULL
 );
 
 -- All products an order contains
@@ -198,7 +182,7 @@ CREATE TABLE ProductPictures(
     PicturePath varchar(250) NOT NULL,
     PicturePosition int unsigned,
     ProductId int unsigned NOT NULL,
-    TenantId int unsigned NOT NULL
+    TenantId UUID NOT NULL
 );
 
 -- All products a tenant has
@@ -207,7 +191,7 @@ CREATE TABLE Product(
     ProductName varchar(250) NOT NULL,
     ProductPrice varchar(250) NOT NULL,
     ProductDescription varchar(250) NOT NULL,
-    TenantId int unsigned NOT NULL
+    TenantId UUID NOT NULL
 );
 
 -- All warehouses a tenant has
@@ -217,7 +201,7 @@ CREATE TABLE Warehouse(
     WarehousePostalCode varchar(50),
     WarehouseHouseNumAndStreet varchar(250),
     WarehouseCity varchar(250),
-    TenantId int unsigned NOT NULL
+    TenantId UUID NOT NULL
 );
 
 -- If a Product is storred in multiple warehouses
@@ -243,7 +227,6 @@ ALTER TABLE UserDeletion
     ADD CONSTRAINT FK_UserDeletion_Users FOREIGN KEY (UserId) REFERENCES Users(UserId);
 
 ALTER TABLE Tenant
-    ADD CONSTRAINT FK_Tenant_TenantPw FOREIGN KEY (TenantPwId) REFERENCES TenantPw(TenantPwId),
     ADD CONSTRAINT FK_Tenant_Users FOREIGN KEY (TenantAdminUserId) REFERENCES Users(UserId);
 
 ALTER TABLE Users
@@ -321,14 +304,14 @@ SET FOREIGN_KEY_CHECKS = 0;
 -- We set the tenant default
 -- We do this, so we can filter if the user has a tenant or not :)
 INSERT INTO TenantPw(TenantPwId, TenantPwVal) VALUES(1, "123");
-INSERT INTO Users (UserId, UserName, UserPW, UserMail, UserTel, UserHas2Fa, UserHasTenant, UserDisabled, TenantId) VALUES (1, "Test", "Test", "Test@test.test", NULL, FALSE, TRUE, TRUE, 1);
-INSERT INTO Tenant(TenantId, TenantName, TenantCreation, TenantAdminUserId, TenantPwId) VALUES(1, "USER_HAS_NO_TENANT", NOW(), 1, 1);
+INSERT INTO Users (UserId, UserName, UserPW, UserMail, UserTel, UserHas2Fa, UserHasTenant, UserDisabled, TenantId) VALUES (1, "Test", "Test", "Test@test.test", NULL, FALSE, TRUE, TRUE, '00000000-0000-0000-0000-000000000000');
+INSERT INTO Tenant(TenantId, TenantName, TenantCreation, TenantAdminUserId) VALUES('00000000-0000-0000-0000-000000000000', "USER_HAS_NO_TENANT", NOW(), 1);
 
-INSERT INTO Customer() VALUES(1, "Dieter", "12345", "You are very beautiful, 69", "Du är väldigt vacker", NOW(), 1);
-INSERT INTO Orders() VALUES(1, "This is a test", NOW(), 9, "12345", "I just wanna go home", "This is a very nice town", NOW(), 1);
+INSERT INTO Customer() VALUES(1, "Dieter", "12345", "You are very beautiful, 69", "Du är väldigt vacker", NOW(), '00000000-0000-0000-0000-000000000000');
+INSERT INTO Orders() VALUES(1, "This is a test", NOW(), 9, "12345", "I just wanna go home", "This is a very nice town", NOW(), '00000000-0000-0000-0000-000000000000');
 INSERT INTO OrderProducts() VALUES(1, 1, 2, 1);
-INSERT INTO Product() VALUES(1, "Test", "12,99", "This is a nice test", 1);
-INSERT INTO Warehouse(WarehousId, WarehousName, TenantId) VALUES(1, "Test", 1);
+INSERT INTO Product() VALUES(1, "Test", "12,99", "This is a nice test", '00000000-0000-0000-0000-000000000000');
+INSERT INTO Warehouse(WarehousId, WarehousName, TenantId) VALUES(1, "Test", '00000000-0000-0000-0000-000000000000');
 
 
 

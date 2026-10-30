@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"errors"
+	"uuid"
 
 	productstructs "ecomps.boobles.cloud/backend/internal/product/product_structs"
 	"ecomps.boobles.cloud/backend/utils/crypto"
@@ -35,10 +36,10 @@ func (p *ProductService) GetById(ctx context.Context, id uint) (productstructs.P
 	return *product, nil
 }
 
-func (p *ProductService) GetAllByTenantId(ctx context.Context, tenantId uint) ([]productstructs.Product, error) {
+func (p *ProductService) GetAllByTenantId(ctx context.Context, tenantId uuid.UUID) ([]productstructs.Product, error) {
 
-	if tenantId <= 1 {
-		return []productstructs.Product{}, errors.New("Tenant Id cant be 0 or 1")
+	if tenantId.Compare(uuid.Nil()) == 0 {
+		return []productstructs.Product{}, errors.New("TenantId invalid")
 	}
 
 	encryptedProduct, err := p.productRepo.GetAllByTenantId(ctx, tenantId)
@@ -69,8 +70,8 @@ func (p *ProductService) GetAllByTenantId(ctx context.Context, tenantId uint) ([
 
 func (p *ProductService) Create(ctx context.Context, item productstructs.Product) (uint, error) {
 
-	if item.TenantId <= 1 {
-		return 0, errors.New("Tenant Id cant be 0 or 1")
+	if item.TenantId.Compare(uuid.Nil()) == 0 {
+		return 0, errors.New("TenantId invalid")
 	}
 
 	if item.ProductName == "" {
@@ -113,7 +114,7 @@ func (p *ProductService) Update(ctx context.Context, item productstructs.Product
 	return p.productRepo.Update(ctx, encrypted, "ProductId")
 }
 
-func (p *ProductService) Delete(ctx context.Context, id uint, tenantId uint) error {
+func (p *ProductService) Delete(ctx context.Context, id uint, tenantId uuid.UUID) error {
 
 	if id <= 1 {
 		return errors.New("Product Id cant be 0 or 1")

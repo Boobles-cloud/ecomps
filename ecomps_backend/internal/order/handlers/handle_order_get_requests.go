@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"strconv"
 	"time"
+	"uuid"
 
 	"ecomps.boobles.cloud/backend/internal/middleware"
 	httputils "ecomps.boobles.cloud/backend/utils/http_utils"
@@ -58,9 +59,9 @@ func (o *OrderHandler) HandleGettingAllOrdersByTenantId(w http.ResponseWriter, r
 
 	fail := httputils.NewFailHandler(w, "Order | HandleGettingAllOrdersByTenantId")
 
-	tenantId := ctx.Value(middleware.TenantIdContextKey).(int)
+	tenantId := ctx.Value(middleware.TenantIdContextKey).(uuid.UUID)
 
-	cacheItems, ok := o.orderCache.GetItems(uint(tenantId))
+	cacheItems, ok := o.orderCache.GetItems(tenantId)
 
 	if ok {
 		if jsonutils.RespondWithJson(w, http.StatusOK, cacheItems) {
@@ -68,7 +69,7 @@ func (o *OrderHandler) HandleGettingAllOrdersByTenantId(w http.ResponseWriter, r
 		}
 	}
 
-	allOrders, err := o.orderService.GetAllOrdersByTenantId(ctx, uint(tenantId))
+	allOrders, err := o.orderService.GetAllOrdersByTenantId(ctx, tenantId)
 
 	if err != nil {
 		fail(http.StatusInternalServerError, err)

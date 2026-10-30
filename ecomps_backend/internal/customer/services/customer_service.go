@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"errors"
+	"uuid"
 
 	customerstructs "ecomps.boobles.cloud/backend/internal/customer/customer_structs"
 	"ecomps.boobles.cloud/backend/utils/crypto"
@@ -35,16 +36,21 @@ func (c *CustomerService) GetById(ctx context.Context, id uint) (customerstructs
 	return *customer, nil
 }
 
-func (c *CustomerService) GetAllByTenantId(ctx context.Context, tenantId uint) ([]customerstructs.Customer, error) {
+func (c *CustomerService) GetAllByTenantId(ctx context.Context, tenantId uuid.UUID) ([]customerstructs.Customer, error) {
 
-	if tenantId <= 1 {
-		return []customerstructs.Customer{}, errors.New("TenantId cant be 0 or 1")
+	if tenantId.Compare(uuid.Nil()) == 0 {
+		return []customerstructs.Customer{}, errors.New("TenantId invalid")
 	}
 
 	encryptedCustomer, err := c.customerRepo.GetAllByTenantId(ctx, tenantId)
 
 	if err != nil {
 		return encryptedCustomer, err
+	}
+
+	// Check if the customer has the same TenantId
+	if tenantId.Compare(encryptedCustomer[0].TenantId) != 0 {
+		return encryptedCustomer, errors.New("Unathorized!")
 	}
 
 	pw, err := c.tenantService.GetPw(ctx, encryptedCustomer[0].TenantId)
@@ -69,8 +75,8 @@ func (c *CustomerService) GetAllByTenantId(ctx context.Context, tenantId uint) (
 
 func (c *CustomerService) Create(ctx context.Context, item customerstructs.Customer) (uint, error) {
 
-	if item.TenantId <= 1 {
-		return 0, errors.New("Tenant Id cant be 0 or 1")
+	if item.TenantId.Compare(uuid.Nil()) == 0 {
+		return 0, errors.New("TenantId invalid")
 	}
 
 	if item.CustomerName == "" {
@@ -94,8 +100,8 @@ func (c *CustomerService) Create(ctx context.Context, item customerstructs.Custo
 
 func (c *CustomerService) Update(ctx context.Context, item customerstructs.Customer) error {
 
-	if item.TenantId <= 1 {
-		return errors.New("Tenant Id cant be 0 or 1")
+	if item.TenantId.Compare(uuid.Nil()) == 0 {
+		return errors.New("TenantId invalid")
 	}
 
 	if item.CustomerId <= 1 {
@@ -117,10 +123,10 @@ func (c *CustomerService) Update(ctx context.Context, item customerstructs.Custo
 	return c.customerRepo.Update(ctx, encrypted, "CustomerId")
 }
 
-func (c *CustomerService) Delete(ctx context.Context, id uint, tenantId uint) error {
+func (c *CustomerService) Delete(ctx context.Context, id uint, tenantId uuid.UUID) error {
 
-	if tenantId <= 1 {
-		return errors.New("Tenant Id cant be 0 or 1")
+	if tenantId.Compare(uuid.Nil()) == 0 {
+		return errors.New("TenantId invalid")
 	}
 
 	if id <= 1 {

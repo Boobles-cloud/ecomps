@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"uuid"
 
 	"ecomps.boobles.cloud/backend/database"
 	orderstructs "ecomps.boobles.cloud/backend/internal/order/order_structs"
@@ -30,7 +31,7 @@ func (o *OrderRepository) GetOrderById(ctx context.Context, id uint) (orderstruc
 	return order, nil
 }
 
-func (o *OrderRepository) GetAllOrdersByTenantId(ctx context.Context, tenantId uint) ([]orderstructs.Order, error) {
+func (o *OrderRepository) GetAllOrdersByTenantId(ctx context.Context, tenantId uuid.UUID) ([]orderstructs.Order, error) {
 
 	orders, ok := database.QueryMany[orderstructs.Order](ctx, o.db, "SelectOrdersByTenantId", []any{tenantId})
 

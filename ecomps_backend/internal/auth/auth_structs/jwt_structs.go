@@ -2,6 +2,7 @@ package authstructs
 
 import (
 	"time"
+	"uuid"
 
 	"github.com/golang-jwt/jwt/v4"
 )
@@ -9,7 +10,7 @@ import (
 // The claims of every JWT
 type JWTClaimsStruct struct {
 	UserId   uint
-	TenantId uint
+	TenantId uuid.UUID
 	jwt.RegisteredClaims
 }
 

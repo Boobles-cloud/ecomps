@@ -57,8 +57,25 @@ func main() {
 	go hostedServices.DeleteExpiredJWT(ctx, databaseConf)
 	go hostedServices.DeleteTenants(ctx, databaseConf)
 
+	// ============ Secret-Manager config stuff ============
+	secretManagerService, err := startup.ConfigureSecretManager(ctx)
+
+	if err != nil {
+		logging.Log(logging.Error, "[Main] "+err.Error())
+		os.Exit(1)
+	}
+
+	// Check if the provider is reachable
+	if err := secretManagerService.CheckProviderHealth(ctx); err != nil {
+		logging.Log(logging.Error, "[Main] "+err.Error())
+	}
+
+	if err := secretManagerService.SetupCache(ctx); err != nil {
+		logging.Log(logging.Error, "[Main] "+err.Error())
+	}
+
 	// ============ REST-API config stuff ============
-	httpServer := startup.ConfigureHTTPServer(databaseConf)
+	httpServer := startup.ConfigureHTTPServer(databaseConf, secretManagerService)
 
 	logging.Log(logging.Information, "Ecomps starting and listening on :8080")
 

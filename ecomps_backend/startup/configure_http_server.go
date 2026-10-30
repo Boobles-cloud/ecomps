@@ -22,6 +22,7 @@ import (
 	productservice "ecomps.boobles.cloud/backend/internal/product/services"
 	productpicturehandler "ecomps.boobles.cloud/backend/internal/product_pictures/handler"
 	productpictureservice "ecomps.boobles.cloud/backend/internal/product_pictures/services"
+	secretmanagerservice "ecomps.boobles.cloud/backend/internal/secret_manager/services"
 	tenanthandlers "ecomps.boobles.cloud/backend/internal/tenant/handlers"
 	tenantservice "ecomps.boobles.cloud/backend/internal/tenant/services"
 	tenantstructs "ecomps.boobles.cloud/backend/internal/tenant/tenant_structs"
@@ -32,7 +33,10 @@ import (
 )
 
 // Creates and configures the rest api
-func ConfigureHTTPServer(dh *database.DbHandler) *http.Server {
+func ConfigureHTTPServer(dh *database.DbHandler, smManager *secretmanagerservice.SecretManagerService) *http.Server {
+
+	// TODO: Refactor this!!!
+	// Also add more comments, because what does this shit?
 
 	// ========= Configure our repositorys =======
 
@@ -53,7 +57,7 @@ func ConfigureHTTPServer(dh *database.DbHandler) *http.Server {
 	// ========= Configure our services =========
 
 	authService := authservice.CreateNewAuthService(authRepo)
-	tenantService := tenantservice.CreateNewTenantService(tenantRepo)
+	tenantService := tenantservice.CreateNewTenantService(tenantRepo, smManager)
 	userService := userservice.CreateNewUserService(userRepo, tenantService)
 	permissionService := permissionservice.CreateNewPermissionService(permissionRepo)
 
@@ -232,6 +236,6 @@ func ConfigureHTTPServer(dh *database.DbHandler) *http.Server {
 		ReadHeaderTimeout: 5 * time.Second,
 		ReadTimeout:       1 * time.Second,
 		WriteTimeout:      1 * time.Second,
-		IdleTimeout:       30 * time.Second,
+		IdleTimeout:       15 * time.Second,
 	}
 }

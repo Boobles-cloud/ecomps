@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"uuid"
 
 	authstructs "ecomps.boobles.cloud/backend/internal/auth/auth_structs"
 	orderstructs "ecomps.boobles.cloud/backend/internal/order/order_structs"
@@ -14,19 +15,18 @@ import (
 
 type Repository[T any] interface {
 	GetById(ctx context.Context, id uint) (T, error)
-	GetAllByTenantId(ctx context.Context, tenantId uint) ([]T, error)
+	GetAllByTenantId(ctx context.Context, tenantId uuid.UUID) ([]T, error)
 	Create(ctx context.Context, item T) (uint, error)
 	Update(ctx context.Context, item T, filterName string) error
-	Delete(ctx context.Context, id uint, tenantId uint) error
+	Delete(ctx context.Context, id uint, tenantId uuid.UUID) error
 }
 
 type TenantRepository interface {
-	GetById(ctx context.Context, id uint) (tenantstructs.Tenant, error)
-	GetTenantDeletion(ctx context.Context, id uint) (tenantstructs.TenantDeletionStruct, error)
-	GetPw(ctx context.Context, tenantId uint) (string, error)
-	Create(ctx context.Context, tenant tenantstructs.Tenant, userId uint) error
+	GetById(ctx context.Context, id uuid.UUID) (tenantstructs.Tenant, error)
+	GetTenantDeletion(ctx context.Context, id uuid.UUID) (tenantstructs.TenantDeletionStruct, error)
+	Create(ctx context.Context, tenant *tenantstructs.Tenant, userId uint) error
 	Update(ctx context.Context, tenant tenantstructs.Tenant) error
-	Delete(ctx context.Context, userId, tenantId uint) error
+	Delete(ctx context.Context, userId uint, tenantId uuid.UUID) error
 }
 
 // Just for all application that we support
@@ -90,7 +90,7 @@ type AuthRepository interface {
 
 type OrderRepository interface {
 	GetOrderById(ctx context.Context, id uint) (orderstructs.Order, error)
-	GetAllOrdersByTenantId(ctx context.Context, tenantId uint) ([]orderstructs.Order, error)
+	GetAllOrdersByTenantId(ctx context.Context, tenantId uuid.UUID) ([]orderstructs.Order, error)
 	CreateOrder(ctx context.Context, order orderstructs.Order) (uint, error)
 	UpdateOrder(ctx context.Context, order orderstructs.Order) error
 	DeleteOrder(ctx context.Context, orderId uint) error
