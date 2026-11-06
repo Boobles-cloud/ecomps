@@ -95,8 +95,11 @@ func (t *TenantOAuthService) AddToken(ctx context.Context, code, oauthProvider s
 		return errors.New("Invalid code")
 	}
 
-	// TODO: insert OAuthProvider service here!
-	oauthConf := oauth2.Config{}
+	oauthConf, err := t.createProviderConf(ctx, oauthProvider)
+
+	if err != nil {
+		return err
+	}
 
 	token, err := oauthConf.Exchange(ctx, code, oauth2.AccessTypeOffline, oauth2.ApprovalForce)
 
