@@ -44,6 +44,7 @@ type OAuthTenantAppRepository interface {
 	GetAllOAuthAppsForTenant(ctx context.Context, tenantId uuid.UUID) ([]tenantoauthstructs.TenantOAuthApps, error)
 	AddOAuthApplicationForTenant(ctx context.Context, app tenantoauthstructs.TenantOAuthApps) error
 	DeleteApplicationForTenant(ctx context.Context, tenantId uuid.UUID, appId uint) error
+	// TODO: add deletion
 }
 
 // All settings for the tenant apps
@@ -51,6 +52,7 @@ type OAuthTenantSettingsRepository interface {
 	GetSettingsForApplication(ctx context.Context, tenantId uuid.UUID, appId uint) ([]tenantoauthstructs.TenantSyncSettings, error)
 	AddSettingForTenantApplication(ctx context.Context, setting tenantoauthstructs.TenantSyncSettings) error
 	ChangeSettingForTenantApplication(ctx context.Context, setting tenantoauthstructs.TenantSyncSettings) error
+	// TODO: add deletion
 }
 
 type OAuthTenantTokenRepository interface {

@@ -6,6 +6,7 @@ import (
 	"uuid"
 
 	tenantoauthstructs "ecomps.boobles.cloud/backend/internal/tenant_oauth/tenant_oauth_structs"
+	"golang.org/x/oauth2"
 )
 
 // =========================== General Stuff ===========================
@@ -44,6 +45,8 @@ func (t *TenantOAuthService) AddOAuthAppForTenant(ctx context.Context, app tenan
 	if app.TenantId.Compare(uuid.Nil()) == 0 {
 		return errors.New("TenantId invalid")
 	}
+
+	app.SyncActive = false
 
 	return t.oauthTenantAppRepository.AddOAuthApplicationForTenant(ctx, app)
 }
@@ -86,17 +89,26 @@ func (t *TenantOAuthService) GetTokenForTenantApp(ctx context.Context, tenantId 
 	return t.oauthTenantTokenRepository.GetTokenForTenantApp(ctx, tenantId, appId)
 }
 
-func (t *TenantOAuthService) AddToken(ctx context.Context, code string) error {
+func (t *TenantOAuthService) AddToken(ctx context.Context, code, oauthProvider string) error {
 
 	if code == "" {
 		return errors.New("Invalid code")
 	}
 
-	// TODO: we need the config for the specified client here!
-	// -> then get the access token and a refresh token
-	// -> store both in the db
+	// TODO: insert OAuthProvider service here!
+	oauthConf := oauth2.Config{}
 
-	return nil
+	token, err := oauthConf.Exchange(ctx, code, oauth2.AccessTypeOffline, oauth2.ApprovalForce)
+
+	if err != nil {
+		return err
+	}
+
+	return t.oauthTenantTokenRepository.AddToken(ctx,
+		tenantoauthstructs.TenantOAuthToken{
+			TokenVal:        token.AccessToken,
+			RefreshTokenVal: token.RefreshToken,
+			Expires:         token.Expiry})
 }
 
 func (t *TenantOAuthService) DeleteToken(ctx context.Context, tokenId uint) error {

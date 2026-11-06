@@ -56,7 +56,7 @@
   },
   {
     "QueryName": "InsertOAuthAppForTenant",
-    "QueryVal": "INSERT INTO TenantOAuthApps() VALUES(DEFAULT, ?, ?, ?, ?, ?, ?, ?);",
+    "QueryVal": "INSERT INTO TenantOAuthApps() VALUES(DEFAULT, ?, ?, ?, ?, ?, ?);",
     "QueryType": 0
   },
   {

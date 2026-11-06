@@ -54,7 +54,7 @@ func OAuthTenantToken(item tenantoauthstructs.TenantOAuthToken) []any {
 		item.TokenId,
 		item.TokenVal,
 		item.RefreshTokenVal,
-		item.LastChanged,
+		item.Expires,
 		item.AppId,
 		item.TenantId,
 	}
@@ -64,7 +64,8 @@ func OAuthTenantApps(item tenantoauthstructs.TenantOAuthApps) []any {
 	return []any{
 		item.TenantAppId,
 		item.SyncInterval,
-		item.SyncActivated,
+		item.SyncActivatedAt,
+		item.SyncActive,
 		item.UserId,
 		item.AppId,
 		item.TenantId,

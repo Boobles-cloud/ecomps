@@ -112,7 +112,7 @@ CREATE TABLE TenantOAuthTokens(
     TokenId int unsigned NOT NULL AUTO_INCREMENT PRIMARY KEY,
     TokenVal varchar(250) NOT NULL,
     RefreshTokenVal varchar(255),
-    LastChanged DATETIME,
+    Expires DATETIME,
     AppId int unsigned NOT NULL,
     TenantId UUID NOT NULL
 );
@@ -122,9 +122,8 @@ CREATE TABLE TenantOAuthTokens(
 CREATE TABLE TenantOAuthApps(
     TenantAppId int unsigned NOT NULL AUTO_INCREMENT PRIMARY KEY,
     SyncInterval int NOT NULL,
-    SyncActivated DATETIME,
-    SyncSuccessfull bool,
-    SyncErrorMsg varchar(255),
+    SyncActivatedAt DATETIME,
+    SyncActive bool,
     UserId int unsigned NOT NULL, -- This is used to show which user has activated that
     AppId int unsigned NOT NULL,
     TenantId UUID NOT NULL

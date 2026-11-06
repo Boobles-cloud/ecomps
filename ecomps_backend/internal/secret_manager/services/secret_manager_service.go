@@ -69,6 +69,15 @@ func (s *SecretManagerService) GetClientSecret(ctx context.Context, providerKey 
 	return s.secretManagerRepo.GetClientSecret(ctx, providerKey)
 }
 
+func (s *SecretManagerService) GetClientId(ctx context.Context, providerKey string) (smstructs.SecretEntry, error) {
+
+	if providerKey == "" {
+		return smstructs.SecretEntry{}, errors.New("ProviderId is emtpty")
+	}
+
+	return s.secretManagerRepo.GetClientId(ctx, providerKey)
+}
+
 // Creates a tenant pw
 func (s *SecretManagerService) CreateTenantPw(ctx context.Context, tenantId uuid.UUID) error {
 

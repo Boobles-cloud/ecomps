@@ -61,6 +61,10 @@ func (s *StackitRepository) GetClientSecret(ctx context.Context, providerKey str
 	return smstructs.SecretEntry{}, errors.ErrUnsupported
 }
 
+func (s *StackitRepository) GetClientId(ctx context.Context, providerKey string) (smstructs.SecretEntry, error) {
+	return smstructs.SecretEntry{}, errors.ErrUnsupported
+}
+
 func (s *StackitRepository) CreateTenantPw(ctx context.Context, tenantId uuid.UUID, pw string) error {
 
 	// TODO: implement mee!!

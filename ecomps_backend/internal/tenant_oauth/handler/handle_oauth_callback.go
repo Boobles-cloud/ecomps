@@ -11,8 +11,6 @@ import (
 
 func (t *TenantOAuthHandler) HandleOAuthCallback(w http.ResponseWriter, r *http.Request) {
 
-	// TODO: improve this!
-
 	ctx, cancel := context.WithTimeout(r.Context(), 2*time.Second)
 
 	defer cancel()
@@ -20,11 +18,17 @@ func (t *TenantOAuthHandler) HandleOAuthCallback(w http.ResponseWriter, r *http.
 	fail := httputils.NewFailHandler(w, "[TenantOAuthHandler | HandleOAuthCallback] ")
 
 	state := r.FormValue("state")
-
 	stateCookie, err := r.Cookie(stateCookieKey)
 
 	if err != nil || state != stateCookie.Value {
 		fail(http.StatusBadRequest, errors.New("Invalid state"))
+		return
+	}
+
+	oauthProvider := r.PathValue("provider")
+
+	if oauthProvider == "" {
+		fail(http.StatusBadRequest, errors.New("OAuthprovider is empty"))
 		return
 	}
 
@@ -42,5 +46,10 @@ func (t *TenantOAuthHandler) HandleOAuthCallback(w http.ResponseWriter, r *http.
 		return
 	}
 
-	ctx.Done()
+	if err := t.oauthService.AddToken(ctx, code, oauthProvider); err != nil {
+		fail(http.StatusInternalServerError, err)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
 }
