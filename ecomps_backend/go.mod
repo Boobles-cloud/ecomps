@@ -7,6 +7,7 @@ require (
 	github.com/golang-jwt/jwt/v4 v4.5.2
 	github.com/hashicorp/vault/api v1.23.0
 	github.com/hashicorp/vault/api/auth/approle v0.12.0
+	github.com/hashicorp/vault/api/auth/userpass v0.12.0
 	github.com/wneessen/go-mail v0.8.1
 	golang.org/x/oauth2 v0.37.0
 )

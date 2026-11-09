@@ -58,7 +58,7 @@ func main() {
 	go hostedServices.DeleteTenants(ctx, databaseConf)
 
 	// ============ Secret-Manager config stuff ============
-	secretManagerService, err := startup.ConfigureSecretManager(ctx)
+	secretManagerService, err := startup.ConfigureSecretManagerWitPw(ctx)
 
 	if err != nil {
 		logging.Log(logging.Error, "[Main] "+err.Error())

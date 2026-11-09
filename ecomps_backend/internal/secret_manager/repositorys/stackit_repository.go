@@ -13,37 +13,35 @@ type StackitRepository struct {
 	client                  *vault.Client
 	defaultTenantPath       string
 	defaultClientSecretPath string
+	instanceId              string
 }
 
-func CreateNewStackitRepository(client *vault.Client, tenantPath string, clientSecretPath string) *StackitRepository {
+func CreateNewStackitRepository(client *vault.Client, tenantPath, clientSecretPath, instanceId string) *StackitRepository {
 	return &StackitRepository{
 		client:                  client,
 		defaultTenantPath:       tenantPath,
 		defaultClientSecretPath: clientSecretPath,
+		instanceId:              instanceId,
 	}
 }
 
 func (s *StackitRepository) GetTenantPw(ctx context.Context, tenantId uuid.UUID) (smstructs.SecretEntry, error) {
 
-	secret, err := s.client.Logical().Read(s.defaultTenantPath + tenantId.String())
+	secret, err := s.client.KVv2(s.instanceId).Get(ctx, tenantId.String())
 
 	if err != nil {
 		return smstructs.SecretEntry{}, err
 	}
 
-	if secret == nil || secret.Data["data"] == nil {
-		return smstructs.SecretEntry{}, errors.New("Path is empty")
-	}
-
-	datamap, ok := secret.Data["data"].(map[string]any)
+	dataMap, ok := secret.Data["tenantPw"].(string)
 
 	if !ok {
-		return smstructs.SecretEntry{}, errors.New("Failed to extract secret")
+		return smstructs.SecretEntry{}, errors.New("Value not found")
 	}
 
 	return smstructs.SecretEntry{
 		Key:   tenantId.String(),
-		Value: datamap["TenantPw"].(string),
+		Value: dataMap,
 	}, nil
 }
 
@@ -56,13 +54,41 @@ func (s *StackitRepository) GetAllTenantPws(ctx context.Context) ([]smstructs.Se
 
 func (s *StackitRepository) GetClientSecret(ctx context.Context, providerKey string) (smstructs.SecretEntry, error) {
 
-	// TODO: implement mee!!
+	secret, err := s.client.KVv2(s.instanceId).Get(ctx, "Test123")
 
-	return smstructs.SecretEntry{}, errors.ErrUnsupported
+	if err != nil {
+		return smstructs.SecretEntry{}, err
+	}
+
+	dataMap, ok := secret.Data["client_secret"].(string)
+
+	if !ok {
+		return smstructs.SecretEntry{}, errors.New("Key not found")
+	}
+
+	return smstructs.SecretEntry{
+		Key:   providerKey,
+		Value: dataMap,
+	}, nil
 }
 
 func (s *StackitRepository) GetClientId(ctx context.Context, providerKey string) (smstructs.SecretEntry, error) {
-	return smstructs.SecretEntry{}, errors.ErrUnsupported
+	secret, err := s.client.KVv2(s.instanceId).Get(ctx, "Test123")
+
+	if err != nil {
+		return smstructs.SecretEntry{}, err
+	}
+
+	dataMap, ok := secret.Data["client_id"].(string)
+
+	if !ok {
+		return smstructs.SecretEntry{}, errors.New("Key not found")
+	}
+
+	return smstructs.SecretEntry{
+		Key:   providerKey,
+		Value: dataMap,
+	}, nil
 }
 
 func (s *StackitRepository) CreateTenantPw(ctx context.Context, tenantId uuid.UUID, pw string) error {
