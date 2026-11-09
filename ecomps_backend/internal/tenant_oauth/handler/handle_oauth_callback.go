@@ -5,7 +5,9 @@ import (
 	"errors"
 	"net/http"
 	"time"
+	"uuid"
 
+	"ecomps.boobles.cloud/backend/internal/middleware"
 	httputils "ecomps.boobles.cloud/backend/utils/http_utils"
 )
 
@@ -25,10 +27,13 @@ func (t *TenantOAuthHandler) HandleOAuthCallback(w http.ResponseWriter, r *http.
 		return
 	}
 
+	// Get the provider and the appId from the path values
+	// TODO: Dont forget to place them as callback url!
 	oauthProvider := r.PathValue("provider")
+	appId, err := httputils.IntPathParam(r, "app_id")
 
-	if oauthProvider == "" {
-		fail(http.StatusBadRequest, errors.New("OAuthprovider is empty"))
+	if err != nil {
+		fail(http.StatusBadRequest, err)
 		return
 	}
 
@@ -40,13 +45,9 @@ func (t *TenantOAuthHandler) HandleOAuthCallback(w http.ResponseWriter, r *http.
 	})
 
 	code := r.FormValue("code")
+	tenantId := ctx.Value(middleware.TenantIdContextKey).(uuid.UUID)
 
-	if code == "" {
-		fail(http.StatusBadRequest, errors.New("Code not found"))
-		return
-	}
-
-	if err := t.oauthService.AddToken(ctx, code, oauthProvider); err != nil {
+	if err := t.oauthService.AddToken(ctx, code, oauthProvider, tenantId, uint(appId)); err != nil {
 		fail(http.StatusInternalServerError, err)
 		return
 	}

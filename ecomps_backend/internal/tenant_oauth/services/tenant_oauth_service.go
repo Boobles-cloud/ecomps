@@ -6,6 +6,7 @@ import (
 	"uuid"
 
 	tenantoauthstructs "ecomps.boobles.cloud/backend/internal/tenant_oauth/tenant_oauth_structs"
+	"ecomps.boobles.cloud/backend/utils/crypto"
 	"golang.org/x/oauth2"
 )
 
@@ -89,13 +90,18 @@ func (t *TenantOAuthService) GetTokenForTenantApp(ctx context.Context, tenantId 
 	return t.oauthTenantTokenRepository.GetTokenForTenantApp(ctx, tenantId, appId)
 }
 
-func (t *TenantOAuthService) AddToken(ctx context.Context, code, oauthProvider string) error {
+func (t *TenantOAuthService) AddToken(ctx context.Context, code, oauthProvider string, tenantId uuid.UUID, appId uint) error {
 
 	if code == "" {
 		return errors.New("Invalid code")
 	}
 
-	oauthConf, err := t.createProviderConf(ctx, oauthProvider)
+	if tenantId.Compare(uuid.Max()) == 0 || tenantId.Compare(uuid.Nil()) == 0 {
+		return errors.New("Tenantid invalid!")
+	}
+
+	// TODO: update me!
+	oauthConf, err := oauth2.Config{}, errors.New("")
 
 	if err != nil {
 		return err
@@ -107,11 +113,26 @@ func (t *TenantOAuthService) AddToken(ctx context.Context, code, oauthProvider s
 		return err
 	}
 
+	tenantPw, err := t.smService.GetTenantPw(ctx, tenantId)
+
+	if err != nil {
+		return err
+	}
+
+	encryptedToken, ok := crypto.Encrypt[oauth2.Token](*token, tenantPw.Value)
+
+	if !ok {
+		return errors.New("Failed to encrypt")
+	}
+
 	return t.oauthTenantTokenRepository.AddToken(ctx,
 		tenantoauthstructs.TenantOAuthToken{
-			TokenVal:        token.AccessToken,
-			RefreshTokenVal: token.RefreshToken,
-			Expires:         token.Expiry})
+			TokenVal:        encryptedToken.AccessToken,
+			RefreshTokenVal: encryptedToken.RefreshToken,
+			Expires:         token.Expiry,
+			AppId:           appId,
+			TenantId:        tenantId,
+		})
 }
 
 func (t *TenantOAuthService) DeleteToken(ctx context.Context, tokenId uint) error {
