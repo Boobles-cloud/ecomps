@@ -178,5 +178,25 @@
     "QueryName": "SelectOAuthTokenByTenantAndAppId",
     "QueryVal": "SELECT * FROM TenantOAuthTokens WHERE TenantId = ? AND AppId = ?;",
     "QueryType": 2
+  },
+  {
+    "QueryName": "SelectProviderByProviderId",
+    "QueryVal": "SELECT * FROM OAuhtProvider WHERE ProviderId = ?;",
+    "QueryType": 2
+  },
+  {
+    "QueryName": "SelectProviderByAppId",
+    "QueryVal": "SELECT * FROM OAuhtProvider WHERE AppId = ?;",
+    "QueryType": 2
+  },
+  {
+    "QueryName": "SelectProviderByKey",
+    "QueryVal": "SELECT * FROM OAuhtProvider WHERE ProviderKey = ?;",
+    "QueryType": 2
+  },
+  {
+    "QueryName": "SelectScopesByProviderId",
+    "QueryVal": "SELECT * FROM ProviderScopes WHERE ProviderId = ?;",
+    "QueryType": 2
   }
 ]

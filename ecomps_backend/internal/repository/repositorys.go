@@ -5,7 +5,6 @@ import (
 	"uuid"
 
 	productpicturetructs "ecomps.boobles.cloud/backend/internal/product_pictures/product_pictures_structs"
-	tenantoauthstructs "ecomps.boobles.cloud/backend/internal/tenant_oauth/tenant_oauth_structs"
 )
 
 type Repository[T any] interface {
@@ -14,16 +13,6 @@ type Repository[T any] interface {
 	Create(ctx context.Context, item T) (uint, error)
 	Update(ctx context.Context, item T, filterName string) error
 	Delete(ctx context.Context, id uint, tenantId uuid.UUID) error
-}
-
-// Just for all application that we support
-type OAuthAppRepository interface {
-	GetAllOAuthApps(ctx context.Context) ([]tenantoauthstructs.OAuthApps, error)
-}
-
-// All settings a user can chose from
-type OAuthSettingsRepository interface {
-	GetAllSettings(ctx context.Context, langId uint) ([]tenantoauthstructs.OAuthSettings, error)
 }
 
 type ProductPictureRepository interface {
