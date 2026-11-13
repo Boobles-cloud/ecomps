@@ -37,7 +37,7 @@ func ConfigureSecretManager(ctx context.Context) (*services.SecretManagerService
 	}
 
 	// Our current provider
-	repository := repositorys.CreateNewStackitRepository(client, os.Getenv("secret_tenant_path"), os.Getenv("secret_client_path"), os.Getenv("secret_instance_id"))
+	repository := repositorys.CreateNewStackitRepository(client, os.Getenv("secret_tenant_path"), os.Getenv("secret_client_path"), os.Getenv("secret_client_id_path"), os.Getenv("secret_instance_id"))
 
 	return services.CreateNewSecretManagerService(repository), nil
 }
@@ -66,7 +66,7 @@ func ConfigureSecretManagerWitPw(ctx context.Context) (*services.SecretManagerSe
 		return &services.SecretManagerService{}, err
 	}
 
-	repository := repositorys.CreateNewStackitRepository(client, os.Getenv("secret_tenant_path"), "secret_client_path", os.Getenv("secret_instance_id"))
+	repository := repositorys.CreateNewStackitRepository(client, os.Getenv("secret_tenant_path"), os.Getenv("secret_client_path"), os.Getenv("secret_client_id_path"), os.Getenv("secret_instance_id"))
 
 	return services.CreateNewSecretManagerService(repository), nil
 }
