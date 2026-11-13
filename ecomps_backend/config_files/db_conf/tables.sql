@@ -83,15 +83,35 @@ CREATE TABLE TenantDeletions(
 );
 
 
+-- ############################################################
+--               Internal OAuth config stuff
+--               NOTE: just for internal use!
+-- ############################################################
+
+CREATE TABLE OAuthProvider(
+    ProviderId int unsigned NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    ProviderKey varchar(50) NOT NULL,
+    AuthUrl varchar(255) NOT NULL,
+    TokenUrl varchar(255) NOT NULL,
+    AppId int unsigned NOT NULL -- To Link our internal data to the customer data!
+);
+
+CREATE TABLE ProviderScopes(
+    ScopeId int unsigned NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    Scope varchar(250),
+    ProviderId int unsigned
+);
 
 
 -- ############################################################
---                         Tenant OAuth stuff
---
+--                    Tenant OAuth stuff
+--     Stuff we show our customers and also their data
 -- ############################################################
 
 -- All oauth apps we support
--- TODO: Add them
+-- NOTE: those are only the apps we show our customers!
+-- TODO: maybe remove the Primary key and just use this to hold data
+-- -> If holding data add a language id!
 CREATE TABLE OAuthApps(
     AppId int unsigned NOT NULL AUTO_INCREMENT PRIMARY KEY,
     AppName varchar(250) NOT NULL,
@@ -263,7 +283,6 @@ ALTER TABLE TenantSyncSettings
     ADD CONSTRAINT FK_TenantSyncSettings_OAuthApps FOREIGN KEY (AppId) REFERENCES OAuthApps(AppId),
     ADD CONSTRAINT FK_TenantSyncSettings_User FOREIGN KEY (UserId) REFERENCES Users(UserId),
     ADD CONSTRAINT FK_TenantSyncSettings_Tenant FOREIGN KEY (TenantId) REFERENCES Tenant(TenantId);
-
 
 ALTER TABLE Customer
     ADD CONSTRAINT FK_Customer_Tenant FOREIGN KEY (TenantId) REFERENCES Tenant(TenantId);
