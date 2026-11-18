@@ -90,6 +90,21 @@ func (t *TenantOAuthService) GetTokenForTenantApp(ctx context.Context, tenantId 
 	return t.oauthTenantTokenRepository.GetTokenForTenantApp(ctx, tenantId, appId)
 }
 
+func (t *TenantOAuthService) GetAuthUrlByProviderKey(ctx context.Context, providerKey, state string) (string, error) {
+
+	if providerKey == "" {
+		return "", errors.New("Key is empty")
+	}
+
+	tmp, err := t.oauthPorviderService.CreateProviderConfigByKey(ctx, providerKey)
+
+	if err != nil {
+		return "", err
+	}
+
+	return tmp.AuthCodeURL(state), nil
+}
+
 func (t *TenantOAuthService) AddToken(ctx context.Context, code, oauthProvider string, tenantId uuid.UUID, appId uint) error {
 
 	if code == "" {
@@ -100,8 +115,7 @@ func (t *TenantOAuthService) AddToken(ctx context.Context, code, oauthProvider s
 		return errors.New("Tenantid invalid!")
 	}
 
-	// TODO: update me!
-	oauthConf, err := oauth2.Config{}, errors.New("")
+	oauthConf, err := t.oauthPorviderService.CreateProviderConfigByKey(ctx, oauthProvider)
 
 	if err != nil {
 		return err

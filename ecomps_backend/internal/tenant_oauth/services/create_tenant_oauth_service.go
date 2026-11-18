@@ -1,6 +1,7 @@
 package services
 
 import (
+	oauthproviderservice "ecomps.boobles.cloud/backend/internal/oauth_provider/services"
 	"ecomps.boobles.cloud/backend/internal/repository"
 	"ecomps.boobles.cloud/backend/internal/secret_manager/services"
 	tenantoauthstructs "ecomps.boobles.cloud/backend/internal/tenant_oauth/tenant_oauth_structs"
@@ -13,6 +14,7 @@ type TenantOAuthService struct {
 	oauthTenantAppRepository      repository.OAuthTenantAppRepository
 	oauthTenantTokenRepository    repository.OAuthTenantTokenRepository
 	smService                     *services.SecretManagerService
+	oauthPorviderService          *oauthproviderservice.OAuthProviderService
 }
 
 func CreateNewTenantOAuthService(app repository.OAuthAppRepository,
@@ -20,7 +22,8 @@ func CreateNewTenantOAuthService(app repository.OAuthAppRepository,
 	tenantSet repository.OAuthTenantSettingsRepository,
 	tenantApp repository.OAuthTenantAppRepository,
 	tenantToken repository.OAuthTenantTokenRepository,
-	s *services.SecretManagerService) *TenantOAuthService {
+	s *services.SecretManagerService,
+	providerService *oauthproviderservice.OAuthProviderService) *TenantOAuthService {
 
 	return &TenantOAuthService{
 		oauthAppRepository:            app,
@@ -29,6 +32,7 @@ func CreateNewTenantOAuthService(app repository.OAuthAppRepository,
 		oauthTenantAppRepository:      tenantApp,
 		oauthTenantTokenRepository:    tenantToken,
 		smService:                     s,
+		oauthPorviderService:          providerService,
 	}
 }
 

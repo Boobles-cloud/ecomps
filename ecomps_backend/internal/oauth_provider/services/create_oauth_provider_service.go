@@ -2,16 +2,21 @@ package services
 
 import (
 	oauthproviderstructs "ecomps.boobles.cloud/backend/internal/oauth_provider/oauth_provider_structs"
+	"ecomps.boobles.cloud/backend/internal/repository"
 	"ecomps.boobles.cloud/backend/internal/secret_manager/services"
 )
 
 type OAuthProviderService struct {
-	secretManager *services.SecretManagerService
+	secretManager      *services.SecretManagerService
+	providerRepository repository.OAuthProviderRepository
+	scopeRepository    repository.OAuthScopeRepository
 }
 
-func CreateNewOAuthProviderService(s *services.SecretManagerService) *OAuthProviderService {
+func CreateNewOAuthProviderService(s *services.SecretManagerService, op repository.OAuthProviderRepository, sr repository.OAuthScopeRepository) *OAuthProviderService {
 	return &OAuthProviderService{
-		secretManager: s,
+		secretManager:      s,
+		providerRepository: op,
+		scopeRepository:    sr,
 	}
 }
 
