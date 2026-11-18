@@ -10,7 +10,7 @@ import (
 	httputils "ecomps.boobles.cloud/backend/utils/http_utils"
 )
 
-func (o *TenantOAuthHandler) HandleOAuthLoginRequest(w http.ResponseWriter, r *http.Request) {
+func (t *TenantOAuthHandler) HandleOAuthLoginRequest(w http.ResponseWriter, r *http.Request) {
 
 	ctx, cancel := context.WithTimeout(r.Context(), 2*time.Second)
 
@@ -22,7 +22,7 @@ func (o *TenantOAuthHandler) HandleOAuthLoginRequest(w http.ResponseWriter, r *h
 
 	state := generateStateCookie(w)
 
-	url, err := o.oauthService.GetAuthUrlByProviderKey(ctx, provider, state)
+	url, err := t.oauthService.GetAuthUrlByProviderKey(ctx, provider, state)
 
 	if err != nil {
 		fail(http.StatusBadRequest, err)

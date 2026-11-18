@@ -32,6 +32,7 @@ type TenantOAuthToken struct {
 }
 
 // This holds all information for the specific tenant
+// TODO: Add bool to see if a login is required
 type TenantOAuthApps struct {
 	TenantAppId     uint          `json:"TenantAppId"`
 	SyncInterval    time.Duration `json:"Interval"`
