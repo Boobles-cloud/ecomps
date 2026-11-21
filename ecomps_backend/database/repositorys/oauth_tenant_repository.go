@@ -68,6 +68,15 @@ func (t *OAuthTenantAppRepository) AddOAuthApplicationForTenant(ctx context.Cont
 	return nil
 }
 
+func (t *OAuthTenantAppRepository) UpdateApplicationForTenant(ctx context.Context, app tenantoauthstructs.TenantOAuthApps) error {
+
+	if ok := database.UpdateDatabaseEntry[tenantoauthstructs.TenantOAuthApps](t.db, "UpdateOAuthAppForTenant", "TenantAppId", app); !ok {
+		return errors.New("Failed to update item")
+	}
+
+	return nil
+}
+
 func (t *OAuthTenantAppRepository) DeleteApplicationForTenant(ctx context.Context, tenantId uuid.UUID, appId uint) error {
 
 	if result := t.db.ExecuteSQLStatement(ctx, "DeleteTenantOAuthAppByTenantAndAppId", []any{tenantId, appId}); !result.Ok {
@@ -118,8 +127,6 @@ func (t *OAuthTenantSettingsRepository) ChangeSettingForTenantApplication(ctx co
 // ======================================================================
 // 							All Tenant-Token funcs
 // ======================================================================
-
-// TODO: Move this to our key-management-provider
 
 func (t *OAuthTenantTokenRepository) GetTokenForTenantApp(ctx context.Context, tenantId uuid.UUID, appId uint) (tenantoauthstructs.TenantOAuthToken, error) {
 

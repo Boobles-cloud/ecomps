@@ -19,7 +19,7 @@ type OAuthScopeRepository interface {
 
 // Just for all application that we support
 type OAuthAppRepository interface {
-	GetAllOAuthApps(ctx context.Context) ([]tenantoauthstructs.OAuthApps, error)
+	GetAllOAuthApps(ctx context.Context, langId uint) ([]tenantoauthstructs.OAuthApps, error)
 }
 
 // All settings a user can chose from

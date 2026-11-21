@@ -155,8 +155,8 @@
     "QueryType": 2
   },
   {
-    "QueryName": "SelectAllOAuthApps",
-    "QueryVal": "SELECT * FROM OAuthApps;",
+    "QueryName": "SelectAllOAuthAppsByLangId",
+    "QueryVal": "SELECT * FROM OAuthApps WHERE LangId = ?;",
     "QueryType": 2
   },
   {

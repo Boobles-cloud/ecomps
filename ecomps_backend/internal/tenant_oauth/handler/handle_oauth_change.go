@@ -24,10 +24,12 @@ func (t *TenantOAuthHandler) HandleTenantOAuthAppChange(w http.ResponseWriter, r
 		return
 	}
 
-	// TODO: implement me
-	oauthApp.AppId = 1
+	if err := t.oauthService.ChangeOAuthAppForTenant(ctx, oauthApp); err != nil {
+		fail(http.StatusInternalServerError, err)
+		return
+	}
 
-	ctx.Done()
+	w.WriteHeader(http.StatusOK)
 }
 
 func (t *TenantOAuthHandler) HandleTenantSettingChange(w http.ResponseWriter, r *http.Request) {

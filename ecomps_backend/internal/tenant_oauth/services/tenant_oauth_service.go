@@ -12,8 +12,8 @@ import (
 
 // =========================== General Stuff ===========================
 
-func (t *TenantOAuthService) GetAllOAuthApps(ctx context.Context) ([]tenantoauthstructs.OAuthApps, error) {
-	return t.oauthAppRepository.GetAllOAuthApps(ctx)
+func (t *TenantOAuthService) GetAllOAuthApps(ctx context.Context, langId uint) ([]tenantoauthstructs.OAuthApps, error) {
+	return t.oauthAppRepository.GetAllOAuthApps(ctx, langId)
 }
 
 func (t *TenantOAuthService) GetAllOAuthSettings(ctx context.Context, langId uint) ([]tenantoauthstructs.OAuthSettings, error) {
@@ -73,6 +73,23 @@ func (t *TenantOAuthService) DeleteOAuthAppForTenant(ctx context.Context, tenant
 	}
 
 	return t.oauthTenantAppRepository.DeleteApplicationForTenant(ctx, tenantId, appId)
+}
+
+func (t *TenantOAuthService) ChangeOAuthAppForTenant(ctx context.Context, app tenantoauthstructs.TenantOAuthApps) error {
+
+	if app.TenantAppId == 0 || app.AppId == 0 {
+		return errors.New("TenantAppId or AppId invalid")
+	}
+
+	if app.UserId <= 1 {
+		return errors.New("UserId invalid")
+	}
+
+	if app.TenantId.Compare(uuid.Nil()) == 0 {
+		return errors.New("Invalid tenantId")
+	}
+
+	return t.oauthTenantAppRepository.UpdateApplicationForTenant(ctx, app)
 }
 
 // =========================== OAuth tenant token stuff ===========================

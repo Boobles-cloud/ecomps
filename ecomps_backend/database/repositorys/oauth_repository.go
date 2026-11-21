@@ -32,9 +32,9 @@ func NewOAuthSettingsRepository(db *database.DbHandler, entityName string, toArg
 // 							All OAuhtApp funcs
 // ======================================================================
 
-func (o *OAuthAppRepository) GetAllOAuthApps(ctx context.Context) ([]tenantoauthstructs.OAuthApps, error) {
+func (o *OAuthAppRepository) GetAllOAuthApps(ctx context.Context, langId uint) ([]tenantoauthstructs.OAuthApps, error) {
 
-	allApps, ok := database.QueryMany[tenantoauthstructs.OAuthApps](ctx, o.db, "SelectAllOAuthApps", []any{})
+	allApps, ok := database.QueryMany[tenantoauthstructs.OAuthApps](ctx, o.db, "SelectAllOAuthAppsByLangId", []any{})
 
 	if !ok {
 		return allApps, sql.ErrNoRows

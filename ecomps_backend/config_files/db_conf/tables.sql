@@ -110,12 +110,12 @@ CREATE TABLE ProviderScopes(
 
 -- All oauth apps we support
 -- NOTE: those are only the apps we show our customers!
--- TODO: maybe remove the Primary key and just use this to hold data
 -- -> If holding data add a language id!
 CREATE TABLE OAuthApps(
-    AppId int unsigned NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    AppId int unsigned NOT NULL,
     AppName varchar(250) NOT NULL,
-    AppLink varchar(250)
+    AppLink varchar(250),
+    LangId int unsigned NOT NULL
 );
 
 -- TODO: Add them

@@ -15,15 +15,20 @@ import (
 // Handles getting all avaliable oauth settings
 func (t *TenantOAuthHandler) HandleGettingAllOAuthApps(w http.ResponseWriter, r *http.Request) {
 
-	// TODO: Maybe add getting languageId first
-
 	ctx, cancel := context.WithTimeout(r.Context(), 2*time.Second)
 
 	defer cancel()
 
 	fail := httputils.NewFailHandler(w, "TenantOAuth | HandleGettingAllOAuthApps")
 
-	allApps, err := t.oauthService.GetAllOAuthApps(ctx)
+	langId, err := httputils.IntPathParam(r, "lang_id")
+
+	if err != nil {
+		fail(http.StatusBadRequest, err)
+		return
+	}
+
+	allApps, err := t.oauthService.GetAllOAuthApps(ctx, uint(langId))
 
 	if err != nil {
 		fail(http.StatusInternalServerError, err)
