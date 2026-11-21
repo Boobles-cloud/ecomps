@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/http"
 	"time"
+	"uuid"
 
 	"ecomps.boobles.cloud/backend/internal/middleware"
 	httputils "ecomps.boobles.cloud/backend/utils/http_utils"
@@ -19,9 +20,9 @@ func (t *TenantHandler) HandleTenantDeletion(w http.ResponseWriter, r *http.Requ
 	fail := httputils.NewFailHandler(w, "Tenant | HandleTenantDeletion")
 
 	userId := ctx.Value(middleware.UserIdContextKey).(int)
-	tenantId := ctx.Value(middleware.TenantIdContextKey).(int)
+	tenantId := ctx.Value(middleware.TenantIdContextKey).(uuid.UUID)
 
-	if err := t.tenantService.Delete(ctx, uint(userId), uint(tenantId)); err != nil {
+	if err := t.tenantService.Delete(ctx, uint(userId), tenantId); err != nil {
 		fail(http.StatusInternalServerError, err)
 		return
 	}

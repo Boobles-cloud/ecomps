@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/http"
 	"time"
+	"uuid"
 
 	"ecomps.boobles.cloud/backend/internal/middleware"
 	orderstructs "ecomps.boobles.cloud/backend/internal/order/order_structs"
@@ -29,13 +30,13 @@ func (o *OrderHandler) HandleChangingOrder(w http.ResponseWriter, r *http.Reques
 
 	order.OrderLastChanged = time.Now()
 
-	tenantId := r.Context().Value(middleware.TenantIdContextKey).(int)
+	tenantId := r.Context().Value(middleware.TenantIdContextKey).(uuid.UUID)
 
 	if err := o.orderService.UpdateOrder(ctx, order); err != nil {
 		fail(http.StatusInternalServerError, err)
 		return
 	}
 
-	go o.insertItem(order, uint(tenantId))
+	go o.insertItem(order, tenantId)
 	w.WriteHeader(http.StatusOK)
 }

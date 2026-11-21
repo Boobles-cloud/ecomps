@@ -48,7 +48,7 @@ func AuthMiddleware(dh *database.DbHandler) Middleware {
 
 			// Adds the user and tenant Id to the context
 			ctx := context.WithValue(reqCtx, UserIdContextKey, int(claims.UserId))
-			ctx = context.WithValue(ctx, TenantIdContextKey, int(claims.TenantId))
+			ctx = context.WithValue(ctx, TenantIdContextKey, claims.TenantId)
 
 			h.ServeHTTP(w, r.WithContext(ctx))
 		})

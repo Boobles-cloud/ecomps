@@ -153,5 +153,50 @@
     "QueryName": "SelectProductPictureById",
     "QueryVal": "SELECT * FROM ProductPictures WHERE PictureId = ?;",
     "QueryType": 2
+  },
+  {
+    "QueryName": "SelectAllOAuthAppsByLangId",
+    "QueryVal": "SELECT * FROM OAuthApps WHERE LangId = ?;",
+    "QueryType": 2
+  },
+  {
+    "QueryName": "SelectAllOAuthSettingsByLangId",
+    "QueryVal": "SELECT * FROM OAuthSettings WHERE LangId = ?;",
+    "QueryType": 2
+  },
+  {
+    "QueryName": "SelectAllAppsByTenantId",
+    "QueryVal": "SELECT * FROM TenantOAuthApps WHERE TenantId = ?;",
+    "QueryType": 2
+  },
+  {
+    "QueryName": "SelectAllSettingsByTenantAndAppId",
+    "QueryVal": "SELECT * FROM TenantSyncSettings WHERE TenantId = ? AND AppId = ?;",
+    "QueryType": 2
+  },
+  {
+    "QueryName": "SelectOAuthTokenByTenantAndAppId",
+    "QueryVal": "SELECT * FROM TenantOAuthTokens WHERE TenantId = ? AND AppId = ?;",
+    "QueryType": 2
+  },
+  {
+    "QueryName": "SelectProviderByProviderId",
+    "QueryVal": "SELECT * FROM OAuhtProvider WHERE ProviderId = ?;",
+    "QueryType": 2
+  },
+  {
+    "QueryName": "SelectProviderByAppId",
+    "QueryVal": "SELECT * FROM OAuhtProvider WHERE AppId = ?;",
+    "QueryType": 2
+  },
+  {
+    "QueryName": "SelectProviderByKey",
+    "QueryVal": "SELECT * FROM OAuhtProvider WHERE ProviderKey = ?;",
+    "QueryType": 2
+  },
+  {
+    "QueryName": "SelectScopesByProviderId",
+    "QueryVal": "SELECT * FROM ProviderScopes WHERE ProviderId = ?;",
+    "QueryType": 2
   }
 ]

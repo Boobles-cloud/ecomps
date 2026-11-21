@@ -2,14 +2,14 @@ package tenantstructs
 
 import (
 	"time"
+	"uuid"
 )
 
 type Tenant struct {
-	TenantId          uint      `json:"TenantId"`
+	TenantId          uuid.UUID `json:"TenantId"`
 	TenantName        string    `json:"TenantName"`
 	TenantCreation    time.Time `json:"-"`
 	TenantAdminUserId uint      `json:"TenantAdminUser"`
-	TenantPwId        uint      `json:"-"`
 }
 
 // Checks if a user is the admin of the tenant

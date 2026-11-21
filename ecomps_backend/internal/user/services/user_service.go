@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"uuid"
 
 	userstructs "ecomps.boobles.cloud/backend/internal/user/user_structs"
 )
@@ -31,12 +32,12 @@ func (s *UserService) GetUserByUserNameAndPw(ctx context.Context, userName, pw s
 	return s.userRepo.GetUserByUserNameAndPw(ctx, userName, pw)
 }
 
-func (s *UserService) GetAllByTenantId(ctx context.Context, tenantId uint) ([]userstructs.UserStruct, error) {
+func (s *UserService) GetAllByTenantId(ctx context.Context, tenantId uuid.UUID) ([]userstructs.UserStruct, error) {
 
 	users := make([]userstructs.UserStruct, 0, 100)
 
-	if tenantId <= 1 {
-		return users, errors.New("Tenant Id cant be 0 or 1")
+	if tenantId.Compare(uuid.Nil()) == 0 {
+		return users, errors.New("TenantId isnt valid")
 	}
 
 	return s.userRepo.GetAllByTenantId(ctx, tenantId)
@@ -79,7 +80,7 @@ func (s *UserService) UpdateUser(ctx context.Context, user userstructs.UserStruc
 }
 
 // Deletes a user
-func (s *UserService) DeleteUser(ctx context.Context, userId, tenantId uint) error {
+func (s *UserService) DeleteUser(ctx context.Context, userId uint, tenantId uuid.UUID) error {
 
 	if userId <= 1 {
 		return errors.New("UserId cannot be 0 or 1")

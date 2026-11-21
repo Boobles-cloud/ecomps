@@ -30,7 +30,7 @@ func (t *TenantHandler) HandleTenantCreation(w http.ResponseWriter, r *http.Requ
 
 	userId := ctx.Value(middleware.UserIdContextKey).(int)
 
-	if err := t.tenantService.CreateTenant(ctx, tenantStruct, uint(userId)); err != nil {
+	if err := t.tenantService.CreateTenant(ctx, &tenantStruct, uint(userId)); err != nil {
 		fail(http.StatusInternalServerError, err)
 		return
 	}

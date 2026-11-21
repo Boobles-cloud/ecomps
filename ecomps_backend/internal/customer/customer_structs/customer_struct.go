@@ -2,6 +2,7 @@ package customerstructs
 
 import (
 	"time"
+	"uuid"
 )
 
 type Customer struct {
@@ -11,5 +12,5 @@ type Customer struct {
 	CustomerStreetAndHouseNr string    `json:"CustomerStreetAndHouseNr"`
 	CustomerCity             string    `json:"CustomerCity"`
 	CustomerLastChanged      time.Time `json:"CustomerLastChanged"`
-	TenantId                 uint      `json:"TenantId"`
+	TenantId                 uuid.UUID `json:"TenantId"`
 }

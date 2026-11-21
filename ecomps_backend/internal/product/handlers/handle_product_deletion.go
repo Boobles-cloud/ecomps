@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"strconv"
 	"time"
+	"uuid"
 
 	"ecomps.boobles.cloud/backend/internal/middleware"
 	httputils "ecomps.boobles.cloud/backend/utils/http_utils"
@@ -26,7 +27,7 @@ func (p *ProductHandler) HandleDeletingProduct(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	p.productService.Delete(ctx, uint(productId), uint(ctx.Value(middleware.TenantIdContextKey).(int)))
+	p.productService.Delete(ctx, uint(productId), ctx.Value(middleware.TenantIdContextKey).(uuid.UUID))
 
 	key := ProductCacheKey + strconv.Itoa(productId)
 	p.productCache.RemoveItem(key)

@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"uuid"
 
 	"ecomps.boobles.cloud/backend/database"
 )
@@ -39,7 +40,7 @@ func (d *DatabaseRepository[T]) GetById(ctx context.Context, id uint) (T, error)
 	return item, nil
 }
 
-func (d *DatabaseRepository[T]) GetAllByTenantId(ctx context.Context, tenantId uint) ([]T, error) {
+func (d *DatabaseRepository[T]) GetAllByTenantId(ctx context.Context, tenantId uuid.UUID) ([]T, error) {
 
 	var items []T
 
@@ -77,7 +78,7 @@ func (d *DatabaseRepository[T]) Update(ctx context.Context, item T, filterName s
 	return nil
 }
 
-func (d *DatabaseRepository[T]) Delete(ctx context.Context, id, tenantId uint) error {
+func (d *DatabaseRepository[T]) Delete(ctx context.Context, id uint, tenantId uuid.UUID) error {
 
 	if result := d.db.ExecuteSQLStatement(ctx, "Delete"+d.entityName, []any{id}); !result.Ok {
 		return errors.New("Failed to delete item")

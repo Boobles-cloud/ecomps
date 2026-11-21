@@ -4,29 +4,36 @@ import (
 	"context"
 	"errors"
 	"time"
+	"uuid"
 
 	tenantstructs "ecomps.boobles.cloud/backend/internal/tenant/tenant_structs"
 )
 
-func (t *TenantService) GetTenantById(ctx context.Context, id uint) (tenantstructs.Tenant, error) {
+func (t *TenantService) GetTenantById(ctx context.Context, id uuid.UUID) (tenantstructs.Tenant, error) {
 
-	if id <= 1 {
-		return tenantstructs.Tenant{}, errors.New("TenantId cant be 0 or 1")
+	if id.Compare(uuid.Nil()) == 0 {
+		return tenantstructs.Tenant{}, errors.New("TenantId isnt valid")
 	}
 
 	return t.tenantRepo.GetById(ctx, id)
 }
 
-func (t *TenantService) GetPw(ctx context.Context, id uint) (string, error) {
+func (t *TenantService) GetPw(ctx context.Context, id uuid.UUID) (string, error) {
 
-	if id <= 1 {
-		return "", errors.New("TenantId cant be 0 or 1")
+	if id.Compare(uuid.Nil()) == 0 {
+		return "", errors.New("TenantId isnt valid")
 	}
 
-	return t.tenantRepo.GetPw(ctx, id)
+	entry, err := t.smService.GetTenantPw(ctx, id)
+
+	if err != nil {
+		return "", err
+	}
+
+	return entry.Value, nil
 }
 
-func (t *TenantService) CreateTenant(ctx context.Context, tenant tenantstructs.Tenant, userId uint) error {
+func (t *TenantService) CreateTenant(ctx context.Context, tenant *tenantstructs.Tenant, userId uint) error {
 
 	if tenant.TenantName == "" {
 		return errors.New("Tenantname is empty")
@@ -34,32 +41,32 @@ func (t *TenantService) CreateTenant(ctx context.Context, tenant tenantstructs.T
 
 	tenant.TenantCreation = time.Now()
 
-	return t.tenantRepo.Create(ctx, tenant, userId)
+	if err := t.tenantRepo.Create(ctx, tenant, userId); err != nil {
+		return err
+	}
+
+	return t.smService.CreateTenantPw(ctx, tenant.TenantId)
 }
 
 func (t *TenantService) UpdateTenant(ctx context.Context, tenant tenantstructs.Tenant) error {
 
-	tmpTenant, err := t.GetTenantById(ctx, tenant.TenantId)
-
-	if err != nil {
-		return err
+	if tenant.TenantId.Compare(uuid.Nil()) == 0 {
+		return errors.New("TenantId invalid")
 	}
 
-	if tmpTenant.TenantPwId != tenant.TenantPwId {
-		return errors.New("Illegal operation!")
-	}
+	// TODO: also get the user id and check both!
 
 	return t.tenantRepo.Update(ctx, tenant)
 }
 
-func (t *TenantService) Delete(ctx context.Context, userId, tenantId uint) error {
+func (t *TenantService) Delete(ctx context.Context, userId uint, tenantId uuid.UUID) error {
 
 	if userId <= 1 {
 		return errors.New("UserId cant be 0 or 1")
 	}
 
-	if tenantId <= 1 {
-		return errors.New("TenantId cant be 0 or 1")
+	if tenantId.Compare(uuid.Nil()) == 0 {
+		return errors.New("TenantId isnt valid")
 	}
 
 	tenant, err := t.GetTenantById(ctx, tenantId)
@@ -75,10 +82,10 @@ func (t *TenantService) Delete(ctx context.Context, userId, tenantId uint) error
 	return t.tenantRepo.Delete(ctx, userId, tenantId)
 }
 
-func (t *TenantService) GetTenantDeletion(ctx context.Context, tenantId uint) (tenantstructs.TenantDeletionStruct, error) {
+func (t *TenantService) GetTenantDeletion(ctx context.Context, tenantId uuid.UUID) (tenantstructs.TenantDeletionStruct, error) {
 
-	if tenantId <= 1 {
-		return tenantstructs.TenantDeletionStruct{}, errors.New("TenantId cant be 0")
+	if tenantId.Compare(uuid.Nil()) == 0 {
+		return tenantstructs.TenantDeletionStruct{}, errors.New("TenantId inst valid")
 	}
 
 	return t.tenantRepo.GetTenantDeletion(ctx, tenantId)

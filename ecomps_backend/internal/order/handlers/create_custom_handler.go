@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"strconv"
+	"uuid"
 
 	orderstructs "ecomps.boobles.cloud/backend/internal/order/order_structs"
 	"ecomps.boobles.cloud/backend/internal/order/services"
@@ -29,7 +30,7 @@ func CreateNewOrderHandler(oc *caching.CacheManager[orderstructs.Order], o *serv
 // Use this func to set all cache items
 // This func is used in a seperate go routine
 // We just fire and forgett about it, because we can live without a cache
-func (o *OrderHandler) insertItems(t []orderstructs.Order, tenantId uint) {
+func (o *OrderHandler) insertItems(t []orderstructs.Order, tenantId uuid.UUID) {
 
 	for i := range t {
 
@@ -41,7 +42,7 @@ func (o *OrderHandler) insertItems(t []orderstructs.Order, tenantId uint) {
 // Use this func to set all cache items
 // This func is used in a seperate go routine
 // We just fire and forgett about it, because we can live without a cache
-func (o *OrderHandler) insertItem(order orderstructs.Order, tenantId uint) {
+func (o *OrderHandler) insertItem(order orderstructs.Order, tenantId uuid.UUID) {
 	key := OrderCacheKey + strconv.Itoa(int(order.OrderId))
 	o.orderCache.SetOrUpdateItem(key, order, tenantId)
 }

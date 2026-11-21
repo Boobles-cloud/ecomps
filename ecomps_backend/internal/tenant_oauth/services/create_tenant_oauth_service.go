@@ -1,0 +1,87 @@
+package services
+
+import (
+	oauthproviderservice "ecomps.boobles.cloud/backend/internal/oauth_provider/services"
+	"ecomps.boobles.cloud/backend/internal/repository"
+	"ecomps.boobles.cloud/backend/internal/secret_manager/services"
+	tenantoauthstructs "ecomps.boobles.cloud/backend/internal/tenant_oauth/tenant_oauth_structs"
+)
+
+type TenantOAuthService struct {
+	oauthAppRepository            repository.OAuthAppRepository
+	oauthSettingsRepository       repository.OAuthSettingsRepository
+	oauthTenantSettingsRepository repository.OAuthTenantSettingsRepository
+	oauthTenantAppRepository      repository.OAuthTenantAppRepository
+	oauthTenantTokenRepository    repository.OAuthTenantTokenRepository
+	smService                     *services.SecretManagerService
+	oauthPorviderService          *oauthproviderservice.OAuthProviderService
+}
+
+func CreateNewTenantOAuthService(app repository.OAuthAppRepository,
+	setting repository.OAuthSettingsRepository,
+	tenantSet repository.OAuthTenantSettingsRepository,
+	tenantApp repository.OAuthTenantAppRepository,
+	tenantToken repository.OAuthTenantTokenRepository,
+	s *services.SecretManagerService,
+	providerService *oauthproviderservice.OAuthProviderService) *TenantOAuthService {
+
+	return &TenantOAuthService{
+		oauthAppRepository:            app,
+		oauthSettingsRepository:       setting,
+		oauthTenantSettingsRepository: tenantSet,
+		oauthTenantAppRepository:      tenantApp,
+		oauthTenantTokenRepository:    tenantToken,
+		smService:                     s,
+		oauthPorviderService:          providerService,
+	}
+}
+
+func OAuthAppsToArgs(item tenantoauthstructs.OAuthApps) []any {
+	return []any{
+		item.AppId,
+		item.AppName,
+		item.AppLink,
+	}
+}
+
+func OAuthSettingsToArgs(item tenantoauthstructs.OAuthSettings) []any {
+	return []any{
+		item.SettingId,
+		item.SettingName,
+		item.SettingDescription,
+		item.LangId,
+	}
+}
+
+func OAuthTenantToken(item tenantoauthstructs.TenantOAuthToken) []any {
+	return []any{
+		item.TokenId,
+		item.TokenVal,
+		item.RefreshTokenVal,
+		item.Expires,
+		item.AppId,
+		item.TenantId,
+	}
+}
+
+func OAuthTenantAppsToArgs(item tenantoauthstructs.TenantOAuthApps) []any {
+	return []any{
+		item.TenantAppId,
+		item.SyncInterval,
+		item.SyncActivatedAt,
+		item.SyncActive,
+		item.UserId,
+		item.AppId,
+		item.TenantId,
+	}
+}
+
+func OAuhtTenantSyncSettings(item tenantoauthstructs.TenantSyncSettings) []any {
+	return []any{
+		item.TenantSettingId,
+		item.LastChanged,
+		item.SettingId,
+		item.UserId,
+		item.TenantId,
+	}
+}

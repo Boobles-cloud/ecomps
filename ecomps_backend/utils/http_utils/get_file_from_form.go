@@ -9,9 +9,9 @@ import (
 	"os"
 	"path"
 	"reflect"
+	"uuid"
 
 	jsonutils "ecomps.boobles.cloud/backend/utils/http_utils/json_utils"
-	"github.com/google/uuid"
 )
 
 // Creates a file and deserializes the metadata from the given request
@@ -95,9 +95,9 @@ func saveFile(file multipart.File, header *multipart.FileHeader) (string, error)
 		return "", err
 	}
 
-	id := uuid.NewString()
+	tmpUuid := uuid.New().String()
 
-	fileName := id + "_" + header.Filename
+	fileName := tmpUuid + "_" + header.Filename
 
 	createdFile, err := os.Create(path.Join(dir, fileName))
 

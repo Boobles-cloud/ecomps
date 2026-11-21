@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"strconv"
 	"time"
+	"uuid"
 
 	"ecomps.boobles.cloud/backend/internal/middleware"
 	httputils "ecomps.boobles.cloud/backend/utils/http_utils"
@@ -59,9 +60,9 @@ func (p *ProductHandler) HandleGettingAllProductsByTenantId(w http.ResponseWrite
 
 	fail := httputils.NewFailHandler(w, "Product | HandleGettingAllProductByTenantId")
 
-	tenantId := ctx.Value(middleware.TenantIdContextKey).(int)
+	tenantId := ctx.Value(middleware.TenantIdContextKey).(uuid.UUID)
 
-	cacheItems, ok := p.productCache.GetItems(uint(tenantId))
+	cacheItems, ok := p.productCache.GetItems(tenantId)
 
 	if ok || len(cacheItems) != 0 {
 		if jsonutils.RespondWithJson(w, http.StatusOK, cacheItems) {
@@ -69,7 +70,7 @@ func (p *ProductHandler) HandleGettingAllProductsByTenantId(w http.ResponseWrite
 		}
 	}
 
-	allProducts, err := p.productService.GetAllByTenantId(ctx, uint(tenantId))
+	allProducts, err := p.productService.GetAllByTenantId(ctx, tenantId)
 
 	if err != nil {
 		fail(http.StatusInternalServerError, err)

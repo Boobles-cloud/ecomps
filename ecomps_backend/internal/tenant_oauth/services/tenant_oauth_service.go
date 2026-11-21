@@ -1,0 +1,225 @@
+package services
+
+import (
+	"context"
+	"errors"
+	"uuid"
+
+	tenantoauthstructs "ecomps.boobles.cloud/backend/internal/tenant_oauth/tenant_oauth_structs"
+	"ecomps.boobles.cloud/backend/utils/crypto"
+	"golang.org/x/oauth2"
+)
+
+// =========================== General Stuff ===========================
+
+func (t *TenantOAuthService) GetAllOAuthApps(ctx context.Context, langId uint) ([]tenantoauthstructs.OAuthApps, error) {
+	return t.oauthAppRepository.GetAllOAuthApps(ctx, langId)
+}
+
+func (t *TenantOAuthService) GetAllOAuthSettings(ctx context.Context, langId uint) ([]tenantoauthstructs.OAuthSettings, error) {
+	return t.oauthSettingsRepository.GetAllSettings(ctx, langId)
+}
+
+// =========================== OAuth tenant app stuff ===========================
+
+func (t *TenantOAuthService) GetAllOAuthAppsForTenant(ctx context.Context, tenantId uuid.UUID) ([]tenantoauthstructs.TenantOAuthApps, error) {
+
+	if tenantId.Compare(uuid.Nil()) == 0 || tenantId.Compare(uuid.Max()) == 0 {
+		return []tenantoauthstructs.TenantOAuthApps{}, errors.New("TenantId invalid")
+	}
+
+	return t.oauthTenantAppRepository.GetAllOAuthAppsForTenant(ctx, tenantId)
+}
+
+// This func is used to add a new application to the tenant
+// -> it does not add any accesstokens!
+func (t *TenantOAuthService) AddOAuthAppForTenant(ctx context.Context, app tenantoauthstructs.TenantOAuthApps) error {
+
+	if app.UserId <= 1 {
+		return errors.New("UserId invalid")
+	}
+
+	if app.AppId == 0 {
+		return errors.New("AppId invalid")
+	}
+
+	if app.TenantId.Compare(uuid.Nil()) == 0 {
+		return errors.New("TenantId invalid")
+	}
+
+	app.SyncActive = false
+
+	return t.oauthTenantAppRepository.AddOAuthApplicationForTenant(ctx, app)
+}
+
+func (t *TenantOAuthService) DeleteOAuthAppForTenant(ctx context.Context, tenantId uuid.UUID, appId uint) error {
+
+	if appId == 0 {
+		return errors.New("AppId invalid")
+	}
+
+	if tenantId.Compare(uuid.Nil()) == 0 {
+		return errors.New("TenantId invalid")
+	}
+
+	appToken, err := t.GetTokenForTenantApp(ctx, tenantId, appId)
+
+	if err != nil {
+		return err
+	}
+
+	if err := t.DeleteToken(ctx, appToken.TokenId); err != nil {
+		return err
+	}
+
+	return t.oauthTenantAppRepository.DeleteApplicationForTenant(ctx, tenantId, appId)
+}
+
+func (t *TenantOAuthService) ChangeOAuthAppForTenant(ctx context.Context, app tenantoauthstructs.TenantOAuthApps) error {
+
+	if app.TenantAppId == 0 || app.AppId == 0 {
+		return errors.New("TenantAppId or AppId invalid")
+	}
+
+	if app.UserId <= 1 {
+		return errors.New("UserId invalid")
+	}
+
+	if app.TenantId.Compare(uuid.Nil()) == 0 {
+		return errors.New("Invalid tenantId")
+	}
+
+	return t.oauthTenantAppRepository.UpdateApplicationForTenant(ctx, app)
+}
+
+// =========================== OAuth tenant token stuff ===========================
+
+func (t *TenantOAuthService) GetTokenForTenantApp(ctx context.Context, tenantId uuid.UUID, appId uint) (tenantoauthstructs.TenantOAuthToken, error) {
+
+	if tenantId.Compare(uuid.Nil()) == 0 {
+		return tenantoauthstructs.TenantOAuthToken{}, errors.New("TenantId invalid")
+	}
+
+	if appId == 0 {
+		return tenantoauthstructs.TenantOAuthToken{}, errors.New("AppId invalid")
+	}
+
+	return t.oauthTenantTokenRepository.GetTokenForTenantApp(ctx, tenantId, appId)
+}
+
+func (t *TenantOAuthService) GetAuthUrlByProviderKey(ctx context.Context, providerKey, state string) (string, error) {
+
+	if providerKey == "" {
+		return "", errors.New("Key is empty")
+	}
+
+	tmp, err := t.oauthPorviderService.CreateProviderConfigByKey(ctx, providerKey)
+
+	if err != nil {
+		return "", err
+	}
+
+	return tmp.AuthCodeURL(state), nil
+}
+
+func (t *TenantOAuthService) AddToken(ctx context.Context, code, oauthProvider string, tenantId uuid.UUID, appId uint) error {
+
+	if code == "" {
+		return errors.New("Invalid code")
+	}
+
+	if tenantId.Compare(uuid.Max()) == 0 || tenantId.Compare(uuid.Nil()) == 0 {
+		return errors.New("Tenantid invalid!")
+	}
+
+	oauthConf, err := t.oauthPorviderService.CreateProviderConfigByKey(ctx, oauthProvider)
+
+	if err != nil {
+		return err
+	}
+
+	token, err := oauthConf.Exchange(ctx, code, oauth2.AccessTypeOffline, oauth2.ApprovalForce)
+
+	if err != nil {
+		return err
+	}
+
+	tenantPw, err := t.smService.GetTenantPw(ctx, tenantId)
+
+	if err != nil {
+		return err
+	}
+
+	encryptedToken, ok := crypto.Encrypt[oauth2.Token](*token, tenantPw.Value)
+
+	if !ok {
+		return errors.New("Failed to encrypt")
+	}
+
+	return t.oauthTenantTokenRepository.AddToken(ctx,
+		tenantoauthstructs.TenantOAuthToken{
+			TokenVal:        encryptedToken.AccessToken,
+			RefreshTokenVal: encryptedToken.RefreshToken,
+			Expires:         token.Expiry,
+			AppId:           appId,
+			TenantId:        tenantId,
+		})
+}
+
+func (t *TenantOAuthService) DeleteToken(ctx context.Context, tokenId uint) error {
+
+	if tokenId == 0 {
+		return errors.New("TokenId invalid")
+	}
+
+	return t.oauthTenantTokenRepository.DeleteToken(ctx, tokenId)
+}
+
+// =========================== OAuth tenant setting stuff ===========================
+
+func (t *TenantOAuthService) GetSettingsForTenantApp(ctx context.Context, tenantId uuid.UUID, appId uint) ([]tenantoauthstructs.TenantSyncSettings, error) {
+
+	if tenantId.Compare(uuid.Nil()) == 0 {
+		return []tenantoauthstructs.TenantSyncSettings{}, errors.New("TenantId invalid")
+	}
+
+	if appId == 0 {
+		return []tenantoauthstructs.TenantSyncSettings{}, errors.New("AppId invalid")
+	}
+
+	return t.oauthTenantSettingsRepository.GetSettingsForApplication(ctx, tenantId, appId)
+}
+
+func (t *TenantOAuthService) AddSettingForTenantApp(ctx context.Context, setting tenantoauthstructs.TenantSyncSettings) error {
+
+	if setting.AppId == 0 {
+		return errors.New("AppId invalid")
+	}
+
+	if setting.UserId == 0 {
+		return errors.New("UserId invalid")
+	}
+
+	if setting.TenantId.Compare(uuid.Nil()) == 0 {
+		return errors.New("TenantId invalid")
+	}
+
+	return t.oauthTenantSettingsRepository.AddSettingForTenantApplication(ctx, setting)
+}
+
+func (t *TenantOAuthService) ChangeSettingForTenantApp(ctx context.Context, setting tenantoauthstructs.TenantSyncSettings) error {
+
+	if setting.AppId == 0 {
+		return errors.New("AppId invalid")
+	}
+
+	if setting.UserId == 0 {
+		return errors.New("UserId invalid")
+	}
+
+	if setting.TenantId.Compare(uuid.Nil()) == 0 {
+		return errors.New("TenantId invalid")
+	}
+
+	return t.oauthTenantSettingsRepository.ChangeSettingForTenantApplication(ctx, setting)
+}

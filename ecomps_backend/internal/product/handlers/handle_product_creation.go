@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/http"
 	"time"
+	"uuid"
 
 	"ecomps.boobles.cloud/backend/internal/middleware"
 	productstructs "ecomps.boobles.cloud/backend/internal/product/product_structs"
@@ -27,7 +28,7 @@ func (p *ProductHandler) HandleCreatingProduct(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	tenantId := uint(ctx.Value(middleware.TenantIdContextKey).(int))
+	tenantId := ctx.Value(middleware.TenantIdContextKey).(uuid.UUID)
 
 	product.TenantId = tenantId
 

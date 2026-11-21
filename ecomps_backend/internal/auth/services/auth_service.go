@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 	"time"
+	"uuid"
 
 	authstructs "ecomps.boobles.cloud/backend/internal/auth/auth_structs"
 	"github.com/golang-jwt/jwt/v4"
@@ -19,13 +20,13 @@ func (a *AuthService) DeleteAccessTokenByValue(ctx context.Context, cookieVal st
 	return a.authRepository.DeleteAccessTokenByValue(ctx, cookieVal)
 }
 
-func (a *AuthService) CreateAuthCookie(ctx context.Context, userId, tenantId uint) (http.Cookie, error) {
+func (a *AuthService) CreateAuthCookie(ctx context.Context, userId uint, tenantId uuid.UUID) (http.Cookie, error) {
 
 	if userId <= 1 {
 		return http.Cookie{}, errors.New("UserId cant be 0 or 1")
 	}
 
-	if tenantId == 0 {
+	if tenantId.Compare(uuid.Nil()) == 0 {
 		return http.Cookie{}, errors.New("TenantId cant be 0")
 	}
 

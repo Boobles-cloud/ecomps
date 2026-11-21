@@ -28,5 +28,10 @@
     "QueryName": "UpdateCustomer",
     "QueryVal": "UPDATE Customer SET",
     "QueryType": 3
+  },
+  {
+    "QueryName": "UpdateOAuthAppForTenant",
+    "QueryVal": "UPDATE TenantOAuthApps SET",
+    "QueryType": 3
   }
 ]

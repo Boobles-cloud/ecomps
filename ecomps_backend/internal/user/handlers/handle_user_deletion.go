@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/http"
 	"time"
+	"uuid"
 
 	"ecomps.boobles.cloud/backend/internal/middleware"
 	httputils "ecomps.boobles.cloud/backend/utils/http_utils"
@@ -20,10 +21,10 @@ func (hu *UserHandler) HandleUserDeletion(w http.ResponseWriter, r *http.Request
 
 	fail := httputils.NewFailHandler(w, "User | HandleUserDeletion")
 
-	tenantId := r.Context().Value(middleware.TenantIdContextKey).(int)
+	tenantId := r.Context().Value(middleware.TenantIdContextKey).(uuid.UUID)
 	userId := r.Context().Value(middleware.UserIdContextKey).(int)
 
-	if err := hu.userService.DeleteUser(ctx, uint(userId), uint(tenantId)); err != nil {
+	if err := hu.userService.DeleteUser(ctx, uint(userId), tenantId); err != nil {
 		fail(http.StatusInternalServerError, err)
 		return
 	}
