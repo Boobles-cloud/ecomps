@@ -151,7 +151,7 @@ func (t *OAuthTenantTokenRepository) AddToken(ctx context.Context, token tenanto
 	return nil
 }
 
-func (t *OAuthTenantTokenRepository) DeleteToken(ctx context.Context, tokenId uuid.UUID) error {
+func (t *OAuthTenantTokenRepository) DeleteToken(ctx context.Context, tokenId uint) error {
 
 	if result := t.db.ExecuteSQLStatement(ctx, "DeleteOAuthTokenById", []any{tokenId}); !result.Ok {
 		return errors.New("Failed to delete item")

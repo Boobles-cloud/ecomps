@@ -12,6 +12,7 @@ import (
 	customerhandlers "ecomps.boobles.cloud/backend/internal/customer/handlers"
 	customerservice "ecomps.boobles.cloud/backend/internal/customer/services"
 	"ecomps.boobles.cloud/backend/internal/middleware"
+	oauthproviderservice "ecomps.boobles.cloud/backend/internal/oauth_provider/services"
 	orderhandlers "ecomps.boobles.cloud/backend/internal/order/handlers"
 	orderstructs "ecomps.boobles.cloud/backend/internal/order/order_structs"
 	orderservice "ecomps.boobles.cloud/backend/internal/order/services"
@@ -26,6 +27,8 @@ import (
 	tenanthandlers "ecomps.boobles.cloud/backend/internal/tenant/handlers"
 	tenantservice "ecomps.boobles.cloud/backend/internal/tenant/services"
 	tenantstructs "ecomps.boobles.cloud/backend/internal/tenant/tenant_structs"
+	tenantoauthhandler "ecomps.boobles.cloud/backend/internal/tenant_oauth/handler"
+	tenantoauthservice "ecomps.boobles.cloud/backend/internal/tenant_oauth/services"
 	userHandlers "ecomps.boobles.cloud/backend/internal/user/handlers"
 	userservice "ecomps.boobles.cloud/backend/internal/user/services"
 	userstructs "ecomps.boobles.cloud/backend/internal/user/user_structs"
@@ -54,6 +57,16 @@ func ConfigureHTTPServer(dh *database.DbHandler, smManager *secretmanagerservice
 
 	customerRepo := repositorys.NewDatabaseRepository(dh, "Customer", customerservice.CustomerToArgs)
 
+	tenantOAuthAppRepo := repositorys.NewOAuthTenantAppRepository(dh, "TenantOAutApps", tenantoauthservice.OAuthTenantAppsToArgs)
+	tenantOAuthAppSettingRepo := repositorys.NewOAuthTenantSettingsRepository(dh, "TenantSyncSettings", tenantoauthservice.OAuhtTenantSyncSettings)
+	tenantOAuthTokenRepo := repositorys.NewOAuthTenantTokenRepository(dh, "TenantOAuthToken", tenantoauthservice.OAuthTenantToken)
+
+	oauthAppRepo := repositorys.NewOAuthAppRepository(dh, "OAuthApps", tenantoauthservice.OAuthAppsToArgs)
+	oauthSettingsRepo := repositorys.NewOAuthSettingsRepository(dh, "OAuthSettings", tenantoauthservice.OAuthSettingsToArgs)
+
+	oauthProviderRepo := repositorys.NewOAuthProviderRepository(dh, "OAuthProvider", oauthproviderservice.OAuthProviderToArgs)
+	oauthScopeRepo := repositorys.NewOAuhtScopeRepository(dh, "ProviderScopes", oauthproviderservice.ProviderScopesToArgs)
+
 	// ========= Configure our services =========
 
 	authService := authservice.CreateNewAuthService(authRepo)
@@ -69,7 +82,12 @@ func ConfigureHTTPServer(dh *database.DbHandler, smManager *secretmanagerservice
 
 	customerService := customerservice.CreateNewCustomerService(customerRepo, tenantService)
 
+	oauthProviderService := oauthproviderservice.CreateNewOAuthProviderService(smManager, oauthProviderRepo, oauthScopeRepo)
+	tenantOAuthService := tenantoauthservice.CreateNewTenantOAuthService(oauthAppRepo, oauthSettingsRepo, tenantOAuthAppSettingRepo, tenantOAuthAppRepo, tenantOAuthTokenRepo, smManager, oauthProviderService)
+
 	authHandler := authHandlers.CreateAuthHandler(authService, userService)
+
+	// ======= Handler and cache config =======
 
 	// User cache config
 	userCache := caching.CreateNewCacheManager[userstructs.UserStruct]()
@@ -95,6 +113,9 @@ func ConfigureHTTPServer(dh *database.DbHandler, smManager *secretmanagerservice
 	// Customer cache config
 	customerCache := caching.CreateNewCacheManager[customerstructs.Customer]()
 	customerHandler := customerhandlers.CreateNewCustomerHandler(customerCache, customerService)
+
+	// TenantOAuth handler config
+	tenantOAuthHandler := tenantoauthhandler.CreateNewTenantOAuthHandler(tenantOAuthService)
 
 	// ============ Middleware config stuff ============
 
@@ -167,6 +188,25 @@ func ConfigureHTTPServer(dh *database.DbHandler, smManager *secretmanagerservice
 	muxMainRouter.Handle("POST /tenant/delete", permissionMiddleware(http.HandlerFunc(tenantHandler.HandleTenantDeletion)))
 	muxMainRouter.Handle("POST /user/permissions/add", permissionMiddleware(http.HandlerFunc(permissionHandler.HandleAddingNewUserPermission)))
 	muxMainRouter.Handle("DELETE /user/permissions/remove/{permission_id}/for/{user_id}", permissionMiddleware(http.HandlerFunc(permissionHandler.HandleRemovingUserPermission)))
+
+	// ============ Tenant oauth stuff ============
+
+	// For login stuff
+	muxMainRouter.Handle("/tenant/oauth/callback/{provider}/{app_id}", tenantMiddleware(http.HandlerFunc(tenantOAuthHandler.HandleOAuthCallback)))
+	muxMainRouter.Handle("/tenant/oauth/{provider_key}/login", tenantMiddleware(http.HandlerFunc(tenantOAuthHandler.HandleOAuthLoginRequest)))
+
+	muxMainRouter.Handle("GET /tenant/oauth/app/all/{lang_id}", tenantMiddleware(http.HandlerFunc(tenantOAuthHandler.HandleGettingAllOAuthApps)))
+	muxMainRouter.Handle("GET /tenant/oauth/setting/all/{lang_id}", tenantMiddleware(http.HandlerFunc(tenantOAuthHandler.HandleGettingAllOAuthSettings)))
+	muxMainRouter.Handle("GET /tenant/oauth/app/mine", tenantMiddleware(http.HandlerFunc(tenantOAuthHandler.HandleGettingAllTenantOAuthApps)))
+	muxMainRouter.Handle("GET /tenant/oauth/setting/{app_id}", tenantMiddleware(http.HandlerFunc(tenantOAuthHandler.HandleGettingAllSettingsForTenantOAuthApp)))
+
+	muxMainRouter.Handle("POST /tenant/oauth/app/create", tenantMiddleware(http.HandlerFunc(tenantOAuthHandler.HandleTenantOAuthAppCreation)))
+	muxMainRouter.Handle("POST /tenant/oauth/setting/create", tenantMiddleware(http.HandlerFunc(tenantOAuthHandler.HandleSettingsCreation)))
+
+	muxMainRouter.Handle("POST /tenant/oauth/app/change", tenantMiddleware(http.HandlerFunc(tenantOAuthHandler.HandleTenantOAuthAppChange)))
+	muxMainRouter.Handle("POST /tenant/oauth/setting/change", tenantMiddleware(http.HandlerFunc(tenantOAuthHandler.HandleTenantSettingChange)))
+
+	muxMainRouter.Handle("DELETE /tenant/oauth/app/delete/{app_id}", tenantMiddleware(http.HandlerFunc(tenantOAuthHandler.HandleTenantAppDeletion)))
 
 	// ============ User stuff ============
 
